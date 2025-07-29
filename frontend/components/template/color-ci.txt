@@ -1,0 +1,34 @@
+🎨 Samui Transfers Corporate Colors
+✅ Primary Color – Ocean Blue
+Name: Ocean Blue
+
+Use: Main branding, logo, backgrounds, buttons
+
+Hex: #005B9A
+
+RGB: 0, 91, 154
+
+🔴 Secondary Color – Sunset Red
+Name: Sunset Red
+
+Use: Call-to-action elements, highlights, accents
+
+Hex: #D94141
+
+RGB: 217, 65, 65
+
+🟢 Tertiary Color – Palm Green
+Name: Palm Green
+
+Use: Eco-friendly message, badges, accents
+
+Hex: #3AA76D
+
+RGB: 58, 167, 109
+
+⚪️ Neutral Palette (For background, text, and balance)
+White: #FFFFFF
+
+Light Gray: #F4F4F4
+
+Dark Gray (text): #333333
