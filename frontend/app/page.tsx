@@ -22,27 +22,30 @@ const { destination, setDestination } = useDestinationContext();
             libraries={['places']}
             googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_API_KEY || ''}
           >
-            <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-3 py-2 gap-0 bg-slate-200">
-              <div >
-                <SearchSection />
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ">
+              <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 py-2 gap-0 bg-white">
+                <div>
+                  <SearchSection />
+                </div>
+                <div className="col-span-1 relative">
+                  { !source || !destination ? <MainBanner />  : <GoogleMapsSection /> }
+                </div>
               </div>
-              <div className="col-span-2 relative">
-                { !source || !destination ? <MainBanner />  : <GoogleMapsSection /> }
+
+              <div className="grid grid-cols-1 md:grid-cols-3 p-6 gap-5 ">
+                <div >
+                    {/* <SearchSection /> */}
+                </div>
               </div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 p-6 gap-5 ">
-              <div >
-                  {/* <SearchSection /> */}
+              <div className='w-full mx-auto p-6 gap-5'>
+                <WhyChooseUs />
               </div>
-            </div>
-            <div className='w-full mx-auto p-6 gap-5'>
-              <WhyChooseUs />
-            </div>
-            {/* <div id="faqs" className='w-full min-h-96 mb-32'>
-              <Faq />
-            </div> */}
-            <div className='w-full min-h-96'>
-              <AboutUs />
+              {/* <div id="faqs" className='w-full min-h-96 mb-32'>
+                <Faq />
+              </div> */}
+              <div className='w-full min-h-96'>
+                {/* <AboutUs /> */}
+              </div>
             </div>
           </LoadScript>    
       

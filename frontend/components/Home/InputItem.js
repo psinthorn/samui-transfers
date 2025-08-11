@@ -15,7 +15,7 @@ const InputItem = ({type}) => {
 
   // check if type is source or destination and set the placeholder accordingly
   useEffect(() => {
-    type == 'source' ? setInputPlaceHolder('Enter Your Pickup Location') : setInputPlaceHolder('Enter Your Drop Off Location')
+    type == 'source' ? setInputPlaceHolder('Pickup Location') : setInputPlaceHolder('Dropoff Location')
   },[])
 
   const getLatAndLng = (place, type) => {

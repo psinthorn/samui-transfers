@@ -10,6 +10,7 @@ import Services from '../services/Services';
 import { CircleChevronDown } from 'lucide-react';
 import IconAnimate from '../utilities/IconAnimate';
 import { useRouter } from 'next/navigation';
+import ContactBanner from './ContactBanner';
 
 const SearchSection = () => {
   const {source, setSource} = useSourceContext();
@@ -71,8 +72,8 @@ const SearchSection = () => {
   return (
     <div className='space-y-4 p-4 bg-white rounded-none h-full md:p-6'>
         <div className='p-4 md:p-6 border-2 rounded-t-xl rounded-b-none'>
-          <p className='text-2xl text-primary font-bold mb-2 sm:text-1xl'>Book Your Transfer Now</p>
-          <p>Arrive in Koh Samui. Click below to get an instant quote and secure your ride today!</p>
+          <p className='text-2xl text-primary font-bold mb-2 sm:text-1xl'>Book Now</p>
+          {/* <p>Arrive in Koh Samui. Click below to get an instant quote and secure your ride today!</p> */}
           <p className='text-2xl text-secondary font-light mt-4 sm:text-1xl'>
               From where to where? Let us know youre route.
           </p>
@@ -106,7 +107,8 @@ const SearchSection = () => {
             : 
             null }
         </div>
-        <Services />
+        <ContactBanner />
+        {/* <Services /> */}
       </div>
   )
 }
