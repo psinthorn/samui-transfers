@@ -26,7 +26,7 @@ export default function RootLayout({
     // <ClerkProvider>
       <html lang="en">
         <body className={`montserrat.className, h-auto`}>
-          <div className="h-full">
+          <div className="h-full mx-auto flex flex-col">
             <Header />
               <SourceContextProvider>
                 <DestinationContextProvider>
