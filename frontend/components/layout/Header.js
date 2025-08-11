@@ -47,18 +47,18 @@ const Header = () => {
     }
   ]
   return (
-    <div className='flex items-center justify-between p-5 pb-3 pl-10 border-b-[4px] border-gray-200'>
+    <div className='flex items-center justify-between p-5 pb-3 pl-10 border-b-[4px] bg-primary border-gray-200'>
 
         {/* desktop navbar  */}
         <div className='hidden md:flex md:gap-8 md:items-center'>
             {/* <p className='text-3xl font-bold text-orange-500'> */}
               <Link href="/">
                 {/* <Image src={RosLogo} alt='Ros Logo' width={100}/> */}
-                <strong className='text-2xl text-[#005B9A] font-bold'>SMTS</strong>
+                <strong className='text-2xl text-white font-bold'>SMTS</strong>
               </Link>
             {/* </p> */}
             {MainMenu.map((item) => (
-              <div key={item.id} className='flex gap-4 items-center text-md text-slate-600'>
+              <div key={item.id} className='flex gap-4 items-center text-md text-white'>
               <Link href={item.link} >{item.title}</Link>
             </div>
             ))
@@ -72,7 +72,7 @@ const Header = () => {
             </p> */}
             
             <DropdownMenu className="">
-              <DropdownMenuTrigger><Menu size='32' color='#f97316' /></DropdownMenuTrigger>
+              <DropdownMenuTrigger><Menu size='32' color='#fff' /></DropdownMenuTrigger>
               <DropdownMenuContent className='w-300'>
                 <DropdownMenuLabel>
                   <Link href="/" >Home</Link>
@@ -93,10 +93,10 @@ const Header = () => {
         <div className="">
           <div className='hidden gap-0 lg:flex text-slate-700'>
             
-            <Phone size='24' color='#005B9A' className='gap-0'/><span className='text-sm pr-2'>(+66)012-345-6789</span>
-            <FaWhatsapp size='24' color='#005B9A' className='gap-0'/><span className='text-sm pr-2'>(+66)012-345-6789</span>
-            <Link href="https://www.facebook.com/f2coltd" target='_blank' className='gap-0 pr-2'>
-            <Facebook size='24' color='#005B9A' />
+            <Phone size='24' color='#fff' className='gap-0'/><span className='text-sm pr-2 text-white'>(+66)99-108-7999 </span>
+            <FaWhatsapp size='24' color='#fff' className='gap-0'/><span className='text-sm pr-2 text-white'>(+66)99-108-7999</span>
+            <Link href="https://www.facebook.com/profile.php?id=61578880422159" target='_blank' className='gap-0 pr-2 text-white'>
+            <Facebook size='24' color='#fff' />
             </Link>
           </div>
           {/* <Badge className='px-4 py-2'>
