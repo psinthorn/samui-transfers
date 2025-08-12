@@ -139,5 +139,5 @@ backend/.env.local
 db.data/
 
 # ignore the following files
-mini-bus.mov
-suv.mov
+frontend/public/videos/mini-bus.mov
+frontend/public/videos/suv.mov
