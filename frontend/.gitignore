@@ -137,3 +137,7 @@ backend/.env.local
 .env
 .env.local
 db.data/
+
+# ignore the following files
+mini-bus.mov
+suv.mov
