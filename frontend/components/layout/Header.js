@@ -11,7 +11,6 @@ import {
 import { Facebook, Menu, Phone } from 'lucide-react'
 import { Badge } from '../ui/badge'
 import Link from 'next/link'
-import RosLogo from '@/public/logo-ros-sm.png'
 import Image from 'next/image'
 import { FaWhatsapp } from 'react-icons/fa'
 

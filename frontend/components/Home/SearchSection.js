@@ -11,6 +11,7 @@ import { CircleChevronDown } from 'lucide-react';
 import IconAnimate from '../utilities/IconAnimate';
 import { useRouter } from 'next/navigation';
 import ContactBanner from './ContactBanner';
+import MiniVanVisual from '../utilities/MiniVanVisual';
 
 const SearchSection = () => {
   const {source, setSource} = useSourceContext();
@@ -72,10 +73,12 @@ const SearchSection = () => {
   return (
     <div className='space-y-4 p-4 bg-white rounded-none h-full md:p-6'>
         <div className='p-4 md:p-6 border-2 rounded-t-xl rounded-b-none'>
-          <p className='text-2xl text-primary font-bold mb-2 sm:text-1xl'>Book Now</p>
+          <span className='font-thin text-sm'>Start from 350 THB.</span>
+          <p className='text-5xl text-secondary font-semibold mb-2 sm:text-1xl'>Book Now </p>
+          
           {/* <p>Arrive in Koh Samui. Click below to get an instant quote and secure your ride today!</p> */}
-          <p className='text-2xl text-secondary font-light mt-4 sm:text-1xl'>
-              From where to where? Let us know youre route.
+          <p className='text-2xl text-primary font-light mt-4 sm:text-1xl'>
+              Choose your pickup and dropoff location, <p>We show youre route.</p>
           </p>
           <InputItem type='source' />
           <InputItem type='destination' /> 
@@ -88,7 +91,8 @@ const SearchSection = () => {
                   <p className='text-sm text-muted-foreground'>Distance: <span>{ routeDistanceInKiloMeter.toFixed(2)}</span>KM</p>
                   </div>
               : 
-                <IconAnimate />
+                <MiniVanVisual />
+                // <IconAnimate />
               }
             </div>
         </div>
@@ -108,7 +112,7 @@ const SearchSection = () => {
             null }
         </div>
         <ContactBanner />
-        {/* <Services /> */}
+        <Services />
       </div>
   )
 }

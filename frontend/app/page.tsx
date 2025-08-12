@@ -9,8 +9,9 @@ import WhyChooseUs from '@/components/why-us/WhyChooseUs'
 import { useState, useEffect, useContext } from "react";
 import { LoadScript } from '@react-google-maps/api'
 import MainBanner from '@/components/hero/MainBanner'
-import AboutUs from '@/components/AboutUs/AboutUs'
+
 import { useRequestTransferContext } from '@/context/RequestTransferContext'
+import MiniVanVisual from '@/components/utilities/MiniVanVisual'
 // import CarListOptions from '../components/vehicle/CarListOptions'
 
 export default function Home() {
@@ -32,6 +33,45 @@ const { destination, setDestination } = useDestinationContext();
                 </div>
               </div>
 
+              <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 py-24 gap-0 bg-white">
+                <div className="col-span-1 p-8 relative">
+                  <video
+                    src="/videos/mini-bus.mov"
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="w-full h-auto rounded-lg shadow"
+                    poster="/images/minivan-poster.jpg" // optional
+                  />
+                </div>
+                <div className='col-span-1 flex flex-col gap-4 p-8'>
+                  <h1 className='text-bold text-7xl'>Minibus</h1>
+                  <p>Our minivans are spacious, air-conditioned vehicles ideal for families, small groups, or travelers with extra luggage. Enjoy a comfortable ride with plenty of room for up to 8 passengers and their bags—perfect for airport transfers, tours, or group trips around Koh Samui.</p>
+                  {/* <SearchSection /> */}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 py-24 gap-0 bg-white">
+                <div className='col-span-1 flex flex-col gap-4 p-8'>
+                  <h1 className='text-bold text-7xl'>SUV</h1>
+                  <p>Travel in style and comfort with our SUVs. Suitable for up to 4 passengers, these vehicles offer a smooth ride, extra luggage space, and are perfect for couples, small families, or business travelers.
+                  </p>
+                  {/* <SearchSection /> */}
+                </div>
+                  <div className="col-span-1 p-8 relative">
+                    <video
+                      src="/videos/suv.mov"
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      className="w-full h-auto rounded-lg shadow"
+                      poster="/images/minivan-poster.jpg" // optional
+                    />
+                  </div>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-3 p-6 gap-5 ">
                 <div >
                     {/* <SearchSection /> */}
@@ -44,6 +84,7 @@ const { destination, setDestination } = useDestinationContext();
                 <Faq />
               </div> */}
               <div className='w-full min-h-96'>
+                {/* <MiniVanVisual /> */}
                 {/* <AboutUs /> */}
               </div>
             </div>
