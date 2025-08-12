@@ -72,12 +72,12 @@ const SearchSection = () => {
 
   return (
     <div className='space-y-4 p-4 bg-white rounded-none h-full md:p-6'>
-        <div className='p-4 md:p-6 border-2 rounded-t-xl rounded-b-none'>
-          <span className='font-thin text-sm'>Start from 350 THB.</span>
+        <div className='p-4 md:p-6 border-0 rounded-t-xl rounded-b-none'>
+          <span className='font-thin text-xl'>First 1–5 km from just 350 THB. After 5 km, rates are calculated based on distance.</span>
           <p className='text-5xl text-secondary font-semibold mb-2 sm:text-1xl'>Book Now </p>
           
           {/* <p>Arrive in Koh Samui. Click below to get an instant quote and secure your ride today!</p> */}
-          <p className='text-2xl text-primary font-light mt-4 sm:text-1xl'>
+          <p className='text-2xl text-primary font-thin mt-4 sm:text-1xl'>
               Choose your pickup and dropoff location, <p>We show youre route.</p>
           </p>
           <InputItem type='source' />
