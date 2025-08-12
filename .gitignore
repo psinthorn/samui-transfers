@@ -34,3 +34,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+
+frontend/public/videos/mini-bus.mov
+frontend/public/videos/suv.mov
