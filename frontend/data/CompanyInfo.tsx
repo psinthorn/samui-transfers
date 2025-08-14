@@ -1,19 +1,19 @@
 export const CompanyInfo = [
   {
     id: 1,
-    name: "Rungruang Sub Samui Co., Ltd.",
-    address: "64/66 Moo 4",
+    name: "F2 Co., Ltd.",
+    address: "9/38 Moo 6, Bophut, Koh Samui, Surat Thani 84320",
     subDistrict: "Tambol Bophut",
     district: "Amphoe Koh Sa-mui",
     province: "Surat Thani",
     postalCode: "84320",
-    email: "booking@rungruangsubsamui.com",
-    phone: "077-601-001",
-    mobile: "(+66) 084-678-0154",
-    whatsApp: "(+66) 084-678-0154",
-    lineId: "@rungruangsubsamui, (+66) 084-678-0154",
-    website: "https://www.rungruangsubsamui.com",
-    logo: "https://www.rungruangsubsamui.com/images/logo.png",
+    email: "booking@samui-transfers.com",
+    phone: "(+66) 099-108-7999",
+    mobile: "(+66) 099-108-7999",
+    whatsApp: "(+66) 099-108-7999",
+    lineId: "@samuitransfers, (+66) 099-108-7999",
+    website: "https://www.samui-transfers.com",
+    logo: "https://www.samui-transfers.com/images/logo.png",
     about: "Welcome to Rungruang Sub Samui Co., Ltd.Reliable & Comfortable Airport Transfers in Koh Samui Planning your trip to Koh Samui? Let us take the stress out of your airport transfer! At Rungruang Sub Samui Co., Ltd., we provide safe, reliable, and hassle-free transportation from Samui International Airport to your hotel, villa, or any destination on the island.",
     ourMission: [
       {

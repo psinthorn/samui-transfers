@@ -3,6 +3,7 @@
 import { Phone } from 'lucide-react';
 import Link from 'next/link';
 import React, { useState } from 'react';
+import { CompanyInfo } from '@/data/CompanyInfo';
 
 const ContactUs = () => {
   const [formData, setFormData] = useState({
@@ -65,15 +66,15 @@ const ContactUs = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div>
             <h3 className="text-xl font-bold mb-4">Contact Information</h3>
-            <p className="mb-2"><strong>Phone:</strong> (+66) 012-345-6789</p>
-            <p className="mb-2"><strong>Mobile:</strong> (+66) 012-345-6789</p>
-            <p className="mb-2"><strong>WhatsApp:</strong> (+66) 012-345-6789</p>
-            <p className="mb-2"><strong>Line ID:</strong> (+66) 012-345-6789</p>
+            <p className="mb-2"><strong>Phone:</strong> (+66) 099 108 7999</p>
+            <p className="mb-2"><strong>Mobile:</strong> (+66) 099 108 7999</p>
+            <p className="mb-2"><strong>WhatsApp:</strong> (+66) 099 108 7999</p>
+            <p className="mb-2"><strong>Line ID:</strong> (+66) 099 108 7999</p>
             <p className="mb-2"><strong>Address:</strong> 9/38 Moo 6 Tambol Bophut, Amphoe Koh Samui, Thailand, 84320</p>
             <p className="mb-2"><strong>Email:</strong> info@samui-transfers.com</p>
             <h3 className="text-xl font-bold mt-6 mb-4">Follow Us</h3>
             <div className="flex space-x-4">
-              <Link href="https://www.facebook.com/f2coltd" className="text-primary" target='_blank'>Facebook</Link>
+              <Link href="https://www.facebook.com/profile.php?id=61578880422159" className="text-primary" target='_blank'>Facebook</Link>
               {/* <Link href="#" className="text-blue-400">Twitter</Link> */}
               {/* <Link href="#" className="text-pink-600">Instagram</Link>
               <Link href="#" className="text-pink-600">Line Official</Link> */}

@@ -7,8 +7,8 @@ const Services = () => {
     
     {
       id: 1,
-      title: 'Private Airport Transfers',
-      description: 'We provide private airport transfers to and from the airport. Our drivers are professional and will make sure you get to your destination on time.',
+      title: 'Private Transfers',
+      description: 'We provide private transfers on Koh Samui. Our drivers are professional and will make sure you get to your destination on time.',
       icon: 'PlaneDeparture' // Assuming you have an icon component for this
     },
     {

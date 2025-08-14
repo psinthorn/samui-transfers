@@ -12,6 +12,7 @@ import MainBanner from '@/components/hero/MainBanner'
 
 import { useRequestTransferContext } from '@/context/RequestTransferContext'
 import MiniVanVisual from '@/components/utilities/MiniVanVisual'
+import AIChat from '@/components/ai-chat/AIChat'
 // import CarListOptions from '../components/vehicle/CarListOptions'
 
 export default function Home() {
@@ -31,6 +32,7 @@ const { destination, setDestination } = useDestinationContext();
                 <div className="col-span-1 relative">
                   { !source || !destination ? <MainBanner />  : <GoogleMapsSection /> }
                 </div>
+                <div> <AIChat /></div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 py-24 gap-0 bg-white">
