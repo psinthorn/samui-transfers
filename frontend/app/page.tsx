@@ -63,7 +63,7 @@ const { destination, setDestination } = useDestinationContext();
                 </div>
                   <div className="col-span-1 p-8 relative">
                     <video
-                      src="/videos/suv-108-trim.mov"
+                      src="/videos/suv-1080-trim.mov"
                       autoPlay
                       loop
                       muted
