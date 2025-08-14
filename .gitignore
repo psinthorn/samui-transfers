@@ -36,5 +36,8 @@ yarn-error.log*
 next-env.d.ts
 
 
+/frontend/public/videos/mini-bus.mov
+/frontend/public/videos/suv.mov
+
 frontend/public/videos/mini-bus.mov
 frontend/public/videos/suv.mov
