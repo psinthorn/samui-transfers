@@ -111,7 +111,7 @@ const ConfirmationStep = ({ formData, handleSendmail, prevStep, nextStep }: any)
                   Back
                 </button>
                 { agree ?
-                  <button type="submit" onClick={ handleSendmail } className="bg-blue-500 text-white py-2 px-4 rounded">
+                  <button type="submit" onClick={ handleSendmail } className="bg-primary text-white py-2 px-4 rounded">
                     Confirm
                   </button> 
                   //<SubmitButton text='Confirm' />

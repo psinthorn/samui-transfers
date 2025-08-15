@@ -48,7 +48,7 @@ export default async (req, res) => {
 
     // Email content to be sent to the customer for acknowledgment
     const customerMailOptions = {
-      from: '"Your Transfer Rquest" <booking@rungruangsubsamui.com>',
+      from: '"Your Transfer Rquest" booking@samui-transfers.com',
       to: email, // Customer email
       subject: 'Thank you for booking with us',
       html: `
@@ -86,17 +86,15 @@ export default async (req, res) => {
         <p className="text-sm text-gray-600 mb-1">Please transfer the deposit to the following account:</p>
         <p><strong>Krungsri Bank (Bank of Ayudhya Public Company Limited. (BAY))</strong></p>
         <p><strong>Account Type:</strong> Savings</p>
-        <p><strong>Account Name:</strong> Thanita Ngamsuppakorn</p>
-        <p><strong>Account Number:</strong> 478-1-07889-8</p>
-        <p><strong>Swift Code:</strong> AYUDTHBK</p>
+        <p><strong>Account Name:</strong> F2 Co.,Ltd. (บริษััท เอฟทู จำกัด)</p>
+        <p><strong>Account Number: 423-060145-0</strong></p>
+        <p><strong>Swift Code:</strong> SICOTHBK</p>
         <br/>
         <hr/>
         <br/>
         <h3>To confirm your transfer booking</h3>
         <p>- Please email us your transfer payment slip to email booking@rungruangsubsamui.com or</p>
-        <p>- Send or payment slip via our Whatsapp</p>
-        <p>- Call us at (+66) 77 427 000, Mobile: (+66) 084-678-0154</p>
-        <p>- Line ID: (+66) 084 678 0154</p> 
+        <p>- Send or payment slip via our Whatsapp (+66) 64 027 0528</p>
         <p>- We will confirm your booking within 24 hours</p> 
         <br/>
         <p>After we have received your payment, we will send you a confirmation email.</p>

@@ -31,8 +31,22 @@ const { destination, setDestination } = useDestinationContext();
                 </div>
                 <div className="col-span-1 relative">
                   { !source || !destination ? <MainBanner />  : <GoogleMapsSection /> }
+                  
                 </div>
-                <div> <AIChat /></div>
+                
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 py-24 gap-0 bg-white">
+                <div className='col-span-1 flex flex-col gap-4 p-8'>
+                  
+                  <h1 className='text-bold text-7xl'>Chat Now</h1>
+                  <p>Need more information? about us and our service</p>
+                  
+                  {/* <SearchSection /> */}
+                </div>
+                <div className="col-span-1 p-8 relative">
+                  <AIChat />
+                </div>
+                
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 py-24 gap-0 bg-white">

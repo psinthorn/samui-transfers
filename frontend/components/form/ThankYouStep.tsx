@@ -21,10 +21,10 @@ const ThankYouStep = ({ formData }: any) => {
       <PaymentStep />
       <div className='my-4 p-4 rounded-sm bg-slate-100'>
         <p className='text-2xl'>To confirm your transfer booking</p>
-        <p>- Please email us your transfer payment slip to email rungruangsamui2510@gmail.com or</p>
-        <p>- Send or payment slip via our Whatsapp</p>
-        <p>- Call us at (+66) 77 427 000, Mobile: (+66) 084-678-0154</p>
-        <p>- Line ID: (+66) 084 678 0154</p> 
+        <p>- Please email us your transfer payment slip to email booking@samui-transfers.com or</p>
+        <p>- Send or payment slip via our Whatsapp (+66) 64 027 0528</p>
+        {/* <p>- Call us at (+66) 77 427 000, Mobile: (+66) 084-678-0154</p>
+        <p>- Line ID: (+66) 084 678 0154</p>  */}
         <p>- We will confirm your booking within 24 hours</p> 
       </div>
       

@@ -107,10 +107,9 @@ A: No, our prices remain the same 24/7.
 - Phone: (+66) 099 108 7999
 - Mobile: (+66) 099 108 7999
 - WhatsApp: (+66) 099 108 7999
-- Line ID: (+66) 099 108 7999
-- Address: 9/38 Moo 6 Tambol Bophut, Amphoe Koh Samui, Thailand, 84320
 - Email: info@samui-transfers.com
 - Follow us on Facebook: https://www.facebook.com/profile.php?id=61578880422159
+- Address: 9/38 Moo 6 Tambol Bophut, Amphoe Koh Samui, Thailand, 84320
 
 ## Why Choose Us ##
 We are committed to providing the best transfer experience on Koh Samui. Our local expertise, dedication to customer service, and focus on safety set us apart. Whether you're traveling solo, with family, or in a group, we have the right vehicle and service to meet your needs. Enjoy the beauty of Koh Samui with peace of mind, knowing that your transfers are in capable hands. Thank you for choosing Samui Transfers—let's make your journey unforgettable!
@@ -119,6 +118,41 @@ We are committed to providing the best transfer experience on Koh Samui. Our loc
 - Safe Your safety is our top priority.
 - Friendly Our drivers are here to help you.
 - Fair Pricing Pay only for the distance you travel.
+
+## Our Services ##
+        - Airport Transfers: Hassle-free transfers to and from Samui International Airport.
+        - Hotel Transfers: Convenient pickups and drop-offs at your hotel or resort.
+        - Private Tours: Customized tours around Koh Samui’s top attractions.
+        - Group Transfers: Spacious vehicles for larger groups or families.
+
+        ## Why Choose Samui Transfers? ##
+        - Local Expertise: Our team knows Koh Samui inside out, ensuring you get the best routes and recommendations.
+        - 24/7 Availability: We’re here for you around the clock, ready to assist with your transfer needs at any time.
+        - Comfortable Vehicles: Our fleet is equipped with modern, air-conditioned vehicles for a pleasant journey.
+        - Competitive Rates: Enjoy transparent pricing with no hidden fees, ensuring you get the best value for your money.
+        - Safe and Secure: All our drivers are professionally trained and adhere to strict safety standards.
+        - Customer Satisfaction: We pride ourselves on delivering exceptional service, with a focus on your comfort and convenience.
+
+        ## Book Your Transfer Today ##
+        Ready to experience the best transfer service on Koh Samui? Booking is easy! Visit our website at [Samui-Transfers.com](https://www.samui-transfers.com) or contact us directly via phone, WhatsApp, or Line. Our friendly team is here to assist you with any questions and help you plan your perfect transfer. Whether you need a quick airport pickup or a full day of exploring the island, Samui Transfers is your go-to choice for reliable and friendly service.
+
+        ## Payment Methods ##
+        We accept a variety of payment methods to make your booking process as convenient as possible. You can pay via:
+        - Cash (Thai Baht)
+        - QR Code (PromptPay)
+        - PayPal
+        - Bank Transfer 
+
+        ## Terms and Conditions ##
+        - All bookings are subject to availability.
+        - Cancellations must be made at least 24 hours in advance for a full refund.
+        - Prices are subject to change without notice, but confirmed bookings will be honored at the agreed price.
+        - We reserve the right to refuse service to anyone who poses a safety risk or violates our terms of service.
+
+        ## Policy ##
+        - **Cancellation Policy**: Free cancellation up to 24 hours before your transfer.
+        - **Privacy Policy**: We respect your privacy and will not share your personal information with third parties without your consent.
+        - **Terms of Service**: By using our services, you agree to our terms and conditions as outlined on our website.    
 `
 
 

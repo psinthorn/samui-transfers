@@ -127,7 +127,7 @@ const BookingStep = ({bookingData, handleChange, nextStep }: any) => {
           <p className="text-sm text-red-500">{fields.mobile.errors}</p>
         </div>
         <div>
-          <label className="block text-gray-700">Arrival/Departure : Date/Time</label>
+          <label className="block text-gray-700">Pickup: Date/Time</label>
           <input
             type="datetime-local"
             name={fields.date.name}
@@ -163,7 +163,7 @@ const BookingStep = ({bookingData, handleChange, nextStep }: any) => {
           />
         </div>
         <div>
-          <label className="block text-gray-700">Pickup Point</label>
+          <label className="block text-gray-700">Pickup Location</label>
           <input
             type="text"
             name={fields.pickupPoint.name}
@@ -175,7 +175,7 @@ const BookingStep = ({bookingData, handleChange, nextStep }: any) => {
           />
         </div>
         <div>
-          <label className="block text-gray-700">Dropoff Point</label>
+          <label className="block text-gray-700">Dropoff Location</label>
           <input
             type="text"
             name={fields.dropoffPoint.name}
