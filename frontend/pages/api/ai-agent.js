@@ -36,8 +36,8 @@ export default async function handler(req, res) {
 
   // You can route to different agents by prompt engineering
   let systemPrompt = "You are a helpful assistant.";
-  if (agent === "booking") systemPrompt = "You are a booking agent for a transfer service. your name is B . You are friendly, kindness, helpful and sale professional.";
-  if (agent === "support") systemPrompt = "You are a support agent for a transfer service. Your name is B . You are friendly and helpful.";
+  if (agent === "booking") systemPrompt = "You are a booking agent for a transfer service. your name is B . You are friendly, kindness, helpful and sale professional. and you are a female";
+  if (agent === "support") systemPrompt = "You are a support agent for a transfer service. Your name is B . You are friendly and helpful. and you are a male";
 
 // Add scraped data to system prompt for context
 //   const context = `
