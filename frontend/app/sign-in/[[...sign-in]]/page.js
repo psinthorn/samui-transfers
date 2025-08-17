@@ -1,12 +1,12 @@
 // import { SignIn } from "@clerk/nextjs";
 import Image from "next/image";
-import Banner from "@/public/rrss-banner.png";
+
 
 export default function Page() {
   return (
     <>
       <Image 
-        src={Banner} 
+        // src={Banner} 
         layout="responsive" 
         width={1920} 
         height={1024}

@@ -105,3 +105,56 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
 - [Brand Assets](https://drive.google)
 
 - color color='#f97316'
+
+## Authentication & Authorization
+
+Implemented with NextAuth (v5 beta) + Prisma.
+
+Features:
+- Email magic link (Nodemailer)
+- Google & GitHub OAuth providers
+- Database session strategy
+- `User.role` column (default USER)
+- Middleware protection for `/Admin` (requires ADMIN)
+- API route guard helper `requireRole()`
+
+### Environment Variables (frontend/.env.local)
+```
+DATABASE_URL=postgresql://user:pass@host:5432/db
+EMAIL_SERVER_HOST=smtp.example.com
+EMAIL_SERVER_PORT=587
+EMAIL_SERVER_USER=apikey
+EMAIL_SERVER_PASSWORD=secret
+EMAIL_FROM="Support <no-reply@example.com>"
+GOOGLE_CLIENT_ID=...
+GOOGLE_CLIENT_SECRET=...
+GITHUB_CLIENT_ID=...
+GITHUB_CLIENT_SECRET=...
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=CHANGE_ME
+```
+
+Generate secret:
+```
+openssl rand -base64 32
+```
+
+### Promote an Admin User
+After first sign-in:
+```
+node -e "(async()=>{const {PrismaClient}=require('@prisma/client');const p=new PrismaClient();await p.user.update({where:{email:'admin@example.com'},data:{role:'ADMIN'}});console.log('Admin set');process.exit(0)})();"
+```
+
+### Extend Route Protection
+Edit `frontend/middleware.ts` and add entries to `roleProtectedRoutes`.
+
+### Client Hook
+Use `useRole()` for conditional UI (e.g. show admin links).
+
+### Admin Role Management UI
+Navigate to `/Admin/users` as an ADMIN to view all users and adjust roles.
+
+### Protected Admin API
+- `GET /api/admin/users` – list users (ADMIN)
+- `PATCH /api/admin/users/:id/role` – change a user role (ADMIN)
+

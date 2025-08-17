@@ -1,4 +1,4 @@
-// import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/nextjs'
+"use client";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,16 +8,19 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-import { Facebook, Menu, Phone } from 'lucide-react'
+import { Facebook, Menu, Phone, LogIn, LogOut, Shield } from 'lucide-react'
 import { Badge } from '../ui/badge'
 import Link from 'next/link'
-import Image from 'next/image'
+// import Image from 'next/image'
 import { FaWhatsapp } from 'react-icons/fa'
+import { useRole } from '@/components/utilities/useRole'
+import { signIn, signOut } from 'next-auth/react'
 
 
 
 
 const Header = () => {
+  const { role, status, session } = useRole()
   const MainMenu = [
     // {
     //   id: 1,
@@ -62,6 +65,11 @@ const Header = () => {
             </div>
             ))
           }
+          {role === 'ADMIN' && (
+            <div className='flex gap-4 items-center text-md text-white'>
+              <Link href='/Admin'>Admin</Link>
+            </div>
+          )}
         </div>    
           
         {/* mobile navbar */}
@@ -89,23 +97,29 @@ const Header = () => {
 
         </div>
 
-        <div className="">
-          <div className='hidden gap-0 lg:flex text-slate-700'>
-            
-            <Phone size='24' color='#fff' className='gap-0'/><span className='text-sm pr-2 text-white'>(+66)99-108-7999 </span>
-            <FaWhatsapp size='24' color='#fff' className='gap-0'/><span className='text-sm pr-2 text-white'>(+66)99-108-7999</span>
+        <div className='hidden lg:flex items-center gap-3'>
+          <div className='flex gap-0 text-slate-700 items-center'>
+            <Phone size='20' color='#fff' className='gap-0'/><span className='text-xs pr-2 text-white'>(+66)99-108-7999 </span>
+            <FaWhatsapp size='20' color='#fff' className='gap-0'/><span className='text-xs pr-2 text-white'>(+66)99-108-7999</span>
             <Link href="https://www.facebook.com/profile.php?id=61578880422159" target='_blank' className='gap-0 pr-2 text-white'>
-            <Facebook size='24' color='#fff' />
+              <Facebook size='20' color='#fff' />
             </Link>
           </div>
-          {/* <Badge className='px-4 py-2'>
-            <SignedOut>
-              <SignInButton />
-            </SignedOut>
-          </Badge>
-          <SignedIn>
-              <UserButton />
-          </SignedIn>       */}
+          {status === 'loading' && <span className='text-white text-xs'>...</span>}
+          {status !== 'loading' && !session && (
+            <button onClick={() => signIn(undefined, { callbackUrl: '/' })} className='flex items-center gap-1 text-xs text-white border border-white/30 hover:bg-white/10 px-2 py-1 rounded'>
+              <LogIn size={14}/> Sign In
+            </button>
+          )}
+          {session && (
+            <>
+              {role === 'ADMIN' && <Shield size={16} className='text-white' />}
+              <span className='text-white text-xs'>{session.user?.email}</span>
+              <button onClick={() => signOut({ callbackUrl: '/' })} className='flex items-center gap-1 text-xs text-white border border-white/30 hover:bg-white/10 px-2 py-1 rounded'>
+                <LogOut size={14}/> Sign Out
+              </button>
+            </>
+          )}
         </div>            
     </div>
   )
