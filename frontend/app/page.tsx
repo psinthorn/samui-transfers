@@ -52,7 +52,7 @@ const { destination, setDestination } = useDestinationContext();
               <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 py-24 gap-0 bg-white">
                 <div className="col-span-1 p-8 relative">
                   <video
-                    src="/videos/suv-1080-trim.mov"
+                    src="/videos/minibus-original.mov"
                     autoPlay
                     loop
                     muted
@@ -77,7 +77,7 @@ const { destination, setDestination } = useDestinationContext();
                 </div>
                   <div className="col-span-1 p-8 relative">
                     <video
-                      src="/videos/suv-1080-trim.mov"
+                      src="/videos/suv-original.mov"
                       autoPlay
                       loop
                       muted
