@@ -140,6 +140,21 @@ We are committed to providing the best transfer experience on Koh Samui. Our loc
         ## Book Your Transfer Today ##
         Ready to experience the best transfer service on Koh Samui? Booking is easy! Visit our website at [Samui-Transfers.com](https://www.samui-transfers.com) or contact us directly via phone, WhatsApp, or Line. Our friendly team is here to assist you with any questions and help you plan your perfect transfer. Whether you need a quick airport pickup or a full day of exploring the island, Samui Transfers is your go-to choice for reliable and friendly service.
 
+        ## Booking Information ##
+        To book your transfer, please provide the following details:
+        - Name
+        - Email
+        - Phone Number
+        - Pickup Location
+        - Drop-off Location
+        - Date and Time
+        - Number of Passengers
+        - Luggage Requirements
+        - Flight Details, Flight Number, Arrival Time or Departure Time
+        - Special Requests
+
+        Once we have your information, we’ll confirm your booking and provide you with all the details you need for a smooth transfer experience.
+
         ## Payment Methods ##
         We accept a variety of payment methods to make your booking process as convenient as possible. You can pay via:
         - Cash (Thai Baht)
