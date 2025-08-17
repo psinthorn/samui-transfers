@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "framework": "nextjs",
+  "buildCommand": "cd frontend && pnpm install --frozen-lockfile || pnpm install && pnpm build",
+  "installCommand": "cd frontend && pnpm install",
+  "outputDirectory": "frontend/.next",
+  "functions": {
+    "api/**": { "runtime": "nodejs20.x" }
+  },
+  "env": {
+    "NEXT_RUNTIME": "nodejs"
+  }
+}
