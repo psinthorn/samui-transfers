@@ -1,7 +1,7 @@
 import Link from 'next/link';
-import RosLogo from '@/public/logo-ros-sm.png'
-import { FaPhoneSquareAlt } from "react-icons/fa";
-import Image from 'next/image';
+// import RosLogo from '@/public/logo-ros-sm.png'
+// import { FaPhoneSquareAlt } from "react-icons/fa";
+// import Image from 'next/image';
 
 const Footer = () => {
   return (
