@@ -36,8 +36,7 @@ const { destination, setDestination } = useDestinationContext();
                 
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 py-24 gap-0 bg-white">
-                <div className='col-span-1 flex flex-col gap-4 p-8'>
-                  
+                <div className='col-span-1 flex flex-col justify-center gap-4 p-8'>
                   <h1 className='text-bold text-7xl text-primary'>Start Chat</h1>
                   <p>Chat with us for quick answers about our transfers, pricing, or routes.</p>
                   
@@ -61,7 +60,7 @@ const { destination, setDestination } = useDestinationContext();
                     poster="/images/minivan-poster.jpg" // optional
                   />
                 </div>
-                <div className='col-span-1 flex flex-col gap-4 p-8'>
+                <div className='col-span-1 flex flex-col justify-center gap-4 p-8'>
                   <h1 className='text-bold text-7xl text-primary'>Minibus</h1>
                   <p>Our minivans are spacious, air-conditioned vehicles ideal for families, small groups, or travelers with extra luggage. Enjoy a comfortable ride with plenty of room for up to 7 passengers and their bags—perfect for airport transfers, tours, or group trips around Koh Samui.</p>
                   {/* <SearchSection /> */}
@@ -69,7 +68,7 @@ const { destination, setDestination } = useDestinationContext();
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 py-24 gap-0 bg-white">
-                <div className='col-span-1 flex flex-col gap-4 p-8'>
+                <div className='col-span-1 flex flex-col justify-center gap-4 p-8'>
                   <h1 className='text-bold text-7xl text-primary'>SUV</h1>
                   <p>Travel in style and comfort with our SUVs. Suitable for up to 4 passengers, these vehicles offer a smooth ride, extra luggage space, and are perfect for couples, small families, or business travelers.
                   </p>

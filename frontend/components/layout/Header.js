@@ -13,6 +13,7 @@ import { Badge } from '../ui/badge'
 import Link from 'next/link'
 import Image from 'next/image'
 import { FaWhatsapp } from 'react-icons/fa'
+import StLogo from '@/public/ci/ST_Branding_V1-04.png' // Assuming you have a logo image
 
 
 
@@ -46,18 +47,18 @@ const Header = () => {
     }
   ]
   return (
-    <div className='flex items-center justify-between p-5 pb-3 pl-10 border-b-[4px] bg-primary border-gray-200'>
+    <div className='flex items-center justify-between p-4 px-8 border-b-[4px] bg-primary border-gray-200'>
 
         {/* desktop navbar  */}
         <div className='hidden md:flex md:gap-8 md:items-center'>
             {/* <p className='text-3xl font-bold text-orange-500'> */}
               <Link href="/">
-                {/* <Image src={RosLogo} alt='Ros Logo' width={100}/> */}
-                <strong className='text-2xl text-white font-bold'>SMTS</strong>
+                <Image src={StLogo} alt='Samui Transfers Logo' width={48}/>
+                {/* <strong className='text-2xl text-white font-bold'>SMTS</strong> */}
               </Link>
             {/* </p> */}
             {MainMenu.map((item) => (
-              <div key={item.id} className='flex gap-4 items-center text-md text-white'>
+              <div key={item.id} className='flex gap-4 items-center text-sm text-gray-100'>
               <Link href={item.link} >{item.title}</Link>
             </div>
             ))
@@ -106,7 +107,7 @@ const Header = () => {
           <SignedIn>
               <UserButton />
           </SignedIn>       */}
-        </div>            
+        </div>           
     </div>
   )
 }
