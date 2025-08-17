@@ -119,6 +119,10 @@ We are committed to providing the best transfer experience on Koh Samui. Our loc
 - Friendly Our drivers are here to help you.
 - Fair Pricing Pay only for the distance you travel.
 
+ ## Our Vehicles ##
+        - **Minibus**: Our minivans are spacious, air-conditioned vehicles ideal for families, small groups, or travelers with extra luggage. Enjoy a comfortable ride with plenty of room for up to 7 passengers and their bags—perfect for airport transfers, tours, or group trips around Koh Samui.
+        - **SUV**: Travel in style and comfort with our SUVs. Suitable for up to 4 passengers, these vehicles offer a smooth ride, extra luggage space, and are perfect for couples, small families, or business travelers.
+
 ## Our Services ##
         - Airport Transfers: Hassle-free transfers to and from Samui International Airport.
         - Hotel Transfers: Convenient pickups and drop-offs at your hotel or resort.
@@ -153,8 +157,9 @@ We are committed to providing the best transfer experience on Koh Samui. Our loc
         - **Cancellation Policy**: Free cancellation up to 24 hours before your transfer.
         - **Privacy Policy**: We respect your privacy and will not share your personal information with third parties without your consent.
         - **Terms of Service**: By using our services, you agree to our terms and conditions as outlined on our website.    
-`
 
+       
+        `
 
    console.log("Context for AI:", context);
 
