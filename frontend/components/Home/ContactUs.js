@@ -66,10 +66,10 @@ const ContactUs = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div>
             <h3 className="text-xl font-bold mb-4">Contact Information</h3>
-            <p className="mb-2"><strong>Phone:</strong> (+66) 099 108 7999</p>
-            <p className="mb-2"><strong>Mobile:</strong> (+66) 099 108 7999</p>
+            {/* <p className="mb-2"><strong>Phone:</strong> (+66) 099 108 7999</p>
+            <p className="mb-2"><strong>Mobile:</strong> (+66) 099 108 7999</p> */}
             <p className="mb-2"><strong>WhatsApp:</strong> (+66) 099 108 7999</p>
-            <p className="mb-2"><strong>Line ID:</strong> (+66) 099 108 7999</p>
+            {/* <p className="mb-2"><strong>Line ID:</strong> (+66) 099 108 7999</p> */}
             <p className="mb-2"><strong>Address:</strong> 9/38 Moo 6 Tambol Bophut, Amphoe Koh Samui, Thailand, 84320</p>
             <p className="mb-2"><strong>Email:</strong> info@samui-transfers.com</p>
             <h3 className="text-xl font-bold mt-6 mb-4">Follow Us</h3>

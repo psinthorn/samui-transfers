@@ -14,7 +14,7 @@ export const CarType = [
       desc: "Mini Bus with 9 seats hight roof with luxury interior design",
       seat: 9,
       available: 1,
-      image: '/mazda-cx-8-rrss.jpg',
+      image: '/toyota-commuter.png',
       status: "available",
     },
     

@@ -7,12 +7,13 @@ import DestinationContext, { useDestinationContext } from '@/context/Destination
 import WhyChooseUs from '@/components/why-us/WhyChooseUs'
 // import GoogleApiKeyContext from '@/context/GoogleApiKeyContext'
 import { useState, useEffect, useContext } from "react";
-import { LoadScript } from '@react-google-maps/api'
+import { GoogleMap, LoadScript } from '@react-google-maps/api'
 import MainBanner from '@/components/hero/MainBanner'
 
 import { useRequestTransferContext } from '@/context/RequestTransferContext'
 import MiniVanVisual from '@/components/utilities/MiniVanVisual'
 import AIChat from '@/components/ai/AIChat'
+import CarListOptions from '@/components/vehicle/CarListOptions'
 // import CarListOptions from '../components/vehicle/CarListOptions'
 
 export default function Home() {
@@ -29,23 +30,31 @@ const { destination, setDestination } = useDestinationContext();
                 <div>
                   <SearchSection />
                 </div>
-                <div className="col-span-1 relative">
-                  { !source || !destination ? <MainBanner />  : <GoogleMapsSection /> }
-                  
+                <div className="">
+                  { !source || !destination ? <MainBanner /> : 
+                    <>
+                      <CarListOptions distance={undefined} handleBookNow={undefined}/> 
+                    </>
+                  }
                 </div>
-                
               </div>
+              {/* <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-1 py-24 gap-0 bg-transparent">
+                <div className='col-span-1 flex flex-col justify-center gap-4 p-8 relative'>
+                  <h1 className='text-bold text-7xl text-primary'>Explore the Map</h1>
+                  <p>Use the map to find your ideal pickup and drop-off locations.</p>
+                  Google Maps Section Here
+                      <GoogleMapsSection />
+                </div>
+              </div>                */}
               <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 py-24 gap-0 bg-white">
                 <div className='col-span-1 flex flex-col justify-center gap-4 p-8'>
                   <h1 className='text-bold text-7xl text-primary'>Start Chat</h1>
-                  <p>Chat with us for quick answers about our transfers, pricing, or routes.</p>
-                  
+                  <p>Chat with us for quick answers about our transfers, pricing, or routes.</p>   
                   {/* <SearchSection /> */}
                 </div>
                 <div className="col-span-1 p-8 relative">
                   <AIChat />
                 </div>
-                
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 py-24 gap-0 bg-white">

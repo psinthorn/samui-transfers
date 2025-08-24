@@ -14,6 +14,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { FaWhatsapp } from 'react-icons/fa'
 import StLogo from '@/public/ci/ST_Branding_V1-04.png' // Assuming you have a logo image
+import StRec from '@/public/ci/restlogopngv1/ST_Branding_V1-07.png' // Assuming you have a logo image
 
 
 
@@ -53,7 +54,7 @@ const Header = () => {
         <div className='hidden md:flex md:gap-8 md:items-center'>
             {/* <p className='text-3xl font-bold text-orange-500'> */}
               <Link href="/">
-                <Image src={StLogo} alt='Samui Transfers Logo' width={48}/>
+                <Image src={StRec} alt='Samui Transfers Logo' width={64}/>
                 {/* <strong className='text-2xl text-white font-bold'>SMTS</strong> */}
               </Link>
             {/* </p> */}
@@ -93,7 +94,7 @@ const Header = () => {
         <div className="">
           <div className='hidden gap-0 lg:flex text-slate-700'>
             
-            <Phone size='24' color='#fff' className='gap-0'/><span className='text-sm pr-2 text-white'>(+66)99-108-7999 </span>
+            {/* <Phone size='24' color='#fff' className='gap-0'/><span className='text-sm pr-2 text-white'>(+66)99-108-7999 </span> */}
             <FaWhatsapp size='24' color='#fff' className='gap-0'/><span className='text-sm pr-2 text-white'>(+66)99-108-7999</span>
             <Link href="https://www.facebook.com/profile.php?id=61578880422159" target='_blank' className='gap-0 pr-2 text-white'>
             <Facebook size='24' color='#fff' />

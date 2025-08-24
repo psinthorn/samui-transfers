@@ -73,15 +73,15 @@ const SearchSection = () => {
   return (
     <div className='space-y-4 p-4 bg-white rounded-none h-full md:p-6'>
         <div className='p-4 md:p-6 border-0 rounded-t-xl rounded-b-none'>
-          <span className='font-thin text-lg sm:text-md'>First 1–5 km from just 350 THB. After 5 km, rates are calculated based on distance.</span>
+          <span className='font-thin text-lg sm:text-md'>From 350 THB. After 5 km, rates are based on distance.</span>
           <p className='text-5xl text-secondary font-semibold m-2 sm:text-1xl'>Book Now </p>
           <p className='text-lg font-thin mt-4 sm:text-md'>
-              Choose your pickup and dropoff location, <p>We show youre route.</p>
+              Choose your pickup and dropoff location, <span>We show youre route.</span>
           </p>
           <InputItem type='source' />
           <InputItem type='destination' /> 
         </div>
-        <div className=''>
+        {/* <div className=''>
             <div className='w-full text-2xl font-light items-center'>
               {routeDistance ? 
                   <div>
@@ -93,8 +93,8 @@ const SearchSection = () => {
                 // <IconAnimate />
               }
             </div>
-        </div>
-        <div className='mt-2'>
+        </div> */}
+        {/* <div className='mt-2'>
           { routeDistance ? 
             <p className='flex p-1 gap-2'> Select car type for your comfortable <CircleChevronDown /></p> 
             : 
@@ -108,9 +108,16 @@ const SearchSection = () => {
             /> 
             : 
             null }
-        </div>
-        <ContactBanner />
-        <Services />
+        </div> */}
+        {
+          routeDistance ? 
+          <MiniVanVisual />
+            : 
+            <>
+            <ContactBanner />
+            <Services />
+          </>
+        }
       </div>
   )
 }
