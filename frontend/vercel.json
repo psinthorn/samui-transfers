@@ -1,11 +1,11 @@
 {
   "version": 2,
   "framework": "nextjs",
-  "buildCommand": "cd frontend && npm install --frozen-lockfile || npm install && npm build",
-  "installCommand": "cd frontend && npm install",
+  "buildCommand": "npm install --frozen-lockfile || npm install && npm build",
+  "installCommand": "npm install",
   "outputDirectory": "frontend/.next",
   "functions": {
-    "api/**": { "runtime": "nodejs20.x" }
+    "api/**": { "runtime": "nodejs18.x" }
   },
   "env": {
     "NEXT_RUNTIME": "nodejs"
