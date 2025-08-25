@@ -12,7 +12,7 @@ export const CarListData = [
             29,
           ],
           extra_charge: 200, 
-          image: '/fortuner-RRSS.jpg',
+          image: '/toyota-fortuner-transparent.png',
           status: "available",
         },
         {

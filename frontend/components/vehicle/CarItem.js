@@ -31,11 +31,11 @@ const CarItem = ({car, distance }) => {
   }, [activeID, distance, car]); 
 
   return (
-    <div className='flex p-3  m-1 gap-2 rounded-sm  hover:bg-slate-200 active:bg-slate-400 focus:outline-2px focus:ring focus:ring-slate-200'
+    <div className='flex p-2  m-1 gap-2 rounded-sm  hover:bg-slate-200 active:bg-slate-200 focus:outline-2px focus:ring focus:ring-slate-200'
       onClick={() => {handleClick(car.ID)} }
     > 
         <div className='hidden w-full lg:block' >
-          <Image layout="responsive" src={car.image} alt={car.model} width={100} height={60}  />
+          <Image layout="responsive" src={car.image} alt={car.model} width={50} height={30}  />
         </div>
         <div>
           <div className='flex items-center gap-3'>

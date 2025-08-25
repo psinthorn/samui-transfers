@@ -5,7 +5,7 @@ export const CarType = [
       desc: "SUV car with 4 seats hight performance and luxury interior",
       seat: 4,
       available: 2,
-      image: '/fortuner-RRSS.jpg',
+      image: '/toyota-fortuner-transparent.png',
       status: "available",
     },
     {

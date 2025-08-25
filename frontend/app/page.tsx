@@ -41,7 +41,7 @@ const { destination, setDestination } = useDestinationContext();
           >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ">
               
-              <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 py-2 gap-0 bg-white">
+              <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 py-4 gap-0 bg-white">
                 <div>
                   <SearchSection />
                 </div>
