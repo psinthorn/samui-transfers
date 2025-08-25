@@ -47,9 +47,9 @@ const AIChat: React.FC = () => {
     // Prepend new user + agent reply so newest pair is at the top
     const now = Date.now();
     setChat(prev => [
+       ...prev,
       { user: message, ts: now },
       { agent: data.reply, ts: Date.now() },
-      ...prev
     ]);
     setMessage("");
     setLoading(false);
@@ -63,11 +63,15 @@ const AIChat: React.FC = () => {
     setMessage(e.target.value);
   };
 
+
+
   // Auto-scroll to bottom when chat updates
   useEffect(() => {
     if (containerRef.current) {
       // Always show newest messages (which are prepended) at the top
-      containerRef.current.scrollTop = 0;
+      // containerRef.current.scrollTop = 0;
+      // containerRef.current.scrollIntoView({ behavior: "smooth" });
+      containerRef.current.scrollBy(0, containerRef.current.scrollHeight);
     }
   }, [chat, loading]);
 

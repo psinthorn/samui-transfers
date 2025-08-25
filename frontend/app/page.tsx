@@ -20,12 +20,27 @@ export default function Home() {
 // const googleAPiKeyContext = process.env.NEXT_PUBLIC_GOOGLE_API_KEY
 const { source, setSource } = useSourceContext();
 const { destination, setDestination } = useDestinationContext();
+
+// Normalize and verify coords
+  const getCoords = (pt: any) => {
+    if (!pt) return null;
+    if (typeof pt.lat === 'number' && typeof pt.lng === 'number') return { lat: pt.lat, lng: pt.lng };
+    const loc = pt?.geometry?.location || pt?.location;
+    const lat = typeof loc?.lat === 'function' ? loc.lat() : loc?.lat;
+    const lng = typeof loc?.lng === 'function' ? loc.lng() : loc?.lng;
+    return typeof lat === 'number' && typeof lng === 'number' ? { lat, lng } : null;
+  };
+  const canShowMap = !!(getCoords(source) && getCoords(destination));
+  console.log('canShowMap', canShowMap);
+
+
   return (   
           <LoadScript 
             libraries={['places']}
             googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_API_KEY || ''}
           >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ">
+              
               <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 py-2 gap-0 bg-white">
                 <div>
                   <SearchSection />
@@ -34,31 +49,31 @@ const { destination, setDestination } = useDestinationContext();
                   { !source || !destination ? <MainBanner /> : 
                     <>
                       <CarListOptions distance={undefined} handleBookNow={undefined}/> 
+                      <GoogleMapsSection />
                     </>
                   }
                 </div>
               </div>
-              {/* <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-1 py-24 gap-0 bg-transparent">
-                <div className='col-span-1 flex flex-col justify-center gap-4 p-8 relative'>
-                  <h1 className='text-bold text-7xl text-primary'>Explore the Map</h1>
-                  <p>Use the map to find your ideal pickup and drop-off locations.</p>
-                  Google Maps Section Here
-                      <GoogleMapsSection />
+
+              { source && destination && (  
+                <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-1 py-36 gap-0 bg-white">
+                  <div className='col-span-1 flex flex-col justify-center gap-4 p-8'>
+                    <h1 className='text-bold text-7xl text-primary'>Route</h1>
+                    <p>Preview your trip on the map from pickup to drop‑off.</p>   
+                    {/* <SearchSection /> */}
+                  </div>
+                  <div className="col-span-1 p-8 ">
+                    
+                      {/* <GoogleMapsSection /> */}
+                  
+                  </div>
                 </div>
-              </div>                */}
-              <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 py-24 gap-0 bg-white">
-                <div className='col-span-1 flex flex-col justify-center gap-4 p-8'>
-                  <h1 className='text-bold text-7xl text-primary'>Start Chat</h1>
-                  <p>Chat with us for quick answers about our transfers, pricing, or routes.</p>   
-                  {/* <SearchSection /> */}
-                </div>
-                <div className="col-span-1 p-8 relative">
-                  <AIChat />
-                </div>
-              </div>
+               )}
+              
+             
 
               <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 py-24 gap-0 bg-white">
-                <div className="col-span-1 p-8 relative">
+                <div className="col-span-1 p-8 ">
                   <video
                     src="/videos/minibus-original.mov"
                     autoPlay
@@ -83,7 +98,7 @@ const { destination, setDestination } = useDestinationContext();
                   </p>
                   {/* <SearchSection /> */}
                 </div>
-                  <div className="col-span-1 p-8 relative">
+                  <div className="col-span-1 p-8 ">
                     <video
                       src="/videos/suv-original.mov"
                       autoPlay
@@ -96,6 +111,8 @@ const { destination, setDestination } = useDestinationContext();
                   </div>
               </div>
 
+
+
               <div className="grid grid-cols-1 md:grid-cols-3 p-6 gap-5 ">
                 <div >
                     {/* <SearchSection /> */}
@@ -107,12 +124,14 @@ const { destination, setDestination } = useDestinationContext();
               {/* <div id="faqs" className='w-full min-h-96 mb-32'>
                 <Faq />
               </div> */}
-              <div className='w-full min-h-96'>
-                {/* <MiniVanVisual /> */}
-                {/* <AboutUs /> */}
+              <div className='w-full mx-auto text-center min-h-96 py-12'>  
+                <div className="py-12">
+                  <h1 className='text-bold text-7xl text-primary sm:pt-12 md:pt-0'>Start Chat</h1>
+                  <p>Chat with us for quick answers about our transfers, pricing, or routes.</p> 
+                </div>           
+                <AIChat />
               </div>
             </div>
           </LoadScript>    
-      
   );
 }
