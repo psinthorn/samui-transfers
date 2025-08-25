@@ -127,8 +127,8 @@ const { destination, setDestination } = useDestinationContext();
               <div className='w-full mx-auto text-center min-h-96 py-12'>  
                 <div className="py-12">
                   <h1 className='text-bold text-7xl text-primary sm:pt-12 md:pt-0'>Start Chat</h1>
-                  <p>Chat with us for quick answers about our transfers, pricing, or routes.</p> 
-                </div>           
+                  <p>Chat with us for quick answers about our services, frequently asked questions, contact information or routes.</p>
+                </div>
                 <AIChat />
               </div>
             </div>
