@@ -53,6 +53,8 @@ const InputItem = ({type}) => {
 
   return (
     <div className='flex h-full items-center p-3 gap-4 mt-3 bg-slate-200 rounded-lg'>
+      {/* { type == 'source' ?  <FaMapPin className="text-gray-400 text-lg " /> :  <FaMapPin className="text-gray-400 text-lg " />} */}
+      
         <Image src={ type == 'source' ? '/source-destination.png' : '/source-destination.png'} width={40} height={40} alt='pin location'/>
         {/* <input type='text' placeholder={ type == 'source' ? 'Pickup Location' : 'Destination'}  className='w-full bg-transparent outline-none' /> */}
         <GooglePlacesAutocomplete

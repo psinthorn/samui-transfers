@@ -1,3 +1,5 @@
+import { Luggage } from "lucide-react";
+
 export const CarListData = [
 
         {
@@ -11,6 +13,7 @@ export const CarListData = [
             35,
             29,
           ],
+          Luggage: 6,
           extra_charge: 200, 
           image: '/toyota-fortuner-transparent.png',
           status: "available",
@@ -27,8 +30,17 @@ export const CarListData = [
             39,
           ],
           extra_charge: 300, 
+           Luggage: 9,
           image: '/toyota-commuter.png',
           status: "available",
         },
        
 ];
+
+// Rate explanation
+// The rate is calculated based on the distance and the type of vehicle selected. Each vehicle has a base rate and additional charges may apply depending on the distance and other factors.
+
+// The rates are structured as follows:
+// - Base rate: The initial cost for the selected vehicle type
+// - Distance rate: An additional charge per kilometer/mile traveled
+// - Time rate: An additional charge per minute/hour of travel time

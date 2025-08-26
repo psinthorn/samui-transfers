@@ -14,12 +14,16 @@ import { useRequestTransferContext } from '@/context/RequestTransferContext'
 import MiniVanVisual from '@/components/utilities/MiniVanVisual'
 import AIChat from '@/components/ai/AIChat'
 import CarListOptions from '@/components/vehicle/CarListOptions'
-// import CarListOptions from '../components/vehicle/CarListOptions'
+
+
 
 export default function Home() {
 // const googleAPiKeyContext = process.env.NEXT_PUBLIC_GOOGLE_API_KEY
 const { source, setSource } = useSourceContext();
 const { destination, setDestination } = useDestinationContext();
+
+console.log('source', source);
+console.log('destination', destination);
 
 // Normalize and verify coords
   const getCoords = (pt: any) => {
@@ -34,44 +38,31 @@ const { destination, setDestination } = useDestinationContext();
   console.log('canShowMap', canShowMap);
 
 
-  return (   
-          <LoadScript 
-            libraries={['places']}
-            googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_API_KEY || ''}
-          >
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ">
-              
-              <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 py-4 gap-0 bg-white">
-                <div>
-                  <SearchSection />
-                </div>
-                <div className="">
-                  { !source || !destination ? <MainBanner /> : 
-                    <>
-                      <CarListOptions distance={undefined} handleBookNow={undefined}/> 
-                      <GoogleMapsSection />
-                    </>
-                  }
-                </div>
-              </div>
-
+  return (
+    (
+      <LoadScript 
+        libraries={['places']}
+        googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_API_KEY || ''}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ">
+          <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-1 py-4 gap-0 bg-white">
+            <div>
+              <SearchSection />
+            </div>
+          </div>
               { source && destination && (  
-                <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-1 py-36 gap-0 bg-white">
+                <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 my-36 py-4 gap-0 bg-white">
                   <div className='col-span-1 flex flex-col justify-center gap-4 p-8'>
                     <h1 className='text-bold text-7xl text-primary'>Route</h1>
                     <p>Preview your trip on the map from pickup to drop‑off.</p>   
                     {/* <SearchSection /> */}
                   </div>
-                  <div className="col-span-1 p-8 ">
-                    
-                      {/* <GoogleMapsSection /> */}
-                  
+                  <div className="col-span-1 p-4">
+                      <GoogleMapsSection />
                   </div>
                 </div>
                )}
               
-             
-
               <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 py-24 gap-0 bg-white">
                 <div className="col-span-1 p-8 ">
                   <video
@@ -111,8 +102,6 @@ const { destination, setDestination } = useDestinationContext();
                   </div>
               </div>
 
-
-
               <div className="grid grid-cols-1 md:grid-cols-3 p-6 gap-5 ">
                 <div >
                     {/* <SearchSection /> */}
@@ -132,6 +121,6 @@ const { destination, setDestination } = useDestinationContext();
                 <AIChat />
               </div>
             </div>
-          </LoadScript>    
-  );
+      </LoadScript>    
+  ));
 }
