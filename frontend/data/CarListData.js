@@ -22,7 +22,7 @@ export const CarListData = [
           ID: 2,
           type: "Mini Bus",
           model: "Toyota Commuter",
-          desc: "Mini Bus with 7 seats hight roof with luxury interior design",
+          desc: "Mini Bus with 7 seats hight roof comfortable seating and space for luggage",
           seat: 6,
           rate: [
             500,
