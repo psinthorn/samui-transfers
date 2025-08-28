@@ -99,7 +99,7 @@ const SearchSection = () => {
                     <h2 className='font-semibold text-2xl text-tertiary pt-8'>Available Book Now</h2>
                     <p className='text-md text-muted-foreground'>Average Distance: <span>{ routeDistanceInKiloMeter.toFixed(2)}</span>KM</p>
                 </div>
-                <p className='flex p-1 gap-2'> Select car type for your comfortable <CircleChevronDown /></p> 
+                <p className='flex p-1 gap-2'> Choose the vehicle that fits your group and comfort. <CircleChevronDown /></p> 
               </div>
                 : 
                 null }            
