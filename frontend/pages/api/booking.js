@@ -103,7 +103,7 @@ export default async (req, res) => {
       
         <br/>
         <p>Best regards,</p>
-        <p>Rungruang Sub Samui Team</p>
+        <p>Samui Transfers Team</p>
       `,
     };
 
