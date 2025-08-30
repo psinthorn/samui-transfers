@@ -51,13 +51,13 @@ console.log('destination', destination);
             </div>
           </div>
               { source && destination && (  
-                <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 my-36 py-4 gap-0 bg-white">
+                <div className="grid grid-cols-1 w-full sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 mb-24 py-4 gap-0 bg-white">
                   <div className='col-span-1 flex flex-col justify-center gap-4 p-8'>
                     <h1 className='text-bold text-7xl text-primary'>Route</h1>
                     <p>Preview your trip on the map from pickup to drop‑off.</p>   
                     {/* <SearchSection /> */}
                   </div>
-                  <div className="col-span-1 p-4">
+                  <div className="col-span-1 p-4 min-h-[400px] max-h-[600px]">
                       <GoogleMapsSection />
                   </div>
                 </div>

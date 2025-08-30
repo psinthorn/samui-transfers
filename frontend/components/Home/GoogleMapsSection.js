@@ -102,7 +102,7 @@ import { Divide } from 'lucide-react';
         <GoogleMap
             mapContainerStyle={containerStyle}
             center={center}
-            zoom={10}
+            zoom={14}
             onLoad={onLoad}
             onUnmount={onUnmount}
             options={{mapId:'976a7c2e003306bf'}}
