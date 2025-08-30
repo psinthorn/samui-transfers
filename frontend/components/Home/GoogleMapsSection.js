@@ -19,8 +19,8 @@ import { Divide } from 'lucide-react';
     
     const [center,setCenter ] = useState({
       // need to update to Samui-Transfers.com Office
-      lat: 9.550519, 
-      lng: 100.0662909
+      lat: 9.53216, 
+      lng: 100.04386
     });
 
     const [map, setMap] = useState(null)
