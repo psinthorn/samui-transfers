@@ -35,8 +35,7 @@ console.log('destination', destination);
     return typeof lat === 'number' && typeof lng === 'number' ? { lat, lng } : null;
   };
   const canShowMap = !!(getCoords(source) && getCoords(destination));
-  console.log('canShowMap', canShowMap);
-
+  
 
   return (
     (
@@ -50,10 +49,10 @@ console.log('destination', destination);
               <SearchSection />
             </div>
           </div>
-              {/* { source && destination && (   */}
+              { source && destination && (  
                 <div className="grid grid-cols-1 w-full sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 mb-24 py-4 gap-0 bg-white mt-8">
                   <div className='col-span-1 flex flex-col justify-center gap-4 p-8'>
-                    <h1 className='text-bold text-7xl text-primary'>Route</h1>
+                    <h1 className='text-7xl text-primary'>Route</h1>
                     <p>Preview your trip on the map from pickup to drop‑off.</p>   
                     {/* <SearchSection /> */}
                   </div>
@@ -61,13 +60,13 @@ console.log('destination', destination);
                       <GoogleMapsSection />
                   </div>
                 </div>
-               {/* )} */}
+              )}
 
               
             <div className='w-full mx-auto p-6 gap-5  bg-white border-rounded-lg '>
-              <div className='w-full text-center py-12'>
+              <div className='w-full text-center py-24'>
                 <h1 className='items-center text-center text-7xl'>Vehicles & Drivers</h1>
-                <p className='text-sm text-thin'>Choose from a variety of vehicles and professional drivers for your trip.</p>
+                <p>Choose from a variety of vehicles and professional drivers for your trip.</p>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 py-24 gap-0 bg-white">
                 <div className="col-span-1 p-8 ">
