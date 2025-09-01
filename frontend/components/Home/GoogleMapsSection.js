@@ -117,7 +117,7 @@ import { Divide } from 'lucide-react';
           <MarkerF
             position={src}
             title="Pickup"
-            icon={{ url: '/icons/person-pin.svg', scaledSize: new g.maps.Size(32, 32) }}
+            icon={{ url: '/icons/pickup-pin.svg', scaledSize: new g.maps.Size(32, 32) }}
           />
         )}
         {dst && (

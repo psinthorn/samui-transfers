@@ -14,7 +14,7 @@ const InputItem = ({ type }) => {
 
   // check if type is source or destination and set the placeholder accordingly
   const placeholder = type === 'source' ? 'Pickup location' : 'Drop‑off location'
-  const iconSrc = type === 'source' ? '/icons/person-pin.svg' : '/icons/dropoff-pin.svg'
+  const iconSrc = type === 'source' ? '/icons/pickup-pin.svg' : '/icons/dropoff-pin.svg'
   const iconAlt = type === 'source' ? 'Pickup pin' : 'Drop‑off pin'
 
   const getLatAndLng = (selected, which) => {

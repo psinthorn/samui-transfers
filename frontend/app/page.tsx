@@ -17,6 +17,7 @@ import { useRequestTransferContext } from '@/context/RequestTransferContext'
 import MiniVanVisual from '@/components/utilities/MiniVanVisual'
 import AIChat from '@/components/ai/AIChat'
 import CarListOptions from '@/components/vehicle/CarListOptions'
+import Image from 'next/image'
 
 const GoogleMapsSection = dynamic(() => import("@/components/Home/GoogleMapsSection"), { ssr: false })
 const SearchSection = dynamic(() => import("@/components/Home/SearchSection"), { ssr: false })
@@ -61,7 +62,7 @@ const { destination, setDestination } = useDestinationContext();
              {canShowMap && (
               <div className="grid grid-cols-1 lg:grid-cols-2 mb-24 py-4 bg-white mt-8">
                 <div className="col-span-1 flex flex-col justify-center gap-4 p-8">
-                  <h1 className="font-bold text-lg text-primary sm:text-3xl md:text-5xl lg:text-7xl">Route</h1>
+                  <h1 className=" text-primary sm:text-3xl md:text-5xl lg:text-7xl">Route</h1>
                   <p>Visualize your journey from pickup to drop‑off on the map.</p>
                 </div>
                 <div className="col-span-1 p-4 min-h-[400px] max-h-[600px] space-y-4 md:p-8">
@@ -73,23 +74,24 @@ const { destination, setDestination } = useDestinationContext();
               
             <div className='w-full mx-auto p-6 gap-5  bg-white border-rounded-lg '>
               <div className='w-full text-center py-8 sm:py-12 md:py-16 lg:py-24'>
-                <h1 className='items-center  text-center text-3xl sm:text-3xl md:text-5xl lg:text-7xl'>Vehicles & Drivers</h1>
+                <h1 className='text-primary items-center  text-center text-3xl sm:text-3xl md:text-5xl lg:text-7xl'>Vehicles & Drivers</h1>
                 <p>Choose from a variety of vehicles and professional drivers for your trip.</p>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2  gap-0 bg-white w-full text-center py-8 sm:py-12 md:py-16 lg:py-24">
                 <div className="col-span-1 p-8 ">
-                  <video
-                    src="/videos/minibus-original.mov"
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    className="w-full h-auto rounded-lg shadow"
-                    // poster="/images/minivan-poster.jpg" // optional
-                  />
+                  <div className="relative w-full aspect-[16/9] overflow-hidden rounded-lg shadow">
+                    <Image
+                      src="/toyota-commeter-day-light.png"
+                      alt="Toyota Commuter in daylight"
+                      fill
+                      priority
+                      sizes="(min-width: 1024px) 50vw, 100vw"
+                      className="object-cover"
+                    />
+                  </div>
                 </div>
                 <div className='col-span-1 flex flex-col justify-center gap-4 p-8'>
-                  <h1 className=' text-left text-3xl sm:text-3xl md:text-5xl lg:text-7xl'>Minibus</h1>
+                  <h1 className='text-primary text-left text-3xl sm:text-3xl md:text-5xl lg:text-7xl'>Minibus</h1>
                   <p className='text-left'>Our minivans are spacious, air-conditioned vehicles ideal for families, small groups, or travelers with extra luggage. Enjoy a comfortable ride with plenty of room for up to 7 passengers and their bags—perfect for airport transfers, tours, or group trips around Koh Samui.</p>
                   {/* <SearchSection /> */}
                 </div>
@@ -97,21 +99,21 @@ const { destination, setDestination } = useDestinationContext();
 
               <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-0 bg-white w-full text-center py-8 sm:py-12 md:py-16 lg:py-24">
                 <div className='col-span-1 flex flex-col justify-center gap-4 p-8'>
-                  <h1 className='text-left text-3xl sm:text-3xl md:text-5xl lg:text-7xl'>SUV</h1>
+                  <h1 className='text-primary text-left text-3xl sm:text-3xl md:text-5xl lg:text-7xl'>SUV</h1>
                   <p className='text-left'>Travel in style and comfort with our SUVs. Suitable for up to 4 passengers, these vehicles offer a smooth ride, extra luggage space, and are perfect for couples, small families, or business travelers.
                   </p>
                   {/* <SearchSection /> */}
                 </div>
                   <div className="col-span-1 p-8 ">
-                    <video
-                      src="/videos/suv-original.mov"
-                      autoPlay
-                      loop
-                      muted
-                      playsInline
-                      className="w-full h-auto rounded-lg shadow"
-                      // poster="/images/minivan-poster.jpg" // optional
-                    />
+                    <div className="relative w-full aspect-[16/9] overflow-hidden rounded-lg shadow">
+                      <Image
+                        src="/toyota-fortunner-on-the-beach.png"
+                        alt="Toyota Fortuner on the beach"
+                        fill
+                        sizes="(min-width: 1024px) 50vw, 100vw"
+                        className="object-cover"
+                      />
+                    </div>
                   </div>
               </div>
             </div>
