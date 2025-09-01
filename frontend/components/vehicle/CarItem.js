@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { use, useState, useEffect } from 'react';
-import { HiUser } from 'react-icons/hi';
+import { HiUser, Lug } from 'react-icons/hi';
 import RateCalculate  from './../utilities/RateCalculate';
 import { useRequestTransferContext } from '@/context/RequestTransferContext';
 
@@ -40,6 +40,7 @@ const CarItem = ({car, distance }) => {
         <div>
           <div className='flex items-center gap-3'>
               <h2 className='font-semibold items-center gap-2 '>{car.type}</h2> 
+              <span className='flex items-center font-normal text-center'><HiUser/><p className='items-center mt-1'>{ car.seat }</p></span>
               <span className='flex items-center font-normal text-center'><HiUser/><p className='items-center mt-1'>{ car.seat }</p></span>
           </div>
           <p className='p-1'>{car.desc}</p>

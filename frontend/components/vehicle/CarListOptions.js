@@ -2,8 +2,8 @@
 
 import {CarListData} from '../../data/CarListData'
 import CarItem from './CarItem'
-import { useEffect, useState } from 'react';
-import RateCalculate from '../utilities/RateCalculate';
+import { useState } from 'react';
+// import RateCalculate from '../utilities/RateCalculate';
 import { useRequestTransferContext } from '@/context/RequestTransferContext';
 
 const CarListOptions = ({ distance,  handleBookNow }) => {
@@ -39,7 +39,7 @@ const CarListOptions = ({ distance,  handleBookNow }) => {
           <div className='relative flex justify-between bottom-8 items-center font-bold text-center w-full text-slate-700 p-4 shadow-xl bg-white  md:w-full sm:w-full border-[1px] rounded-sm '>
              <h2>{selectedCar.type} Rate Avg. { requestTransfer.rate } THB</h2>
              <button onClick={() => handleBookNow( requestTransfer.carType, requestTransfer.carModel,  )} className='bg-black text-white rounded-lg text-center p-4'>Book Now</button>
-             {/* <Booking /> */}
+             <Booking />
            </div> 
            : null
         }
