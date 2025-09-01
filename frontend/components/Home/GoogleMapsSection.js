@@ -51,7 +51,7 @@ import { Divide } from 'lucide-react';
         travelMode: google.maps.TravelMode.DRIVING,
       },
       (result, status) => {
-        if (status === google.maps.DirectionsStatus.OK) {
+        if (status === 'OK' || status === google.maps.DirectionsStatus?.OK) {
           setDirectionRoutePoints(result);
         } else {
           console.error('Directions error:', status);
@@ -96,6 +96,11 @@ import { Divide } from 'lucide-react';
 
     const src = getCoords(source);
     const dst = getCoords(destination);
+    const g = typeof window !== "undefined" ? window.google : undefined
+    if (!g?.maps) return null
+
+    // Guarded check for a valid DirectionsResult
+    const hasDirections = !!(directionRoutePoints && Array.isArray(directionRoutePoints.routes) && directionRoutePoints.routes.length > 0);
 
   return (
     <div className='w-full h-full relative mx-auto bg-white'>
@@ -108,44 +113,78 @@ import { Divide } from 'lucide-react';
             options={{mapId:'976a7c2e003306bf'}}
           >
             {/* Source marker */}
-        {src ? (
+        {src && (
           <MarkerF
             position={src}
-            icon={{
-              url: '/source-destination.png',
-              // If you prefer exact sizing, use Size: new google.maps.Size(60, 60)
-              scaledSize: { width: 60, height: 60 },
-            }}
-          >
-            <OverlayViewF position={src} mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET} />
-          </MarkerF>
-        ) : null}
-
-        {/* Destination marker */}
-        {dst ? (
+            title="Pickup"
+            icon={{ url: '/icons/person-pin.svg', scaledSize: new g.maps.Size(32, 32) }}
+          />
+        )}
+        {dst && (
           <MarkerF
             position={dst}
-            icon={{
-              url: '/source-destination.png',
-              scaledSize: { width: 60, height: 60 },
-            }}
+            title="Drop‑off"
+            icon={{ url: '/icons/dropoff-pin.svg', scaledSize: new g.maps.Size(32, 32) }}
+          />
+        )}
+
+        Pickup label above marker
+        {/* {src ? (
+          <OverlayViewF
+            position={src}
+            mapPaneName={OverlayView.FLOAT_PANE}
+            getPixelPositionOffset={(width, height) => ({ x: -width / 2, y: -30 })}
           >
-            <OverlayViewF position={dst} mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET} />
-          </MarkerF>
-        ) : null}
+            <div className="rounded bg-emerald-600 text-white text-xs px-2 py-1 shadow">
+              Pickup
+            </div>
+          </OverlayViewF>
+        ) : null} */}
+
+        {/* Destination marker */}
+        {/* {dst ? (
+          <MarkerF
+            position={dst}
+            title="Drop-off"
+            icon={{
+              // Red circle marker (SVG symbol)
+              path: g.maps.SymbolPath.CIRCLE,
+              scale: 10,
+              fillColor: '#dc2626',       // red-600
+              fillOpacity: 1,
+              strokeColor: '#ffffff',
+              strokeWeight: 2,
+            }}
+          />
+        ) : null} */}
+
+        {/* Drop-off label above marker
+        {dst ? (
+          <OverlayViewF
+            position={dst}
+            mapPaneName={OverlayView.FLOAT_PANE}
+            getPixelPositionOffset={(width, height) => ({ x: -width / 2, y: -30 })}
+          >
+            <div className="rounded bg-red-600 text-white text-xs px-2 py-1 shadow">
+              Drop‑off
+            </div>
+          </OverlayViewF>
+        ) : null} */}
 
         {/* render route on the maps  */}
+        {hasDirections && (
           <DirectionsRenderer 
             directions={directionRoutePoints}
             options={{
-            polylineOptions:{
-              strokeColor: "#D94141",
-              strokeWeight: 4,
-              draggable: false,
-            },
+              polylineOptions:{
+                strokeColor: "#D94141",
+                strokeWeight: 4,
+                draggable: false,
+              },
               suppressMarkers: true
-                }}
-              />
+            }}
+          />
+        )}
           </GoogleMap>
       </div>
       ) 

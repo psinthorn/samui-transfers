@@ -1,7 +1,7 @@
 import React, { useState, ChangeEvent, useRef, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 
-type AgentType = "booking" | "support";
+type AgentType = "booking" | "support" | "Assistant";
 
 interface ChatMessage {
   user?: string;
@@ -24,8 +24,9 @@ function formatTimestamp(ts: number) {
 }
 
 const agents: { label: string; value: AgentType }[] = [
-  { label: "Booking", value: "booking" },
-  { label: "Support", value: "support" },
+  // { label: "Booking", value: "booking" },
+  // { label: "Support", value: "support" },
+  { label: "Assistant", value: "Assistant" },
 ];
 
 const AIChat: React.FC = () => {

@@ -1,135 +1,197 @@
 "use client"
 
-import { Phone } from 'lucide-react';
-import Link from 'next/link';
-import React, { useState } from 'react';
-import { CompanyInfo } from '@/data/CompanyInfo';
+import React, { useMemo, useState } from "react";
+import Link from "next/link";
+import { Mail, Phone, MapPin, MessageCircle, ExternalLink } from "lucide-react";
+import { CompanyInfo } from "@/data/CompanyInfo";
 
 const ContactUs = () => {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    message: '',
-  });
+  // Prefer values from CompanyInfo if available, otherwise fall back to sensible defaults
+  const info = useMemo(() => ({
+    email: CompanyInfo?.email || "info@samui-transfers.com",
+    phone: CompanyInfo?.phone || "(+66) 099 108 7999",
+    whatsapp: CompanyInfo?.whatsapp || "(+66) 099 108 7999",
+    address: CompanyInfo?.address || "9/38 Moo 6, Tambon Bo Phut, Ko Samui, Surat Thani 84320, Thailand",
+    facebook: CompanyInfo?.facebook || "https://www.facebook.com/profile.php?id=61578880422159",
+  }), []);
 
-  const [responseMessage, setResponseMessage] = useState('');
-  const [showMessage, setShowMessage] = useState(false);
+  const telHref = useMemo(() => `tel:${info.phone.replace(/[^\d+]/g, "")}`, [info.phone]);
+  const waHref = useMemo(() => `https://wa.me/${info.whatsapp.replace(/[^\d]/g, "")}`, [info.whatsapp]);
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+  const [formData, setFormData] = useState({ name: "", email: "", message: "" });
+  const [loading, setLoading] = useState(false);
+  const [toast, setToast] = useState(null); // { type: 'success' | 'error', message: string } | null
+
+  const onChange = (e) => setFormData((s) => ({ ...s, [e.target.name]: e.target.value }));
+
+  const validate = () => {
+    if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) return false;
+    const okEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email);
+    return okEmail;
   };
 
-  const handleSubmit = async (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
-    const response = await fetch('/api/contact', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(formData),
-    });
-    
-    // Get the response message
-    const result = await response.json();
-    setResponseMessage(result.message);
-    setShowMessage(true);
-
-     // Hide the message after 5 seconds
-     setTimeout(() => {
-      setShowMessage(false);
-    }, 5000);
-
-    if (response.ok) {
-      alert(responseMessage);
-    } else {
-      alert('Failed to send message. Error: ', responseMessage);
+    if (!validate()) {
+      setToast({ type: "error", message: "Please fill all fields with a valid email." });
+      return;
+    }
+    setLoading(true);
+    setToast(null);
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(json?.message || "Failed to send message.");
+      setToast({ type: "success", message: json?.message || "Message sent. We’ll get back to you shortly." });
+      setFormData({ name: "", email: "", message: "" });
+    } catch (err) {
+      setToast({ type: "error", message: err?.message || "Something went wrong. Please try again." });
+    } finally {
+      setLoading(false);
+      // Auto-hide toast after 6s
+      setTimeout(() => setToast(null), 6000);
     }
   };
 
   return (
-    <section className="bg-blue-50 dark:bg-slate-200 py-8">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mb-6 max-w-3xl text-center md:mx-auto md:mb-12">
-          <p className="text-base font-semibold uppercase tracking-wide text-primary dark:text-blue-200">
-            Contact
-          </p>
-          <h2 className="font-heading mb-4 font-bold tracking-tight text-gray-900 dark:text-white text-3xl sm:text-5xl">
-            Get in Touch
-          </h2>
-          <p className="mx-auto mt-4 max-w-3xl text-xl text-gray-600 dark:text-slate-400">
-            keep intouch with us.
-          </p>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div>
-            <h3 className="text-xl font-bold mb-4">Contact Information</h3>
-            {/* <p className="mb-2"><strong>Phone:</strong> (+66) 099 108 7999</p>
-            <p className="mb-2"><strong>Mobile:</strong> (+66) 099 108 7999</p> */}
-            <p className="mb-2"><strong>WhatsApp:</strong> (+66) 099 108 7999</p>
-            {/* <p className="mb-2"><strong>Line ID:</strong> (+66) 099 108 7999</p> */}
-            <p className="mb-2"><strong>Address:</strong> 9/38 Moo 6 Tambol Bophut, Amphoe Koh Samui, Thailand, 84320</p>
-            <p className="mb-2"><strong>Email:</strong> info@samui-transfers.com</p>
-            <h3 className="text-xl font-bold mt-6 mb-4">Follow Us</h3>
-            <div className="flex space-x-4">
-              <Link href="https://www.facebook.com/profile.php?id=61578880422159" className="text-primary" target='_blank'>Facebook</Link>
-              {/* <Link href="#" className="text-blue-400">Twitter</Link> */}
-              {/* <Link href="#" className="text-pink-600">Instagram</Link>
-              <Link href="#" className="text-pink-600">Line Official</Link> */}
+    <section className="bg-slate-50 py-8 sm:py-12">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+        <header className="mb-8 text-center">
+          <p className="text-xs sm:text-sm font-semibold uppercase tracking-wide text-primary">Contact</p>
+          <h1 className="mt-2 text-lg sm:text-3xl md:text-4xl font-semibold text-slate-900">Get in touch</h1>
+          <p className="mt-2 text-sm sm:text-base text-slate-600">Questions about transfers, pricing, or availability? We’re here to help.</p>
+        </header>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Contact info card */}
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 sm:p-6">
+            <h2 className="text-base sm:text-lg font-semibold text-slate-800 mb-4">Contact information</h2>
+            <ul className="space-y-3 text-sm sm:text-base text-slate-700">
+              <li className="flex items-start gap-3">
+                <Mail className="w-5 h-5 text-primary mt-0.5" />
+                <a href={`mailto:${info.email}`} className="hover:text-primary focus:outline-none focus:underline">
+                  {info.email}
+                </a>
+              </li>
+              <li className="flex items-start gap-3">
+                <Phone className="w-5 h-5 text-primary mt-0.5" />
+                <a href={telHref} className="hover:text-primary focus:outline-none focus:underline">
+                  {info.phone}
+                </a>
+              </li>
+              <li className="flex items-start gap-3">
+                <MessageCircle className="w-5 h-5 text-primary mt-0.5" />
+                <Link href={waHref} target="_blank" rel="noopener noreferrer" className="hover:text-primary focus:outline-none focus:underline">
+                  WhatsApp chat <ExternalLink className="inline w-3.5 h-3.5 ml-1 align-[-2px]" />
+                </Link>
+              </li>
+              <li className="flex items-start gap-3">
+                <MapPin className="w-5 h-5 text-primary mt-0.5" />
+                <span>{info.address}</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <ExternalLink className="w-5 h-5 text-primary mt-0.5" />
+                <Link href={info.facebook} target="_blank" rel="noopener noreferrer" className="hover:text-primary focus:outline-none focus:underline">
+                  Facebook page
+                </Link>
+              </li>
+            </ul>
+
+            <div className="mt-6 rounded-lg bg-primary/5 p-4 text-xs sm:text-sm text-slate-700">
+              Our team replies within a few hours during 08:00–20:00 (UTC+07:00).
             </div>
           </div>
-          {/* <div>
-            <h3 className="text-xl font-bold mb-4">Send Us a Message</h3>
-            <form onSubmit={handleSubmit} className="bg-white p-8 shadow-md rounded">
-              <div className="mb-4">
-                <label className="block text-gray-700">Name</label>
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border rounded"
-                  required
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-gray-700">Email</label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border rounded"
-                  required
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-gray-700">Message</label>
-                <textarea
-                  name="message"
-                  value={formData.message}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border rounded"
-                  rows="5"
-                  required
-                ></textarea>
-              </div>
-              <button type="submit" className="w-full bg-blue-500 text-white py-2 rounded">
-                Send Message
-              </button>
-            </form>      
-          </div> */}
 
-            <div className='m-1 p-1'>
-              {showMessage && (
-                <div className="mt-6 p-4 bg-green-100 text-green-700 rounded">
-                  {responseMessage}
-                </div>
-              )}
-            </div>
-            
+          {/* Form card */}
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 sm:p-6">
+            <h2 className="text-base sm:text-lg font-semibold text-slate-800 mb-4">Send us a message</h2>
+
+            {toast && (
+              <div
+                className={`mb-4 rounded-md px-4 py-2 text-sm ${
+                  toast.type === "success"
+                    ? "bg-green-50 text-green-700 border border-green-200"
+                    : "bg-red-50 text-red-700 border border-red-200"
+                }`}
+                role="status"
+              >
+                {toast.message}
+              </div>
+            )}
+
+            <form onSubmit={onSubmit} className="space-y-4">
+              <div>
+                <label htmlFor="name" className="block text-sm font-medium text-slate-700">
+                  Name
+                </label>
+                <input
+                  id="name"
+                  name="name"
+                  type="text"
+                  autoComplete="name"
+                  value={formData.name}
+                  onChange={onChange}
+                  required
+                  className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  placeholder="Your name"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-slate-700">
+                  Email
+                </label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  value={formData.email}
+                  onChange={onChange}
+                  required
+                  className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  placeholder="you@example.com"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="message" className="block text-sm font-medium text-slate-700">
+                  Message
+                </label>
+                <textarea
+                  id="message"
+                  name="message"
+                  rows={5}
+                  value={formData.message}
+                  onChange={onChange}
+                  required
+                  className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  placeholder="How can we help?"
+                />
+              </div>
+
+              <div className="flex items-center justify-between gap-3 pt-1">
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-white text-sm disabled:opacity-50"
+                >
+                  {loading ? "Sending…" : "Send message"}
+                </button>
+
+                <p className="text-xs text-slate-500">
+                  Prefer chat?{" "}
+                  <Link href={waHref} target="_blank" rel="noopener noreferrer" className="underline hover:text-primary">
+                    WhatsApp
+                  </Link>
+                </p>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
     </section>

@@ -74,9 +74,9 @@ const SearchSection = () => {
     <div className='grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 py-4 gap-0 bg-white'>
       <div className='p-4 items-center'>
           <div className='mx-auto placeholder:p-4 md:p-6 border-0 rounded-t-xl rounded-b-none'>
-            <span className='font-thin text-lg sm:text-md'>From 350 THB. After 5 km, rates are based on distance.</span>
-            <p className='text-5xl text-secondary font-semibold m-2 sm:text-1xl'>Book Now </p>
-            <p className='text-lg font-thin mt-4 sm:text-md'>
+            <span className='font-thin text-sm sm:text-base md:text-lg lg:text-xl'>From 350 THB. After 5 km, rates are based on distance.</span>
+            <p className='text-xl sm:text-2xl md:text-4xl lg:text-5xl text-secondary font-semibold m-2'>Book Now </p>
+            <p className='font-thin text-sm sm:text-base md:text-lg lg:text-xl'>
                 Choose your pickup and dropoff location, <span>We show youre route.</span>
             </p>
             <InputItem type='source' />

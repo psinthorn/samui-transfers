@@ -25,7 +25,7 @@ const CarListOptions = ({ distance,  handleBookNow }) => {
 
   return ( 
     <div>
-        <div className='p-4 overflow-auto h-[480px]'>
+        <div className='p-4 overflow-auto h-full'>
           { CarListData.map((car, index) => (    
             <div key={car.ID} className='cursor-pointer p-2'
             onClick={() => handleClick(index)}
@@ -36,10 +36,9 @@ const CarListOptions = ({ distance,  handleBookNow }) => {
         </div>    
 
         { selectedCar?
-          <div className='relative flex justify-between bottom-8 items-center font-bold text-center w-full text-slate-700 p-4 shadow-xl bg-white  md:w-full sm:w-full border-[1px] rounded-sm '>
+          <div className='relative flex justify-between bottom-4 items-center font-bold text-center w-full text-slate-700 p-4 shadow-xl bg-white  md:w-full sm:w-full border-[1px] rounded-sm '>
              <h2>{selectedCar.type} Rate Avg. { requestTransfer.rate } THB</h2>
              <button onClick={() => handleBookNow( requestTransfer.carType, requestTransfer.carModel,  )} className='bg-black text-white rounded-lg text-center p-4'>Book Now</button>
-             {/* <Booking /> */}
            </div> 
            : null
         }
