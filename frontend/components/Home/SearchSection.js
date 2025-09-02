@@ -77,7 +77,7 @@ const SearchSection = () => {
             <span className='font-thin text-sm sm:text-base md:text-lg lg:text-xl'>From 350 THB. After 5 km, rates are based on distance.</span>
             <p className='text-xl sm:text-2xl md:text-4xl lg:text-5xl text-secondary font-semibold m-2'>Book Now </p>
             <p className='font-thin text-sm sm:text-base md:text-lg lg:text-xl'>
-                Choose your pickup and dropoff location, <span>We show youre route.</span>
+              Enter pickup and drop‑off to see price and route.
             </p>
             <InputItem type='source' />
             <InputItem type='destination' /> 

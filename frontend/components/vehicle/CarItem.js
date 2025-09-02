@@ -35,7 +35,7 @@ const CarItem = ({car, distance }) => {
       onClick={() => {handleClick(car.ID)} }
     > 
         <div className='hidden w-full lg:block' >
-          <Image layout="responsive" src={car.image} alt={car.model} width={50} height={30}  />
+          <Image layout="responsive" src={car.image} alt={car.model} width={25} height={15}  />
         </div>
         <div>
           <div className='flex items-center gap-3'>
