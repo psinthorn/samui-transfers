@@ -79,12 +79,11 @@ const { destination, setDestination } = useDestinationContext();
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2  gap-0 bg-white w-full text-center py-8 sm:py-12 md:py-16 lg:py-24">
                 <div className="col-span-1 p-8 ">
-                  <div className="relative w-full aspect-[16/9] overflow-hidden rounded-lg shadow">
+                  <div className="relative w-full aspect-[16/9] overflow-hidden">
                     <Image
                       src="/toyota-commuter-nathon-pier-169.png"
                       alt="Toyota Commuter in daylight"
                       fill
-                      priority
                       sizes="(min-width: 1024px) 50vw, 100vw"
                       className="object-cover"
                     />
@@ -105,7 +104,7 @@ const { destination, setDestination } = useDestinationContext();
                   {/* <SearchSection /> */}
                 </div>
                   <div className="col-span-1 p-8 ">
-                    <div className="relative w-full aspect-[16/9] overflow-hidden rounded-lg shadow">
+                    <div className="relative w-full aspect-[16/9] overflow-hidden">
                       <Image
                         src="/toyota-fortuner-169.png"
                         alt="Toyota Fortuner on the beach"
@@ -117,6 +116,7 @@ const { destination, setDestination } = useDestinationContext();
                   </div>
               </div>
             </div>
+
               <div className="grid grid-cols-1 md:grid-cols-3 p-6 gap-5 ">
                 <div >
                     {/* <SearchSection /> */}
