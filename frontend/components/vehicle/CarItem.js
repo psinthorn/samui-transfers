@@ -1,65 +1,124 @@
 "use client"
 
-import Image from 'next/image';
-import { use, useState, useEffect } from 'react';
-import { HiUser, Lug } from 'react-icons/hi';
-import RateCalculate  from './../utilities/RateCalculate';
-import { useRequestTransferContext } from '@/context/RequestTransferContext';
+import Image from "next/image"
+import React, { useMemo, useState } from "react"
+import { HiUser, HiOutlineBriefcase } from "react-icons/hi"
+import RateCalculate from "../utilities/RateCalculate"
+import { useRequestTransferContext } from "@/context/RequestTransferContext"
 
-const CarItem = ({car, distance }) => {
-  const { requestTransfer, setRequestTransfer } = useRequestTransferContext();
+const CarItem = ({ car, distance }) => {
+  const { requestTransfer, setRequestTransfer } = useRequestTransferContext()
+  const [activeID, setActiveID] = useState()
 
-  const [activeID, setActiveID] = useState();
-  const [carId, setCarId] = useState();
-  const [buttonID, setButtonID] = useState();
-  const [rateEstimate, setRateEstimate] = useState(0);
-  const [selectedCar, setSelectedCar] = useState();
+  // Compute estimated rate (no state race conditions)
+  const rateEstimate = useMemo(() => {
+    if (!distance || !car?.rate) return 0
+    try {
+      return Number(RateCalculate({ distance }, car.rate)) || 0
+    } catch {
+      return 0
+    }
+  }, [distance, car?.rate])
 
-  // Set active car ID and button ID
-  const handleClick = (carID) => {
-    setCarId(carID);
-    setActiveID(carID);
-    setButtonID(carID);
-    setSelectedCar(car);
-  };
+  const isSelected =
+    activeID === car?.ID ||
+    requestTransfer?.carModel === car?.model ||
+    requestTransfer?.carType === car?.type
 
-  // if distance or car rate changes, then recalculate rate
-  useEffect(() => {
-      const rateAvrage = RateCalculate({distance}, car.rate);
-      setRateEstimate(rateAvrage);
-      setRequestTransfer({...requestTransfer, carType: car.type, carModel: car.model, rate: rateEstimate});
-  }, [activeID, distance, car]); 
+  const handleSelect = () => {
+    setActiveID(car?.ID)
+    setRequestTransfer({
+      ...requestTransfer,
+      carType: car?.type,
+      carModel: car?.model,
+      vehicleId: car?.ID,
+      rate: Math.round(rateEstimate),
+    })
+  }
+
+  const priceText =
+    rateEstimate > 0 ? `${Math.round(rateEstimate).toLocaleString()} THB` : "—"
 
   return (
-    <div className='flex p-2  m-1 gap-2 rounded-sm  hover:bg-slate-200 active:bg-slate-200 focus:outline-2px focus:ring focus:ring-slate-200'
-      onClick={() => {handleClick(car.ID)} }
-    > 
-        <div className='hidden w-full lg:block' >
-          <Image layout="responsive" src={car.image} alt={car.model} width={25} height={15}  />
-        </div>
-        <div>
-          <div className='flex items-center gap-3'>
-              <h2 className='font-semibold items-center gap-2 '>{car.type}</h2> 
-              <span className='flex items-center font-normal text-center'><HiUser/><p className='items-center mt-1'>{ car.seat }</p></span>
-              <span className='flex items-center font-normal text-center'><HiUser/><p className='items-center mt-1'>{ car.seat }</p></span>
+    <button
+      type="button"
+      onClick={handleSelect}
+      aria-pressed={isSelected}
+      className={[
+        "w-full text-left rounded-lg border p-3 sm:p-4 transition",
+        "bg-white hover:bg-slate-50",
+        isSelected ? "border-primary ring-2 ring-primary/20" : "border-slate-200",
+        "flex items-start gap-3 sm:gap-4",
+      ].join(" ")}
+    >
+      {/* Image */}
+      <div className="relative h-20 w-32 shrink-0 overflow-hidden rounded md:h-24 md:w-40">
+        {car?.image ? (
+          <Image
+            src={car.image}
+            alt={car?.model || car?.type || "Vehicle"}
+            fill
+            sizes="(max-width: 768px) 128px, 160px"
+            className="object-cover"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center bg-slate-100 text-xs text-slate-500">
+            No image
           </div>
-          <p className='p-1'>{car.desc}</p>
+        )}
+      </div>
+
+      {/* Content */}
+      <div className="flex-1 min-w-0">
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            <h3 className="truncate text-base font-semibold text-slate-900">
+              {car?.type}
+            </h3>
+            {car?.model ? (
+              <p className="truncate text-xs text-slate-500">{car.model}</p>
+            ) : null}
+          </div>
+          <div className="text-right">
+            <p className="text-sm font-semibold text-slate-900">{priceText}</p>
+            <p className="text-xs text-slate-500">Estimated</p>
+          </div>
         </div>
 
-        {/* {car.ID === activeID ? */}
-          <div className='font-bold'>
-          {/* Display rate estimate on click car item */}
-           {/* { activeID ? Math.ceil(rateEstimate).toFixed(2) : null }  */}
+        {/* Meta: seats/luggage */}
+        <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-slate-600">
+          <span className="inline-flex items-center gap-1">
+            <HiUser className="h-4 w-4 text-slate-500" />
+            {car?.seat || "-"} seats
+          </span>
+          {car?.luggage ? (
+            <span className="inline-flex items-center gap-1">
+              <HiOutlineBriefcase className="h-4 w-4 text-slate-500" />
+              {car.luggage} luggage
+            </span>
+          ) : null}
+        </div>
 
-          {/* Display rate estimate on all car items if distance is set */}
+        {/* Description */}
+        {car?.desc ? (
+          <p className="mt-2 line-clamp-2 text-sm text-slate-600">{car.desc}</p>
+        ) : null}
 
-           { distance ? Math.ceil(rateEstimate).toFixed(2) :  0.0 } 
-            <br/>
-            THB
-          </div>   
-          {/* : null } */}  
-        {/* { activeID === car.ID ? <button className='bg-black text-white rounded-lg text-center p-3'>Book Now</button> : null}      */}
-    </div>
+        {/* CTA */}
+        <div className="mt-3">
+          <span
+            className={[
+              "inline-flex items-center justify-center rounded-md px-3 py-1.5 text-sm font-semibold",
+              isSelected
+                ? "bg-primary text-white"
+                : "bg-white text-primary ring-1 ring-inset ring-primary hover:bg-primary/5",
+            ].join(" ")}
+          >
+            {isSelected ? "Selected" : "Choose vehicle"}
+          </span>
+        </div>
+      </div>
+    </button>
   )
 }
 

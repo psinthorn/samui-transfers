@@ -28,3 +28,14 @@ A collection of prompts used while building this project.
 - fix low contrast on the AI Chat button in the mobile menu
 - add a prominent “Book now” and “Chat” action to the header with mobile-first styles
 - create a mobile-first AI Chat page and link it from the
+
+## Today's prompts — 2025-09-03
+- as you are an UX/UI professional experienced please redesign booking form that is multi step page and form you can from this file BookingForm.js and another file is as below 1. StepNavigation 2. BookingStep 3. ConfirmationStep 4. ThankYouStep please redesign with clean and clear style
+- as you are an UX/UI professional experienced please redesign this BookingStep.tsx to mobile first with clean and clear style and add number of passangers input field too
+- as you are an UX/UI professional experienced please redesign this ConfirmationStep.tsx to mobile first with clean and clear style and add number of passangers field too
+- as you are an UX/UI professional experienced please redesign this ThankYouStep.tsx to mobile first with clean and clear style
+- as we are added passangers and notes to form please add it to email body too
+- as you are an UX/UI professional experienced please redesign this PaymentStep.tsx to mobile first with clean and clear style
+- on clicking confirm booking button please add loading on waiting
+- can you suggest on this term and condition and add to this page (Terms and conditions list)
+- please add this term and condition to part of email body (Terms and conditions list)
