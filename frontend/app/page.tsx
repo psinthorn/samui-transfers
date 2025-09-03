@@ -81,7 +81,7 @@ const { destination, setDestination } = useDestinationContext();
                 <div className="col-span-1 p-8 ">
                   <div className="relative w-full aspect-[16/9] overflow-hidden rounded-lg shadow">
                     <Image
-                      src="/toyota-commeter-day-light.png"
+                      src="/toyota-commuter-nathon-pier-169.png"
                       alt="Toyota Commuter in daylight"
                       fill
                       priority
@@ -107,7 +107,7 @@ const { destination, setDestination } = useDestinationContext();
                   <div className="col-span-1 p-8 ">
                     <div className="relative w-full aspect-[16/9] overflow-hidden rounded-lg shadow">
                       <Image
-                        src="/toyota-fortunner-on-the-beach.png"
+                        src="/toyota-fortuner-169.png"
                         alt="Toyota Fortuner on the beach"
                         fill
                         sizes="(min-width: 1024px) 50vw, 100vw"
