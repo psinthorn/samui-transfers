@@ -15,7 +15,7 @@ const ThankYouStep = ({ formData }: any) => {
       <p className='text-center'>Your booking has been successfully submitted.</p>
       <div className='text-center font-semibold text-lg p-4 bg-slate-100 rounded-lg my-4'>
         <p>Fare Rate Total: <span className='font-bold text-2xl'> { formData.rate } THB</span></p>
-        <p>Make deposit @50% for booking: <span className='font-bold text-2xl'> { (formData.rate / 2).toFixed(2) }THB </span></p>
+        <p>Make deposit @100% for booking: <span className='font-bold text-2xl'> { (formData.rate / 1).toFixed(2) }THB </span></p>
       </div>
       
       <PaymentStep />

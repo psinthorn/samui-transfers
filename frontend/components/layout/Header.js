@@ -64,35 +64,22 @@ export default function Header() {
         <div className="hidden md:flex items-center gap-3">
           {/* Book now (primary) */}
           <Link
-            href="/booking"
+            href="/"
             aria-label="Book now"
             className="inline-flex items-center gap-2 rounded-md bg-white px-3 py-2 text-sm font-semibold text-primary hover:bg-white/90"
           >
             Book now
           </Link>
 
-          {/* AI Chat (in-app) */}
-          {isExternal(publicInfo.aiChatUrl) ? (
-            <a
-              href={publicInfo.aiChatUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="AI Chat"
-              className="inline-flex items-center gap-2 rounded-md bg-white/10 px-3 py-2 text-sm text-white hover:bg-white/20"
-            >
-              <MessageCircle className="h-4 w-4" />
-              AI Chat
-            </a>
-          ) : (
-            <Link
-              href={publicInfo.aiChatUrl}
-              aria-label="AI Chat"
-              className="inline-flex items-center gap-2 rounded-md bg-white/10 px-3 py-2 text-sm text-white hover:bg-white/20"
-            >
-              <MessageCircle className="h-4 w-4" />
-              AI Chat
-            </Link>
-          )}
+          {/* AI Chat (links to in-app page) */}
+          <Link
+            href="/aichat"
+            aria-label="AI Chat"
+            className="inline-flex items-center gap-2 rounded-md bg-white/10 px-3 py-2 text-sm text-white hover:bg-white/20"
+          >
+            <MessageCircle className="h-4 w-4" />
+            AI Chat
+          </Link>
 
           {/* WhatsApp */}
           <a
@@ -147,25 +134,13 @@ export default function Header() {
                   Book now
                 </Link>
 
-                {isExternal(publicInfo.aiChatUrl) ? (
-                  <a
-                    href={publicInfo.aiChatUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-2 rounded-md bg-white px-3 py-2 text-sm font-semibold text-primary hover:bg-white/90"
-                  >
-                    <MessageCircle className="h-4 w-4" />
-                    AI Chat
-                  </a>
-                ) : (
-                  <Link
-                    href={publicInfo.aiChatUrl}
-                    className="inline-flex items-center justify-center gap-2 rounded-md bg-white px-3 py-2 text-sm font-semibold text-primary hover:bg-white/90"
-                  >
-                    <MessageCircle className="h-4 w-4" />
-                    AI Chat
-                  </Link>
-                )}
+                <Link
+                  href="/aichat"
+                  className="inline-flex items-center justify-center gap-2 rounded-md bg-white px-3 py-2 text-sm font-semibold text-primary hover:bg-white/90"
+                >
+                  <MessageCircle className="h-4 w-4" />
+                  AI Chat
+                </Link>
 
                 <a
                   href={whatsappHref}

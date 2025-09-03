@@ -23,7 +23,7 @@ Let us take the wheel while you sit back, relax, and enjoy the ride on paradise 
   ];
 
   return (
-    <section className="bg-slate-50 px-4 sm:px-6 lg:px-16 py-8 lg:py-16">
+    <section className="px-4 sm:px-6 lg:px-16 py-8 lg:py-16">
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10">
         <header className="m-auto text-center space-y-2">
           <h1 className="text-4xl sm:text-5xl lg:text-6xl text-primary font-light">About Us</h1>

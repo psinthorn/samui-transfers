@@ -62,7 +62,7 @@ const { destination, setDestination } = useDestinationContext();
              {canShowMap && (
               <div className="grid grid-cols-1 lg:grid-cols-2 mb-24 py-4 bg-white mt-8">
                 <div className="col-span-1 flex flex-col justify-center gap-4 p-8">
-                  <h1 className=" text-primary sm:text-3xl md:text-5xl lg:text-7xl">Route</h1>
+                  <h1 className=" text-primary text-3xl sm:text-3xl md:text-5xl lg:text-7xl">Route</h1>
                   <p>Visualize your journey from pickup to drop‑off on the map.</p>
                 </div>
                 <div className="col-span-1 p-4 min-h-[400px] max-h-[600px] space-y-4 md:p-8">

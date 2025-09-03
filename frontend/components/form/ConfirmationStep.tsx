@@ -69,9 +69,9 @@ const ConfirmationStep = ({ formData, handleSendmail, prevStep, nextStep }: any)
           <Label className='font-semibold text-md'>Terms and Conditions</Label>
           <p className="text-sm text-gray-600 mb-1">Please read and agree to the terms and conditions before proceeding.</p>
           <Label className='font-semibold text-md'>Conditions for booking</Label>
-          <p className='text-sm'><strong></strong>1. When booking, pay 50% of the total travel price.</p>
-          <p className='text-sm'><strong></strong>2. Cancel before 7 days of departure, we will refund 100% of the deposit.</p>
-          <p className='text-sm'><strong></strong>3. Cancel before 3 days of departure. We refund 50% of the deposit within 5-7 business days.</p>
+          <p className='text-sm'><strong></strong>1. When booking, pay 100% of the total travel price.</p>
+          <p className='text-sm'><strong></strong>2. Cancel before 3 days of departure, we will refund 100% of the deposit.</p>
+          <p className='text-sm'><strong></strong>3. Cancel before 24 hrs of departure. We refund 70% of the deposit within 5-7 business days.</p>
       
           {/* Agree to terms and conditions form */}
           <form

@@ -9,7 +9,7 @@ export const CarListData = [
           desc: "SUV car with 4 seats hight performance and luxury interior",
           seat: 3,
           rate: [
-            350,
+            350, 
             35,
             29,
           ],

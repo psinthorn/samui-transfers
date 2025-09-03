@@ -1,107 +1,108 @@
-This is a Locoride frontend project.
+# Samui Transfers — Frontend
 
-## what is Locoride?
-Locoride is a cutting-edge platform designed to revolutionize urban transportation. By leveraging advanced technologies, Locoride aims to provide efficient, eco-friendly, and cost-effective mobility solutions for city dwellers. The platform integrates various modes of transport, including ride-sharing, bike rentals, and public transit, into a seamless user experience. With real-time data analytics and AI-driven optimizations, Locoride ensures that users can navigate the city with ease, reducing traffic congestion and minimizing environmental impact.
+A Next.js frontend for booking private transfers on Koh Samui. Visitors enter pickup and drop‑off to see price and route, choose a vehicle, and submit a booking request.
 
 ## Features
-- Multi-modal transportation options
-- Real-time data analytics
-- AI-driven route optimization
-- Eco-friendly mobility solutions
-- Cost-effective transportation services
-- Seamless user experience
-- Reduced traffic congestion
-- Minimal environmental impact
-- Cutting-edge urban mobility platform
-- Efficient city navigation
-- Advanced technologies
-- Ride-sharing, bike rentals, and public transit integration
-- Smart transportation solutions
-- Sustainable urban development
-- Innovative mobility services
-- Urban transportation revolution
-- City dwellers
-- Eco-conscious commuters
-- Smart city initiatives
-- Sustainable transportation systems
-- Green mobility solutions
-- Urban mobility trends
-- Future of transportation
-- Mobility as a service
+- Google Places Autocomplete for pickup/drop‑off
+- Route preview on Google Maps with clear pickup/drop‑off markers
+- Dynamic map loading (client‑only) with duplicate‑script protection
+- Mobile‑first UI with Tailwind CSS
+- Vehicle highlights (Minibus, SUV) with media
+- Clean booking form with validation and live trip summary
+- Email notifications (admin + customer) via Nodemailer
+- Company and “Managed by” details pulled from environment variables
 
-## Technologies
-### Frontend
-- React
-- Next.js
-- TypeScript
+## Tech Stack
+- Next.js (App Router) and React
 - Tailwind CSS
-### Backend
-- Golang
-- Gin
-- Node.js
-- Express
-### Database
-- PostgreSQL
-- MongoDB
-- Redis
-### Cloud and DevOps
-- AWS
-- Docker
-- Kubernetes
-- Vercel
-- Google Maps API
-
-- Google Fonts
-- Font Awesome
-- Unsplash
-- Pexels
-- Freepik
-- Balsamiq
-- Webflow
+- @react-google-maps/api and react-google-places-autocomplete
+- Nodemailer (API route)
+- Deployed on Vercel
 
 ## Getting Started
-Dowonload rpositories and install dependencies 
+Prerequisites:
+- Node.js 18+ (LTS)
+- A Google Maps API key with Places enabled
+- SMTP credentials to send email
 
+Install and run:
 ```bash
-git clone https://github.com/psinthorn/locoride.git
-npm run install --legacy-peer-deps
-
-```
-to run the frontend development server:
-
-```bash
+npm install
 npm run dev
-# or
-pnpm dev
-
+# open http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Build and start:
+```bash
+npm run build
+npm start
+```
 
+## Environment Variables
+Create a .env.local in frontend/ (do not commit). Example:
 
-## Deploy on Vercel
-### we are using Vercel for frontend deployment on 1st version
-- [Vercel](https://vercel.com/)
-- [Vercel Documentation](https://vercel.com/docs)
+```dotenv
+# Client (exposed in browser)
+NEXT_PUBLIC_GOOGLE_API_KEY=your_google_maps_api_key
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+# SMTP (server-only)
+# SSL (465)
+SMTP_SSL_HOST=smtp.yourhost.com
+SMTP_SSL_PORT=465
+SMTP_SSL_USER=your_user
+SMTP_SSL_PASS=your_pass
+# Or STARTTLS (587)
+# SMTP_HOST=smtp.yourhost.com
+# SMTP_PORT=587
+# SMTP_USER=your_user
+# SMTP_PASS=your_pass
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+# Company details (used in email templates)
+COMPANY_NAME=Samui Transfers
+BOOKING_EMAIL=booking@samui-transfers.com
+SUPPORT_EMAIL=info@samui-transfers.com
+SUPPORT_PHONE=(+66) 99 108 7999
+SUPPORT_WHATSAPP=66991087999
+COMPANY_ADDRESS=9/38 Moo 6, Bo Phut, Ko Samui, Surat Thani 84320, Thailand
+COMPANY_FACEBOOK=https://www.facebook.com/profile.php?id=61578880422159
+COMPANY_WEBSITE=https://samui-transfers.com
 
+# Managed by (email footer)
+MANAGED_BY_NAME=Samui Transfers Co., Ltd.
+MANAGED_BY_REG=0105551234567
+MANAGED_BY_WEBSITE=https://www.f2.co.th
+MANAGED_BY_EMAIL=management@samui-transfers.com
+MANAGED_BY_PHONE=(+66) 64 027 0528
+```
 
-# Corporate Identity
-- [Logo](https://drive.google.com/file/d/1J9Q6J9Q9)
-- [Color Palette](https://drive.google)
-- [Typography](https://drive.google)
-- [Iconography](https://drive.google)
-- [Illustrations](https://drive.google)
-- [Photography](https://drive.google)
-- [Video](https://drive.google)
-- [Audio](https://drive.google)
-- [3D Assets](https://drive.google)
-- [Animations](https://drive.google)
-- [Design System](https://drive.google)
-- [Brand Guidelines](https://drive.google)
-- [Brand Assets](https://drive.google)
+Notes:
+- Only prefix values needed on the client with NEXT_PUBLIC_ (e.g., Google Maps key).
+- Restart the dev server after editing .env.local.
 
-- color color='#f97316'
+## Key Paths
+- app/page.tsx — Home page, client‑only map sections loaded via dynamic import
+- components/Home/SearchSection.js — Pickup/drop‑off inputs, vehicle list
+- components/Home/InputItem.js — Google Places Autocomplete input
+- components/Home/GoogleMapsSection.js — Map, markers, and route rendering
+- components/form/BookingForm.js — Booking flow container
+- components/form/StepNavigation.tsx — Step indicator for booking
+- pages/api/booking.js — Sends admin and customer emails via Nodemailer
+- public/icons/ — SVG markers (pickup/drop‑off/person)
+
+## Implementation Details
+- Maps: useJsApiLoader({ id: "google-maps", libraries: ["places"] }) to inject the script once.
+- DirectionsRenderer is rendered only when a valid DirectionsResult exists (prevents setDirections errors).
+- Email templates use inline CSS compatible with major email clients; buttons spaced with margins (not gap/flex).
+
+## Deployment (Vercel)
+1) Push to a Git repository connected to Vercel.
+2) Add Environment Variables in Vercel Project Settings (same keys as .env.local).
+3) Deploy. Vercel will build and host the Next.js app.
+
+## Troubleshooting
+- “Google API already loaded”: ensure only useJsApiLoader is used; remove any LoadScript wrappers.
+- Directions InvalidValueError: render DirectionsRenderer only with a valid result.
+- Emails not sending: verify SMTP vars and ports (SSL 465 vs STARTTLS 587).
+
+## License
+No license specified. All rights reserved
