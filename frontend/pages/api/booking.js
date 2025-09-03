@@ -24,6 +24,7 @@ export default async (req, res) => {
       name: process.env.COMPANY_NAME || "Samui Transfers",
       bookingEmail: process.env.BOOKING_EMAIL || "booking@samui-transfers.com",
       supportEmail: process.env.SUPPORT_EMAIL || "info@samui-transfers.com",
+      infoEmail: process.env.INFO_EMAIL || "info@samui-transfers.com",
       phone: process.env.SUPPORT_PHONE || "(+66) 99 108 7999",
       whatsapp: (process.env.SUPPORT_WHATSAPP || "66991087999").replace(/[^\d]/g, ""),
       address: process.env.COMPANY_ADDRESS || "9/38 Moo 6, Bo Phut, Ko Samui, Surat Thani 84320, Thailand",
@@ -110,7 +111,7 @@ export default async (req, res) => {
             <tr><td style="padding:4px 0;color:#475569">Vehicle</td><td style="text-align:right">${[carType, carModel].filter(Boolean).join(" — ") || "-"}</td></tr>
             <tr><td style="padding:4px 0;color:#475569">Rate</td><td style="text-align:right">${rate || "-"}</td></tr>
           </table>
-
+          ${termsHtml}
           <hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0"/>
 
           <p style="margin:0;color:#64748b;font-size:12px">
@@ -164,7 +165,7 @@ export default async (req, res) => {
               style="display:inline-block;background:${PRIMARY};color:#fff;text-decoration:none;border-radius:8px;padding:10px 14px;font-size:14px;margin:0 8px 8px 0"
             >Chat on WhatsApp</a>
             <a
-              href="mailto:${COMPANY.supportEmail}"
+              href="mailto:${COMPANY.infoEmail}"
               style="display:inline-block;background:#0ea5e9;color:#fff;text-decoration:none;border-radius:8px;padding:10px 14px;font-size:14px;margin:0 8px 8px 0"
             >Email support</a>
             <a
@@ -185,7 +186,7 @@ export default async (req, res) => {
             ${COMPANY.name} • ${COMPANY.address}
           </p>
           <p style="margin:0 0 6px 0;color:#64748b;font-size:12px">
-            Tel: ${COMPANY.phone} • Email: <a href="mailto:${COMPANY.supportEmail}" style="color:${PRIMARY};text-decoration:none">${COMPANY.supportEmail}</a> • WhatsApp: <a href="https://wa.me/${COMPANY.whatsapp}" style="color:${PRIMARY};text-decoration:none">+${COMPANY.whatsapp}</a>
+            Tel: ${COMPANY.phone} • Email: <a href="mailto:${COMPANY.infoEmail}" style="color:${PRIMARY};text-decoration:none">${COMPANY.infoEmail}</a> • WhatsApp: <a href="https://wa.me/${COMPANY.whatsapp}" style="color:${PRIMARY};text-decoration:none">+${COMPANY.whatsapp}</a>
           </p>
           ${managedByHtml}
           <p style="margin:0;color:#94a3b8;font-size:11px">
