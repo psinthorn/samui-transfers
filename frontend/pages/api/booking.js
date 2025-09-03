@@ -5,7 +5,7 @@ import nodemailer from 'nodemailer';
 
 export default async (req, res) => {
   if (req.method === 'POST') {
-    const { requestNumber, firstName, lastName, email, mobile, flightNo, date, carType, carModel, rate, pickupPoint, dropoffPoint, cardNumber, expiryDate, cvv, recaptchaToken } = req.body;
+    const { requestNumber, firstName, lastName, email, mobile, flightNo, passengers, date, carType, carModel, rate, pickupPoint, dropoffPoint, notes, cardNumber, expiryDate, cvv, recaptchaToken } = req.body;
 
     // Create a transporter object using Mailtrap
     const transporter = nodemailer.createTransport({
@@ -75,6 +75,8 @@ export default async (req, res) => {
             <tr><td style="padding:4px 0;color:#475569">Email</td><td style="text-align:right">${email}</td></tr>
             <tr><td style="padding:4px 0;color:#475569">Mobile</td><td style="text-align:right">${mobile}</td></tr>
             <tr><td style="padding:4px 0;color:#475569">Flight no.</td><td style="text-align:right">${flightNo || "-"}</td></tr>
+            <tr><td style="padding:4px 0;color:#475569">Passengers</td><td style="text-align:right">${passengers || "-"}</td></tr>
+            <tr><td style="padding:4px 0;color:#475569">Notes</td><td style="text-align:right">${notes || "-"}</td></tr>
           </table>
 
           <h3 style="margin:16px 0 8px 0;font-size:16px;color:#0f172a">Booking</h3>
@@ -119,6 +121,10 @@ export default async (req, res) => {
             <tr><td style="padding:4px 0;color:#475569">Email</td><td style="text-align:right">${email}</td></tr>
             <tr><td style="padding:4px 0;color:#475569">Mobile</td><td style="text-align:right">${mobile}</td></tr>
             <tr><td style="padding:4px 0;color:#475569">Flight no.</td><td style="text-align:right">${flightNo || "-"}</td></tr>
+            <!-- Added -->
+            <tr><td style="padding:4px 0;color:#475569">Passengers</td><td style="text-align:right">${passengers || "-"}</td></tr>
+            <tr><td style="padding:4px 0;color:#475569">Notes</td><td style="text-align:right">${notes || "-"}</td></tr>
+            <!-- /Added -->
             <tr><td style="padding:4px 0;color:#475569">Pickup</td><td style="text-align:right">${pickupPoint}</td></tr>
             <tr><td style="padding:4px 0;color:#475569">Drop‑off</td><td style="text-align:right">${dropoffPoint}</td></tr>
             <tr><td style="padding:4px 0;color:#475569">Date/Time</td><td style="text-align:right">${date}</td></tr>
