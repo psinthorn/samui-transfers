@@ -60,6 +60,28 @@ export default async (req, res) => {
       </p>`
         : ""
 
+    // Terms and conditions (for customer email)
+    const termsHtml = `
+      <div style="margin-top:16px">
+        <h3 style="margin:0 0 8px 0;font-size:14px;color:#0f172a">Terms and conditions</h3>
+        <ul style="margin:0;padding-left:18px;color:#334155;font-size:13px">
+          <li>Payment: 100% deposit required to confirm your booking.</li>
+          <li>Cancellation: ≥ 72 hours before pickup — full refund of deposit.</li>
+          <li>Cancellation: 24–72 hours before pickup — 70% refund within 5–7 business days.</li>
+          <li>Cancellation: &lt; 24 hours or no‑show — non‑refundable.</li>
+          <li>Changes: One free change up to 24 hours before pickup (subject to availability; fare differences may apply).</li>
+          <li>Waiting time: Airport pickups include 60 minutes free; other pickups include 15 minutes free. Extra waiting may incur charges or require a new booking.</li>
+          <li>Passengers &amp; luggage: Passenger count must match the booking. Oversized luggage or extra items may require a larger vehicle and additional fees.</li>
+          <li>Child seats: Available on request; please specify in Notes so we can confirm availability.</li>
+          <li>Delays: We monitor flight delays and will adjust pickup when possible. Significant delays may require rescheduling.</li>
+          <li>Conduct &amp; safety: No smoking or open alcohol in vehicles. Seat belts are required at all times.</li>
+          <li>Pricing: All prices in THB; taxes/fees included unless stated otherwise.</li>
+          <li>Force majeure: Not liable for delays caused by events beyond our control (weather, traffic incidents, etc.).</li>
+        </ul>
+        <p style="margin:8px 0 0 0;color:#94a3b8;font-size:11px">By continuing, you accept these terms.</p>
+      </div>
+    `
+
     // Admin email — subject, body, footer
     const adminSubject = `New transfer request — ${requestNumber || "-"}`
 
@@ -154,6 +176,8 @@ export default async (req, res) => {
           <p style="margin:16px 0 0 0;color:#475569;font-size:13px">
             If a deposit is required, we’ll send secure payment instructions after confirmation.
           </p>
+
+          ${termsHtml}
 
           <hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0"/>
 

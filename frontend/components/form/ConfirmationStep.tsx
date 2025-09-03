@@ -24,7 +24,7 @@ export default function ConfirmationStep({ formData = {}, handleSendmail, prevSt
     try {
       const ret = handleSendmail?.(e)
       // Support async handlers
-      if (ret && typeof (ret as any).then === "function") {
+      if (ret !== undefined && typeof (ret as any)?.then === "function") {
         await (ret as Promise<any>)
       }
     } finally {
@@ -71,10 +71,20 @@ export default function ConfirmationStep({ formData = {}, handleSendmail, prevSt
       <section className="mt-5">
         <h3 className="text-sm font-semibold text-slate-900">Terms and conditions</h3>
         <ul className="mt-2 list-disc pl-5 text-sm text-slate-700 space-y-1">
-          <li>Pay 100% of the total travel price when booking.</li>
-          <li>Cancel ≥ 3 days before departure: 100% refund of deposit.</li>
-          <li>Cancel ≥ 24 hours before departure: 70% refund within 5–7 business days.</li>
+          <li>Payment: 100% deposit required to confirm your booking.</li>
+          <li>Cancellation: ≥ 72 hours before pickup — full refund of deposit.</li>
+          <li>Cancellation: 24–72 hours before pickup — 70% refund within 5–7 business days.</li>
+          <li>Cancellation: &lt; 24 hours or no‑show — non‑refundable.</li>
+          <li>Changes: One free change up to 24 hours before pickup (subject to availability; fare differences may apply).</li>
+          <li>Waiting time: Airport pickups include 60 minutes free; other pickups include 15 minutes free. Extra waiting may incur charges or require a new booking.</li>
+          <li>Passengers &amp; luggage: Passenger count must match the booking. Oversized luggage or extra items may require a larger vehicle and additional fees.</li>
+          <li>Child seats: Available on request; please specify in Notes so we can confirm availability.</li>
+          <li>Delays: We monitor flight delays and will adjust pickup when possible. Significant delays may require rescheduling.</li>
+          <li>Conduct &amp; safety: No smoking or open alcohol in vehicles. Seat belts are required at all times.</li>
+          <li>Pricing: All prices in THB; taxes/fees included unless stated otherwise.</li>
+          <li>Force majeure: Not liable for delays caused by events beyond our control (weather, traffic incidents, etc.).</li>
         </ul>
+        <p className="mt-2 text-xs text-slate-500">By continuing, you accept these terms.</p>
 
         <label className="mt-3 inline-flex items-center gap-2 text-sm text-slate-800">
           <input
