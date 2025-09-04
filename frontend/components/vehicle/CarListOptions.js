@@ -2,37 +2,29 @@
 
 import { CarListData } from "../../data/CarListData"
 import CarItem from "./CarItem"
-import { useState, useMemo } from "react"
+import { useMemo, useState } from "react"
 import { useRequestTransferContext } from "@/context/RequestTransferContext"
-// If RateCalculate exists, uncomment the line below to compute an estimate when needed.
 import RateCalculate from "../utilities/RateCalculate"
 
 const CarListOptions = ({ distance, handleBookNow }) => {
-  const [selectedCar, setSelectedCar] = useState()
-  const { requestTransfer, setRequestTransfer } = useRequestTransferContext()
+  const { requestTransfer } = useRequestTransferContext()
+  const [booking, setBooking] = useState(false)
 
-  const handleClick = (index) => {
-    const car = CarListData[index]
-    setSelectedCar(car)
+  // Derive selected car from context to avoid wrapping CarItem (button) in another button
+  const selectedCar = useMemo(() => {
+    if (requestTransfer?.vehicleId) {
+      return CarListData.find((c) => c.ID === requestTransfer.vehicleId)
+    }
+    if (requestTransfer?.carModel) {
+      return CarListData.find((c) => c.model === requestTransfer.carModel)
+    }
+    if (requestTransfer?.carType) {
+      return CarListData.find((c) => c.type === requestTransfer.carType)
+    }
+    return undefined
+  }, [requestTransfer?.vehicleId, requestTransfer?.carModel, requestTransfer?.carType])
 
-    // Compute estimated fare when a car is selected
-    let calcRate = 0
-    try {
-      if (car?.rate && distance) {
-        calcRate = Math.round(Number(RateCalculate({ distance }, car.rate)) || 0)
-      }
-    } catch {}
-
-    setRequestTransfer({
-      ...requestTransfer,
-      carType: car?.type,
-      carModel: car?.model,
-      vehicleId: car?.ID,
-      rate: calcRate, // store for downstream steps
-    })
-  }
-
-  // Prefer context rate; otherwise compute from current selection + distance
+  // Prefer stored rate; fallback to compute from selected + distance
   const displayRate = useMemo(() => {
     const r = Number(requestTransfer?.rate)
     if (!Number.isNaN(r) && r > 0) return r
@@ -46,20 +38,24 @@ const CarListOptions = ({ distance, handleBookNow }) => {
 
   const priceText = displayRate > 0 ? `${displayRate.toLocaleString()} THB` : "—"
 
+  const onBookNow = async () => {
+    if (!selectedCar || booking) return
+    setBooking(true)
+    try {
+      const ret = handleBookNow?.(selectedCar?.type, selectedCar?.model)
+      if (ret && typeof ret.then === "function") await ret
+    } finally {
+      setBooking(false)
+    }
+  }
+
   return (
     <div className="relative">
       <div className="p-4 overflow-auto">
-        {CarListData.map((car, index) => (
-          <button
-            key={car.ID}
-            type="button"
-            onClick={() => handleClick(index)}
-            className="block w-full text-left"
-          >
-            <div className="cursor-pointer p-2">
-              <CarItem car={car} distance={distance} />
-            </div>
-          </button>
+        {CarListData.map((car) => (
+          <div key={car.ID} className="p-2">
+            <CarItem car={car} distance={distance} />
+          </div>
         ))}
       </div>
 
@@ -80,15 +76,24 @@ const CarListOptions = ({ distance, handleBookNow }) => {
 
               <button
                 type="button"
-                onClick={() => handleBookNow(selectedCar?.type, selectedCar?.model)}
-                className="shrink-0 inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90"
-                aria-label="Proceed to book selected vehicle"
+                onClick={onBookNow}
+                disabled={booking}
+                aria-busy={booking}
+                className="shrink-0 inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90 disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                Book now
+                {booking ? (
+                  <>
+                    <svg className="mr-2 h-4 w-4 animate-spin" viewBox="0 0 24 24" aria-hidden="true">
+                      <circle className="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                      <path className="opacity-90" fill="currentColor" d="M4 12a8 8 0 0 1 8-8v4a4 4 0 0 0-4 4H4z" />
+                    </svg>
+                    Booking…
+                  </>
+                ) : (
+                  "Book now"
+                )}
               </button>
             </div>
-
-            {/* Safe-area spacer for iOS */}
             <div className="pt-[env(safe-area-inset-bottom)]" />
           </div>
         </div>

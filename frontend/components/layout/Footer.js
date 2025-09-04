@@ -25,7 +25,7 @@ export default function Footer() {
   };
 
   return (
-    <footer className="relative bg-primary mt-32 dark:bg-primary pt-4 w-full">
+    <footer className="relative bg-primary dark:bg-primary pt-32 w-full">
       <div className="mx-auto w-full max-w-screen-xl p-4 py-1 lg:py-4">
         <div className=" md:flex md:justify-between">
           <div className="hidden lg:block  md:mb-0 justify-center text-center  items-center mt-10">
