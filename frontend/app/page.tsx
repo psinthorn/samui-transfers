@@ -45,7 +45,7 @@ export default function Home() {
 
         {/* Route map */}
         {canShowMap && (
-          <section className="mb-12 rounded-xl bg-white p-4 sm:p-6 shadow-sm">
+          <section className="mb-12 rounded-xl bg-white p-8 sm:p-6 shadow-sm">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className="flex flex-col justify-center">
                 <h2 className="text-2xl sm:text-3xl font-semibold text-primary">Route</h2>
@@ -70,7 +70,7 @@ export default function Home() {
           </div>
 
           {/* Minibus */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 p-8 gap-12 mb-8">
             <div className="relative aspect-[16/9] overflow-hidden rounded-lg">
               <Image
                 src="/toyota-commuter-nathon-pier-169.png"
@@ -91,7 +91,7 @@ export default function Home() {
           </div>
 
           {/* SUV */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 p-8 gap-12">
             <div className="flex flex-col justify-center order-2 lg:order-1">
               <h3 className="text-xl sm:text-2xl font-semibold text-primary">SUV</h3>
               <p className="mt-2 text-sm text-slate-600">
