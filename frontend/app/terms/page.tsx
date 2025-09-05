@@ -10,7 +10,7 @@ export default function TermsPage() {
   useEffect(() => {
     if (typeof window === "undefined") return
     const url = new URL(window.location.href)
-    const q = (url.searchParams.get("lang") || "").toLowerCase()
+    const q = (url.searchParams?.get("lang") || "").toLowerCase()
     if (q === "en" || q === "th") {
       setLang(q as Lang)
     } else {
