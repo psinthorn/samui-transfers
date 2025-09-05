@@ -8,7 +8,7 @@ export const LANG = {
   TH: "th",
 }
 
-export const company = {
+export const companyBck = {
   name: process.env.NEXT_PUBLIC_COMPANY_NAME || "Samui Transfers",
   tagline: {
     en: process.env.NEXT_PUBLIC_COMPANY_TAGLINE_EN || "A Local Transfer Service",
