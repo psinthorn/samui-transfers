@@ -68,10 +68,10 @@ export default function Footer() {
               <h2 className="mb-6 text-sm font-semibold text-primary uppercase dark:text-white">Legal</h2>
               <ul className="text-white dark:text-gray-400 font-medium">
                 <li className="mb-4">
-                  <Link href="/" className="hover:underline">Privacy Policy</Link>
+                  <Link href="/privacy" className="hover:underline">Privacy Policy</Link>
                 </li>
                 <li>
-                  <Link href="/" className="hover:underline">Terms &amp; Conditions</Link>
+                  <Link href="/terms" className="hover:underline">Terms &amp; Conditions</Link>
                 </li>
               </ul>
             </div>
