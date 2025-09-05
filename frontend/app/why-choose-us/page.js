@@ -1,5 +1,5 @@
 import React from 'react'
-import WhyChooseUs from '@/components/why-us/WhyChooseUs'
+import WhyChooseUs from '@/components/Home/WhyChooseUs'
 
 const Page = () => {
   return (

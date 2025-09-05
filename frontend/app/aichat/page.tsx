@@ -10,6 +10,7 @@ export default function AIChatPage() {
     { id: "m0", role: "assistant", content: "Hi! How can I help with your transfer today?" },
   ])
   const [text, setText] = useState("")
+  const [sending, setSending] = useState(false)
 
   const whatsapp = (process.env.NEXT_PUBLIC_SUPPORT_WHATSAPP || "66991087999").replace(/[^\d]/g, "")
   const whatsappHref = `https://wa.me/${whatsapp}`
@@ -17,20 +18,41 @@ export default function AIChatPage() {
   const send = async (e: React.FormEvent) => {
     e.preventDefault()
     const value = text.trim()
-    if (!value) return
+    if (!value || sending) return
+
+    // 1) Append user message
     const userMsg: Msg = { id: `u-${Date.now()}`, role: "user", content: value }
     setMessages((m) => [...m, userMsg])
     setText("")
 
-    // TODO: Call your chat API here and push assistant reply.
-    // For now, show an acknowledgment.
-    const ack: Msg = {
-      id: `a-${Date.now()}`,
-      role: "assistant",
-      content:
-        "Thanks for your message! We’ll review and get back shortly. For urgent requests, tap WhatsApp below.",
+    // 2) Add assistant placeholder
+    const draftId = `a-${Date.now()}`
+    const draft: Msg = { id: draftId, role: "assistant", content: "" }
+    setMessages((m) => [...m, draft])
+    setSending(true)
+
+    try {
+      // Build payload: role/content only
+      const payload = {
+        messages: [...messages, userMsg].map((m) => ({ role: m.role, content: m.content })),
+      }
+
+      const reply = await callChatBackend(payload)
+
+      setMessages((m) =>
+        m.map((msg) => (msg.id === draftId ? { ...msg, content: reply || "Thanks! How else can I help?" } : msg)),
+      )
+    } catch (err: any) {
+      setMessages((m) =>
+        m.map((msg) =>
+          msg.id === draftId
+            ? { ...msg, content: "Sorry, I couldn’t reach the assistant. Please try again or use WhatsApp below." }
+            : msg,
+        ),
+      )
+    } finally {
+      setSending(false)
     }
-    setMessages((m) => [...m, ack])
   }
 
   return (
@@ -48,12 +70,18 @@ export default function AIChatPage() {
             <div
               key={m.id}
               className={`max-w-[85%] rounded-2xl px-3 py-2 text-sm leading-relaxed ${
-                m.role === "user"
-                  ? "ml-auto bg-primary text-white"
-                  : "mr-auto bg-slate-100 text-slate-800"
+                m.role === "user" ? "ml-auto bg-primary text-white" : "mr-auto bg-slate-100 text-slate-800"
               }`}
             >
-              {m.content}
+              {m.content || (
+                <span className="inline-flex items-center gap-2">
+                  <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" aria-hidden="true">
+                    <circle className="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                    <path className="opacity-90" fill="currentColor" d="M4 12a8 8 0 0 1 8-8v4a4 4 0 0 0-4 4H4z" />
+                  </svg>
+                  Typing…
+                </span>
+              )}
             </div>
           ))}
         </div>
@@ -67,12 +95,15 @@ export default function AIChatPage() {
               onChange={(e) => setText(e.target.value)}
               placeholder="Type your message…"
               className="flex-1 rounded-md border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+              disabled={sending}
             />
             <button
               type="submit"
-              className="inline-flex items-center justify-center rounded-md bg-primary px-3 py-2 text-sm font-semibold text-white hover:bg-primary/90"
+              disabled={sending}
+              aria-busy={sending}
+              className="inline-flex items-center justify-center rounded-md bg-primary px-3 py-2 text-sm font-semibold text-white hover:bg-primary/90 disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              Send
+              {sending ? "Sending…" : "Send"}
             </button>
           </div>
           <div className="mt-3 text-center">
@@ -90,4 +121,55 @@ export default function AIChatPage() {
       </section>
     </main>
   )
+}
+
+// Call your backend chatbot endpoint. Configure NEXT_PUBLIC_CHAT_API or default to /api/chat.
+async function callChatBackend(payload: { messages: { role: string; content: string }[] }) {
+  const endpoint = process.env.NEXT_PUBLIC_CHAT_API || "/api/ai-agent"
+  const res = await fetch(endpoint, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  })
+
+  if (!res.ok) {
+    const errText = await safeReadText(res)
+    throw new Error(errText || `Request failed: ${res.status}`)
+  }
+
+  // Try JSON first
+  const ctype = res.headers.get("content-type") || ""
+  if (ctype.includes("application/json")) {
+    const data = await res.json()
+    return extractReply(data)
+  }
+
+  // Fallback: plain text
+  return (await res.text()) || ""
+}
+
+function extractReply(data: any): string {
+  // Common shapes: { reply }, { message }, { messages: [{role,content}] }, OpenAI-like { choices[0].message.content }
+  if (typeof data === "string") return data
+  if (typeof data?.reply === "string") return data.reply
+  if (typeof data?.message === "string") return data.message
+  if (Array.isArray(data?.messages) && data.messages.length) {
+    const last = data.messages[data.messages.length - 1]
+    if (typeof last?.content === "string") return last.content
+  }
+  const choice = data?.choices?.[0]
+  if (typeof choice?.message?.content === "string") return choice.message.content
+  try {
+    return JSON.stringify(data)
+  } catch {
+    return "OK"
+  }
+}
+
+async function safeReadText(res: Response) {
+  try {
+    return await res.text()
+  } catch {
+    return ""
+  }
 }
