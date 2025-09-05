@@ -72,14 +72,14 @@ export default function Header() {
           </Link>
 
           {/* AI Chat (links to in-app page) */}
-          <Link
+          {/* <Link
             href="/aichat"
             aria-label="AI Chat"
             className="inline-flex items-center gap-2 rounded-md bg-white/10 px-3 py-2 text-sm text-white hover:bg-white/20"
           >
             <MessageCircle className="h-4 w-4" />
             AI Chat
-          </Link>
+          </Link> */}
 
           {/* WhatsApp */}
           <a
@@ -134,13 +134,13 @@ export default function Header() {
                   Book now
                 </Link>
 
-                <Link
+                {/* <Link
                   href="/aichat"
                   className="inline-flex items-center justify-center gap-2 rounded-md bg-white px-3 py-2 text-sm font-semibold text-primary hover:bg-white/90"
                 >
                   <MessageCircle className="h-4 w-4" />
                   AI Chat
-                </Link>
+                </Link> */}
 
                 <a
                   href={whatsappHref}
