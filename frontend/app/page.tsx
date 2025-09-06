@@ -122,9 +122,9 @@ const { destination, setDestination } = useDestinationContext();
                     {/* <SearchSection /> */}
                 </div>
               </div>
-              <div className='w-full mx-auto p-6 gap-5'>
+              {/* <div className='w-full mx-auto p-6 gap-5'>
                 <WhyChooseUs />
-              </div>
+              </div> */}
               {/* <div id="faqs" className='w-full min-h-96 mb-32'>
                 <Faq />
               </div> */}
