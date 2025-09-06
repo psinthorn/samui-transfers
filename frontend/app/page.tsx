@@ -7,7 +7,7 @@ import dynamic from "next/dynamic"
 // import SearchSection from '@/components/Home/SearchSection'
 import SourceContext, { useSourceContext } from '@/context/SourceContext'
 import DestinationContext, { useDestinationContext } from '@/context/DestinationContext'
-import WhyChooseUs from '@/components/why-us/WhyChooseUs'
+// import WhyChooseUs from '@/components/why-us/WhyChooseUs'
 // import GoogleApiKeyContext from '@/context/GoogleApiKeyContext'
 import { useState, useEffect, useContext } from "react";
 import { GoogleMap, LoadScript } from '@react-google-maps/api'

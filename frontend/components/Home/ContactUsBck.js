@@ -3,16 +3,16 @@
 import React, { useMemo, useState } from "react";
 import Link from "next/link";
 import { Mail, Phone, MapPin, MessageCircle, ExternalLink } from "lucide-react";
-import { CompanyInfo } from "@/data/CompanyInfo";
+import { company } from "@/data/company";
 
-const ContactUs = () => {
+const ContactUsBCK = () => {
   // Prefer values from CompanyInfo if available, otherwise fall back to sensible defaults
   const info = useMemo(() => ({
-    email: CompanyInfo?.email || "info@samui-transfers.com",
-    phone: CompanyInfo?.phone || "(+66) 099 108 7999",
-    whatsapp: CompanyInfo?.whatsapp || "(+66) 099 108 7999",
-    address: CompanyInfo?.address || "9/38 Moo 6, Tambon Bo Phut, Ko Samui, Surat Thani 84320, Thailand",
-    facebook: CompanyInfo?.facebook || "https://www.facebook.com/profile.php?id=61578880422159",
+    email: company?.email || "info@samui-transfers.com",
+    phone: company?.phone || "(+66) 099 108 7999",
+    whatsapp: company?.whatsapp || "(+66) 099 108 7999",
+    address: company?.address || "9/38 Moo 6, Tambon Bo Phut, Ko Samui, Surat Thani 84320, Thailand",
+    facebook: company?.facebook || "https://www.facebook.com/profile.php?id=61578880422159",
   }), []);
 
   const telHref = useMemo(() => `tel:${info.phone.replace(/[^\d+]/g, "")}`, [info.phone]);
