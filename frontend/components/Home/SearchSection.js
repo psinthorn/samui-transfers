@@ -5,13 +5,13 @@ import InputItem from './InputItem'
 import { useSourceContext } from '@/context/SourceContext';
 import { useDestinationContext } from '@/context/DestinationContext';
 import { useRequestTransferContext } from '@/context/RequestTransferContext';
-import CarListOptions from '../vehicle/CarListOptions';
 import Services from '../services/Services';
-import { CircleChevronDown } from 'lucide-react';
-import IconAnimate from '../utilities/IconAnimate';
 import { useRouter } from 'next/navigation';
 import ContactBanner from './ContactBanner';
 import MiniVanVisual from '../utilities/MiniVanVisual';
+import MainBanner from '../hero/MainBanner';
+import { CircleCheckIcon, CircleChevronDown } from 'lucide-react';
+import CarListOptions from '@/components/vehicle/CarListOptions'
 
 const SearchSection = () => {
   const {source, setSource} = useSourceContext();
@@ -71,49 +71,51 @@ const SearchSection = () => {
   };
 
   return (
-    <div className='space-y-4 p-4 bg-white rounded-none h-full md:p-6'>
-        <div className='p-4 md:p-6 border-0 rounded-t-xl rounded-b-none'>
-          <span className='font-thin text-xl'>First 1–5 km from just 350 THB. After 5 km, rates are calculated based on distance.</span>
-          <p className='text-5xl text-secondary font-semibold mb-2 sm:text-1xl'>Book Now </p>
-          
-          {/* <p>Arrive in Koh Samui. Click below to get an instant quote and secure your ride today!</p> */}
-          <p className='text-2xl text-primary font-thin mt-4 sm:text-1xl'>
-              Choose your pickup and dropoff location, <p>We show youre route.</p>
-          </p>
-          <InputItem type='source' />
-          <InputItem type='destination' /> 
-        </div>
-        <div className=''>
-            <div className='w-full text-2xl font-light items-center'>
-              {routeDistance ? 
-                  <div>
-                  <h2 className='font-semibold text-2xl text-tertiary pt-8'>Available Book Now</h2>
-                  <p className='text-sm text-muted-foreground'>Distance: <span>{ routeDistanceInKiloMeter.toFixed(2)}</span>KM</p>
-                  </div>
-              : 
-                <MiniVanVisual />
-                // <IconAnimate />
-              }
-            </div>
-        </div>
-        <div className='mt-2'>
-          { routeDistance ? 
-            <p className='flex p-1 gap-2'> Select car type for your comfortable <CircleChevronDown /></p> 
-            : 
-            null }            
-          { routeDistance ? 
-            <CarListOptions 
-              distance={routeDistanceInKiloMeter.toFixed(2)}
-              source={source}
-              destination={destination} 
-              handleBookNow={handleBookNow} 
-            /> 
-            : 
-            null }
-        </div>
-        <ContactBanner />
-        <Services />
+    <div className='grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 py-4 gap-0 bg-white'>
+      <div className='p-4 items-center'>
+          <div className='mx-auto placeholder:p-4 md:p-6 border-0 rounded-t-xl rounded-b-none'>
+            <span className='font-thin text-sm sm:text-base md:text-lg lg:text-xl'>From 350 THB. After 5 km, rates are based on distance.</span>
+            <p className='text-xl sm:text-2xl md:text-4xl lg:text-5xl text-secondary font-semibold m-2'>Book Now </p>
+            <p className='font-thin text-sm sm:text-base md:text-lg lg:text-xl'>
+              Enter pickup and drop‑off to see price and route.
+            </p>
+            <InputItem type='source' />
+            <InputItem type='destination' /> 
+          </div>
+          <div className=''>
+              <div className='w-full text-2xl font-light items-center'>            
+               <div>
+                  <MiniVanVisual />
+                  <ContactBanner />
+              </div>         
+              </div>
+          </div>        
       </div>
+      <div>
+            <div className='mt-2 px-4'>
+              { routeDistance ? 
+              <div>
+                <div>
+                    <h2 className='font-semibold text-2xl text-tertiary pt-8'>Available Book Now</h2>
+                    <p className='text-md text-muted-foreground'>Average Distance: <span>{ routeDistanceInKiloMeter.toFixed(2)}</span>KM</p>
+                </div>
+                <p className='flex p-1 gap-2'> Choose the vehicle that fits your group and comfort. <CircleChevronDown /></p> 
+              </div>
+                : 
+                null }            
+              { routeDistance ? 
+              
+                <CarListOptions 
+                  distance={routeDistanceInKiloMeter.toFixed(2)}
+                  source={source}
+                  destination={destination} 
+                  handleBookNow={handleBookNow} 
+                /> 
+                : 
+                <MainBanner />}
+            </div>
+          </div>
+     </div>
   )
 }
 

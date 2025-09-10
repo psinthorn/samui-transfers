@@ -1,133 +1,145 @@
-import React, { useActionState, useState } from 'react';
-import { Label } from '../ui/label';
-import { CreateRequest } from '../actions/actions';
-import { parseWithZod } from '@conform-to/zod';
-import { requestSchema } from '../utilities/ZodSchemas';
-import { useForm } from '@conform-to/react';
-import SubmitButton from './SubmitButton';
-// import { useRequestTransferContext } from '@/context/RequestTransferContext';
+"use client"
 
-const ConfirmationStep = ({ formData, handleSendmail, prevStep, nextStep }: any) => {
-  //const { requestTransfer, setRequestTransfer } = useRequestTransferContext()
-  const [ isFormValid, setIsFormValid ] = useState(false)
-  console.log("Data on confirmation page", formData);
+import React, { useState } from "react"
 
-  // Agee to terms and conditions
-  const [agree, setAgree] = useState(false);
-  const onAgree = () => {
-  const agree = document.getElementById('agree') as HTMLInputElement;
-    if (agree.checked) {
-      setAgree(true);
-      return;
-    }else{
-      setAgree(false);
-      return;
+type Props = {
+  formData: any
+  handleSendmail: (e?: React.MouseEvent<HTMLButtonElement>) => void
+  prevStep: () => void
+  nextStep?: () => void
+}
+
+export default function ConfirmationStep({ formData = {}, handleSendmail, prevStep }: Props) {
+  const [agree, setAgree] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+
+  const passengers =
+    Number(formData?.passengers ?? formData?.pax ?? 0) > 0
+      ? Number(formData?.passengers ?? formData?.pax)
+      : undefined
+
+  const onConfirm = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (!agree || submitting) return
+    setSubmitting(true)
+    try {
+      const ret = handleSendmail?.(e)
+      // Support async handlers
+      if (ret !== undefined && typeof (ret as any)?.then === "function") {
+        await (ret as Promise<any>)
+      }
+    } finally {
+      setSubmitting(false)
     }
-  };
+  }
 
-  // // Use action state to create a new request
-  // const [lastResult, actionForm] = useActionState(CreateRequest, undefined);
-  // // validate form with zod schema
-  // const [form, fields] = useForm({
-  //       //lastResult,
-  //   onValidate({ formData }: { formData: FormData }){
-  //     return parseWithZod(formData, {
-  //         schema: requestSchema
-  //     });
-  //   },
-  //         shouldValidate: "onBlur",
-  //         shouldRevalidate: "onInput"
-  //   });
-
-  // Use the formData to display the booking details
   return (
-    <div className="bg-white p-8 shadow-md rounded">
-      <h2 className="text-2xl font-bold mb-4">Confirm Your Booking</h2>
-      <p className='border-b-2'>Please confirm your booking details below:</p>
-      <p><strong>Request No.:</strong> {formData.requestNumber}</p>
-      <p><strong>First Name:</strong> {formData.firstName}</p>
-      <p><strong>Last Name:</strong> {formData.lastName}</p>
-      <p><strong>Email:</strong> {formData.email}</p>
-      <p><strong>Mobile:</strong> {formData.mobile}</p>
-      
-      <p><strong>Date/Time:</strong> {formData.date}</p>
-      <p><strong>Flight No:</strong> {formData.flightNo}</p>
-      {/* <p><strong>Pax:</strong> {formData.pax}</p> */}
-      <p><strong>Car Type:</strong> {formData.carType}</p>
-      <p><strong>Pickup Point:</strong> {formData.pickupPoint}</p>
-      <p><strong>Dropoff Point:</strong> {formData.dropoffPoint}</p>
-      <p><strong>Note:</strong> {formData.note}</p>
+    <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 sm:p-6">
+      <header className="mb-3">
+        <p className="text-xs font-semibold uppercase tracking-wide text-primary">Review</p>
+        <h2 className="text-lg sm:text-xl font-semibold text-slate-900">Confirm your booking</h2>
+        <p className="text-sm text-slate-600 mt-1">Make sure everything looks right before sending.</p>
+      </header>
 
-      <div className='flex justify-between border-t-2 border-b-2 py-2 my-2'>
-        <p className=''><strong>Total: </strong></p> 
-        <p className='font-semibold'>{ formData.rate } THB</p>
+      <div className="rounded-md border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
+        This is not a confirmation. We’ll contact you shortly to confirm availability and driver details.
       </div>
-      
-      {/* Terms and Conditions */}
-      <div className='mt-4'>
-        <label className="block text-gray-700 mt-4">
-          <Label className='font-semibold text-md'>Terms and Conditions</Label>
-          <p className="text-sm text-gray-600 mb-1">Please read and agree to the terms and conditions before proceeding.</p>
-          <Label className='font-semibold text-md'>Conditions for booking</Label>
-          <p className='text-sm'><strong></strong>1. When booking, pay 50% of the total travel price.</p>
-          <p className='text-sm'><strong></strong>2. Cancel before 7 days of departure, we will refund 100% of the deposit.</p>
-          <p className='text-sm'><strong></strong>3. Cancel before 3 days of departure. We refund 50% of the deposit within 5-7 business days.</p>
-      
-          {/* Agree to terms and conditions form */}
-          <form
-            //action={actionForm}
-            // id={form.id}
-            // onSubmit={form.onSubmit}
-            noValidate
-            className="mb-4"
-          >
-            {/* <input type="hidden" name={ fields.requestNumber.name } key={ fields.requestNumber.key } value={formData?.requestNumber} />
-            <input type="hidden" name={ fields.firstName.name } key={ fields.firstName.key } value={formData.firstName} />
-            <input type="hidden" name="lastName" value={formData.lastName} />
-            <input type="hidden" name="email" value={formData.email} />
-            <input type="hidden" name="mobile" value={formData.mobile} />
-            <input type="hidden" name="date" value={formData.date} />
-            <input type="hidden" name="time" value={formData.time} />
-            <input type="hidden" name="arrival" value={formData?.arrival} />
-            <input type="hidden" name="departure" value={formData?.departure} />
-            <input type="hidden" name="flightNo" value={formData?.flightNo} />
-            <input type="hidden" name="carType" value={formData.carType} />
-            <input type="hidden" name="carModel" value={formData.carModel} />
-            <input type="hidden" name="rate" value={formData.rate} />
-            <input type="hidden" name="quantity" value={formData?.quantity} />
-            <input type="hidden" name="total" value={formData?.total} />
-            <input type="hidden" name="pickupPoint" value={formData.pickupPoint} />
-            <input type="hidden" name="dropoffPoint" value={formData.dropoffPoint} />
-            <input type="hidden" name="note" value={formData?.note} />
-            <input type="hidden" name="status" value={formData?.status} />
-            <input type="hidden" name="userId" value={formData?.userId} />
-            <input type="hidden" name="vendorId" value={formData?.vendorId} />
-            <input type="hidden" name="organizationId" value={formData?.organizationId} />  */}
 
-            <input type="checkbox" id="agree" name="agree" className="mr-2" onChange={onAgree} />
-            I agree to the Terms and Conditions
-            <div className="flex justify-between mt-4">
-                <button type="button" onClick={prevStep} className="bg-gray-500 text-white py-2 px-4 rounded">
-                  Back
-                </button>
-                { agree ?
-                  <button type="submit" onClick={ handleSendmail } className="bg-primary text-white py-2 px-4 rounded">
-                    Confirm
-                  </button> 
-                  //<SubmitButton text='Confirm' />
-                  :
-                  <button type="submit" disabled className="bg-blue-200 text-white py-2 px-4 rounded">
-                    Confirm
-                  </button>
-                } 
-            </div>
-          </form> 
+      <dl className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-sm">
+        <Item label="Request ID" value={formData.requestNumber || "—"} />
+        <Item label="Flight no." value={formData.flightNo || "—"} />
+        <Item label="Name" value={`${formData.firstName || ""} ${formData.lastName || ""}`.trim() || "—"} />
+        <Item label="Passengers" value={passengers ? String(passengers) : "—"} />
+        <Item label="Email" value={formData.email || "—"} />
+        <Item label="Mobile" value={formData.mobile || "—"} />
+        <Item label="Pickup date/time" value={formData.date || "—"} />
+        <Item label="Pickup" value={formData.pickupPoint || "—"} />
+        <Item label="Drop‑off" value={formData.dropoffPoint || "—"} />
+        <Item
+          label="Vehicle"
+          value={[formData.carType, formData.carModel].filter(Boolean).join(" — ") || "—"}
+        />
+        <Item label="Notes" value={formData.note || formData.notes || "—"} />
+      </dl>
 
+      <div className="mt-4 flex items-center justify-between border-t border-slate-200 pt-3">
+        <span className="text-sm text-slate-600">Total</span>
+        <span className="text-base font-semibold text-slate-900">
+          {formData.rate ? `${formData.rate} THB` : "—"}
+        </span>
+      </div>
+
+      <section className="mt-5">
+        <h3 className="text-sm font-semibold text-slate-900">Terms and conditions</h3>
+        <ul className="mt-2 list-disc pl-5 text-sm text-slate-700 space-y-1">
+          <li>Payment: 100% deposit required to confirm your booking.</li>
+          <li>Cancellation: ≥ 72 hours before pickup — full refund of deposit.</li>
+          <li>Cancellation: 24–72 hours before pickup — 70% refund within 5–7 business days.</li>
+          <li>Cancellation: &lt; 24 hours or no‑show — non‑refundable.</li>
+          <li>Changes: One free change up to 24 hours before pickup (subject to availability; fare differences may apply).</li>
+          <li>Waiting time: Airport pickups include 60 minutes free; other pickups include 15 minutes free. Extra waiting may incur charges or require a new booking.</li>
+          <li>Passengers &amp; luggage: Passenger count must match the booking. Oversized luggage or extra items may require a larger vehicle and additional fees.</li>
+          <li>Child seats: Available on request; please specify in Notes so we can confirm availability.</li>
+          <li>Delays: We monitor flight delays and will adjust pickup when possible. Significant delays may require rescheduling.</li>
+          <li>Conduct &amp; safety: No smoking or open alcohol in vehicles. Seat belts are required at all times.</li>
+          <li>Pricing: All prices in THB; taxes/fees included unless stated otherwise.</li>
+          <li>Force majeure: Not liable for delays caused by events beyond our control (weather, traffic incidents, etc.).</li>
+        </ul>
+        <p className="mt-2 text-xs text-slate-500">By continuing, you accept these terms.</p>
+
+        <label className="mt-3 inline-flex items-center gap-2 text-sm text-slate-800">
+          <input
+            id="agree"
+            name="agree"
+            type="checkbox"
+            className="h-4 w-4 rounded border-slate-300 text-primary focus:ring-primary/30"
+            checked={agree}
+            onChange={(e) => setAgree(e.target.checked)}
+          />
+          I agree to the Terms and Conditions
         </label>
-      </div>
-      
-    </div>
-  );
-};
+      </section>
 
-export default ConfirmationStep;
+      <div className="mt-5 flex items-center justify-between gap-3">
+        <button
+          type="button"
+          onClick={prevStep}
+          className="inline-flex items-center justify-center rounded-md border border-slate-300 bg-white px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
+        >
+          Back
+        </button>
+        <button
+          type="button"
+          onClick={onConfirm}
+          disabled={!agree || submitting}
+          aria-busy={submitting}
+          className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90 disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          {submitting ? (
+            <>
+              <svg
+                className="mr-2 h-4 w-4 animate-spin"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <circle className="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                <path className="opacity-90" fill="currentColor" d="M4 12a8 8 0 0 1 8-8v4a4 4 0 0 0-4 4H4z" />
+              </svg>
+              Sending…
+            </>
+          ) : (
+            "Confirm booking"
+          )}
+        </button>
+      </div>
+    </div>
+  )
+}
+
+function Item({ label, value }: { label: string; value: React.ReactNode }) {
+  return (
+    <div className="flex items-start justify-between gap-3">
+      <dt className="text-slate-500">{label}</dt>
+      <dd className="text-right">{value}</dd>
+    </div>
+  )
+}

@@ -25,6 +25,7 @@ type requestTransferType = {
 
   pickupPoint: string;
   dropoffPoint: string;
+  passengers: number;
 
   distance: number;
   quantity: number;
@@ -33,7 +34,9 @@ type requestTransferType = {
 
   carType: string;
   carModel: string;
-  
+
+  notes: string;
+
 };
 
 type RequestTransferContextType = {

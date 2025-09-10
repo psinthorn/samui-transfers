@@ -4,7 +4,7 @@ import { FaMapMarkerAlt, FaShuttleVan, FaMapPin } from 'react-icons/fa'
 const MiniVanVisual = () => {
   return (
     // Pickup & Dropoff Visual
-    <div className="flex flex-col items-center my-6">
+    <div className="flex flex-col items-center justify-center my-2 p-2 px-8">
       <div className="flex items-center gap-2 w-full">
         <FaMapMarkerAlt className="text-gray-400 text-lg" />
         <span className="font-thin text-gray-400 text-sm">Pickup</span>

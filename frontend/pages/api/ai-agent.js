@@ -36,8 +36,8 @@ export default async function handler(req, res) {
 
   // You can route to different agents by prompt engineering
   let systemPrompt = "You are a helpful assistant.";
-  if (agent === "booking") systemPrompt = "You are a booking agent for a transfer service. your name is B . You are friendly, kindness, helpful and sale professional. and you are a female";
-  if (agent === "support") systemPrompt = "You are a support agent for a transfer service. Your name is B . You are friendly and helpful. and you are a male";
+  // if (agent === "booking") systemPrompt = "You are a booking agent for a transfer service. your name is B . You are friendly, kindness, helpful and sale professional. and you are a female";
+  if (agent === "Assistant") systemPrompt = "You are a support and booking agent for a transfer service. Your name is B . You are friendly,kindness, helpful and sale professional. and helpful. and you are a female";
 
 // Add scraped data to system prompt for context
 //   const context = `
@@ -163,17 +163,136 @@ We are committed to providing the best transfer experience on Koh Samui. Our loc
         - Bank Transfer 
 
         ## Terms and Conditions ##
-        - All bookings are subject to availability.
-        - Cancellations must be made at least 24 hours in advance for a full refund.
-        - Prices are subject to change without notice, but confirmed bookings will be honored at the agreed price.
-        - We reserve the right to refuse service to anyone who poses a safety risk or violates our terms of service.
+        en: {
+          legal: "Legal",
+          title: "Terms & Conditions",
+          intro: "Please review before booking.",
+          sections: [
+            { h: "Booking & Payments", items: [
+              "Payment: 100% deposit required to confirm your booking.",
+              "Pricing: All prices in THB; taxes/fees included unless stated otherwise.",
+            ]},
+            { h: "Cancellations & Changes", items: [
+              "Cancellation: ≥ 72 hours before pickup — full refund of deposit.",
+              "Cancellation: 24–72 hours before pickup — 70% refund within 5–7 business days.",
+              "Cancellation: < 24 hours or no‑show — non‑refundable.",
+              "Changes: One free change up to 24 hours before pickup (subject to availability; fare differences may apply).",
+            ]},
+            { h: "Pickup, Waiting & Delays", items: [
+              "Waiting time: Airport pickups include 60 minutes free; other pickups include 15 minutes free. Extra waiting may incur charges or require a new booking.",
+              "Delays: We monitor flight delays and will adjust pickup when possible. Significant delays may require rescheduling.",
+              "Force majeure: Not liable for delays caused by events beyond our control (weather, traffic incidents, etc.).",
+            ]},
+            { h: "Passengers, Luggage & Safety", items: [
+              "Passengers & luggage: Passenger count must match the booking. Oversized luggage or extra items may require a larger vehicle and additional fees.",
+              "Child seats: Available on request; please specify in Notes so we can confirm availability.",
+              "Conduct & safety: No smoking or open alcohol in vehicles. Seat belts are required at all times.",
+            ]},
+          ],
+          accept: "By booking, you acknowledge and accept these terms. For questions, please contact support.",
+          language: "Language",
+        },
+        th: {
+          legal: "กฎหมาย",
+          title: "ข้อตกลงและเงื่อนไข",
+          intro: "โปรดอ่านก่อนทำการจอง",
+          sections: [
+            { h: "การจองและการชำระเงิน", items: [
+              "การชำระเงิน: ต้องชำระเงินมัดจำ 100% เพื่อยืนยันการจอง",
+              "ราคา: แสดงเป็นสกุลเงินบาท (THB) รวมภาษี/ค่าธรรมเนียมแล้ว เว้นแต่จะระบุเป็นอย่างอื่น",
+            ]},
+            { h: "การยกเลิกและการเปลี่ยนแปลง", items: [
+              "การยกเลิก: ≥ 72 ชั่วโมงก่อนรับ — คืนมัดจำเต็มจำนวน",
+              "การยกเลิก: 24–72 ชั่วโมงก่อนรับ — คืน 70% ภายใน 5–7 วันทำการ",
+              "การยกเลิก: น้อยกว่า 24 ชั่วโมง หรือไม่มาใช้บริการ — ไม่สามารถขอคืนเงิน",
+              "การเปลี่ยนแปลง: เปลี่ยนแปลงได้ฟรี 1 ครั้งภายใน 24 ชั่วโมงก่อนรับ (ขึ้นกับความพร้อม และอาจมีส่วนต่างราคา)",
+            ]},
+            { h: "การรับ-ส่ง เวลารอ และความล่าช้า", items: [
+              "เวลารอ: รับที่สนามบินรวมเวลารอฟรี 60 นาที; จุดรับอื่น ๆ รวมฟรี 15 นาที อาจมีค่าใช้จ่ายเพิ่มเติมหากรอเกินกำหนดหรืออาจต้องทำการจองใหม่",
+              "ความล่าช้า: เราติดตามเที่ยวบินและจะปรับเวลารับตามสมควร กรณีล่าช้าจำนวนมากอาจต้องเลื่อนเวลา",
+              "เหตุสุดวิสัย: ไม่รับผิดชอบต่อความล่าช้าที่เกิดจากเหตุการณ์นอกเหนือการควบคุม",
+            ]},
+            { h: "ผู้โดยสาร สัมภาระ และความปลอดภัย", items: [
+              "ผู้โดยสารและสัมภาระ: จำนวนผู้โดยสารต้องตรงตามการจอง สัมภาระขนาดใหญ่หรือต้องการพื้นที่เพิ่มอาจต้องใช้รถที่ใหญ่ขึ้นและมีค่าใช้จ่ายเพิ่มเติม",
+              "ที่นั่งเด็ก: มีให้ตามคำขอ โปรดระบุในช่องหมายเหตุเพื่อยืนยันความพร้อม",
+              "มารยาทและความปลอดภัย: ห้ามสูบบุหรี่หรือดื่มแอลกอฮอล์ในรถ ต้องคาดเข็มขัดนิรภัยตลอดเวลา",
+            ]},
+          ],
+          accept: "เมื่อทำการจอง ถือว่าคุณยอมรับข้อตกลงและเงื่อนไขเหล่านี้ หากมีคำถามโปรดติดต่อฝ่ายสนับสนุน",
+          language: "ภาษา",
+        },
 
-        ## Policy ##
-        - **Cancellation Policy**: Free cancellation up to 24 hours before your transfer.
-        - **Privacy Policy**: We respect your privacy and will not share your personal information with third parties without your consent.
-        - **Terms of Service**: By using our services, you agree to our terms and conditions as outlined on our website.    
-
-       
+        ## Privacy Policy ##
+        en: {
+          legal: "Legal",
+          title: "Privacy Policy",
+          intro: "Your privacy and data protection.",
+          sections: [
+            { h: "Information we collect", items: [
+              "Contact details: name, email, phone number.",
+              "Trip details: pickup/drop-off, dates/times, passengers, notes.",
+              "Technical: IP, device, and usage analytics (cookies).",
+            ]},
+            { h: "How we use your data", items: [
+              "Provide and manage bookings and customer support.",
+              "Send confirmations, updates, and service messages.",
+              "Improve services, security, and site performance.",
+            ]},
+            { h: "Legal bases & retention", items: [
+              "Contract performance (fulfilling your booking).",
+              "Legitimate interests (service improvement, security).",
+              "Consent where required (marketing, cookies).",
+              "We keep data only as long as necessary for the purposes described or to comply with law.",
+            ]},
+            { h: "Sharing & third parties", items: [
+              "Trusted providers (e.g., email, hosting, analytics) under data protection agreements.",
+              "Authorities where required by law.",
+              "We do not sell personal data.",
+            ]},
+            { h: "Your rights", items: [
+              "Access, correct, delete, or export your data.",
+              "Object to or restrict processing; withdraw consent at any time.",
+              "Contact us to exercise rights or make a complaint.",
+            ]},
+          ],
+          contact: "For privacy requests, contact: booking@samui-transfers.com",
+          language: "Language",
+        },
+        th: {
+          legal: "กฎหมาย",
+          title: "นโยบายความเป็นส่วนตัว",
+          intro: "ความเป็นส่วนตัวและการคุ้มครองข้อมูลของคุณ",
+          sections: [
+            { h: "ข้อมูลที่เราเก็บรวบรวม", items: [
+              "ข้อมูลติดต่อ: ชื่อ อีเมล หมายเลขโทรศัพท์",
+              "รายละเอียดการเดินทาง: จุดรับ–ส่ง วันที่/เวลา จำนวนผู้โดยสาร หมายเหตุ",
+              "ข้อมูลทางเทคนิค: IP อุปกรณ์ และสถิติการใช้งาน (คุกกี้)",
+            ]},
+            { h: "วิธีที่เราใช้ข้อมูลของคุณ", items: [
+              "ให้บริการและจัดการการจอง รวมถึงการสนับสนุนลูกค้า",
+              "ส่งการยืนยัน อัปเดต และข้อความเกี่ยวกับการให้บริการ",
+              "พัฒนาบริการ ความปลอดภัย และประสิทธิภาพของเว็บไซต์",
+            ]},
+            { h: "ฐานทางกฎหมายและระยะเวลาเก็บรักษา", items: [
+              "การปฏิบัติตามสัญญา (เพื่อให้บริการตามการจองของคุณ)",
+              "ผลประโยชน์โดยชอบด้วยกฎหมาย (การพัฒนาบริการ ความปลอดภัย)",
+              "ความยินยอมเมื่อจำเป็น (การตลาด คุกกี้)",
+              "เราจะเก็บข้อมูลเท่าที่จำเป็นตามวัตถุประสงค์ที่ระบุไว้หรือเพื่อปฏิบัติตามกฎหมาย",
+            ]},
+            { h: "การเปิดเผยข้อมูลและบุคคลที่สาม", items: [
+              "ผู้ให้บริการที่เชื่อถือได้ (เช่น อีเมล โฮสติ้ง วิเคราะห์การใช้งาน) ภายใต้ข้อตกลงคุ้มครองข้อมูล",
+              "หน่วยงานของรัฐเมื่อกฎหมายกำหนด",
+              "เราไม่ขายข้อมูลส่วนบุคคล",
+            ]},
+            { h: "สิทธิของคุณ", items: [
+              "ขอเข้าถึง แก้ไข ลบ หรือขอสำเนาข้อมูล",
+              "คัดค้านหรือจำกัดการประมวลผล; ถอนความยินยอมได้ทุกเมื่อ",
+              "ติดต่อเราเพื่อใช้สิทธิหรือยื่นเรื่องร้องเรียน",
+            ]},
+          ],
+          contact: "สำหรับคำขอด้านความเป็นส่วนตัว ติดต่อ: booking@samui-transfers.com",
+          language: "ภาษา",
+        },
         `
 
    console.log("Context for AI:", context);

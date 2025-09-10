@@ -1,224 +1,284 @@
 "use client"
 
-import { parseWithZod } from "@conform-to/zod";
-import { useForm } from "@conform-to/react";
-// import { useForm } from 'react-hook-form';
-import { requestSchema } from "@/components/utilities/ZodSchemas";
-import { useState, useEffect, useActionState } from "react";
-import { useRequestTransferContext } from "@/context/RequestTransferContext";
-import { CreateRequest } from "@/components/actions/actions";
-import SubmitButton from "@/components/form/SubmitButton";
-import { set } from "date-fns";
-import { useFormStatus } from "react-dom";
-import { Loader2 } from "lucide-react";
-import { request } from "http";
+import { parseWithZod } from "@conform-to/zod"
+import { useForm } from "@conform-to/react"
+import { requestSchema } from "@/components/utilities/ZodSchemas"
+import { useEffect, useState } from "react"
+import { useRequestTransferContext } from "@/context/RequestTransferContext"
 
-const BookingStep = ({bookingData, handleChange, nextStep }: any) => {
-  const { requestTransfer, setRequestTransfer } = useRequestTransferContext();
-  const [formData, setFormData] = useState(undefined);
-  const [isFormValid, setIsFormValid] = useState(false);
+const BookingStep = ({ bookingData, handleChange, nextStep }: any) => {
+  const { requestTransfer, setRequestTransfer } = useRequestTransferContext()
+  const [isFormValid, setIsFormValid] = useState(false)
 
-  console.log(requestTransfer);
-  //const [lastResult, actionForm] = useActionState(CreateRequest, undefined);
   const [form, fields] = useForm({
-      onValidate({ formData }: { formData: FormData }){
-         const submission = parseWithZod(formData, {
-            schema: requestSchema
-          });
+    onValidate({ formData }: { formData: FormData }) {
+      const submission = parseWithZod(formData, { schema: requestSchema })
 
-            // if submission success then setFormValid to true
-            // set requestTransfer context with submit form data
-            // go to confirmation step
-            console.log("result: ", submission);
-            if(submission.status === "success"){
-              setIsFormValid(true)
-              setRequestTransfer({
-                ...bookingData,
-                requestNumber: "REQ-" +  Math.floor(Math.random() * 1000000000)
-              })
-              nextStep();
-            };
-
-        return submission;
-      },
-        shouldValidate: "onBlur",
-        shouldRevalidate: "onInput"
-    });
-
-    useEffect(() => {
-        setFormData({
+      // If valid, persist to context and advance to confirmation
+      if (submission.status === "success") {
+        setIsFormValid(true)
+        const dataObj = Object.fromEntries(formData.entries()) as Record<string, any>
+        setRequestTransfer({
           ...bookingData,
-          
-        });
-      }, [bookingData]);
+          ...dataObj,
+          passengers: Number(dataObj.passengers) || Number(requestTransfer?.passengers) || 1,
+          requestNumber: requestTransfer?.requestNumber || `REQ-${Math.floor(Math.random() * 1_000_000_000)}`,
+        })
+        nextStep()
+      }
+      return submission
+    },
+    shouldValidate: "onBlur",
+    shouldRevalidate: "onInput",
+  })
+
+  // Ensure defaults hydrate from bookingData/context on mount/update
+  useEffect(() => {
+    // no extra local state needed; defaults are set on inputs below
+  }, [bookingData, requestTransfer])
+
+  const errorText = (err: unknown) => Array.isArray(err) ? err.join(", ") : (err as string)
 
   return (
-    <div className="bg-white p-8 shadow-md rounded">
-      
-      <form 
-        // action={actionForm} 
-        id={form.id}
-        onSubmit={form.onSubmit}
-        noValidate
-        className="flex flex-col space-y-4"
-      >
-        <div>
-          {/* <label className="block text-gray-700">Request No.</label>
-          <input 
-            disabled
-            type="text" 
-            name={fields.requestNumber.name} 
-            key={fields.requestNumber.key}
-            value={"REQ-" +  Math.floor(Math.random() * 1000000000) } 
-            className="w-full px-3 py-2 border rounded"
-          /> */}
-          <p className="text-sm text-red-500">{fields.requestNumber.errors}</p>
+    <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 sm:p-6">
+      <form id={form.id} onSubmit={form.onSubmit} noValidate className="flex flex-col gap-4">
+        <header>
+          <h2 className="text-base sm:text-lg font-semibold text-slate-900">Passenger details</h2>
+          <p className="text-sm text-slate-600 mt-1">We’ll use this to confirm your booking.</p>
+        </header>
+
+        {/* Name */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label htmlFor={fields.firstName.id} className="block text-sm text-slate-700">
+              First name <span className="text-red-500">*</span>
+            </label>
+            <input
+              id={fields.firstName.id}
+              name={fields.firstName.name}
+              key={fields.firstName.key}
+              defaultValue={requestTransfer?.firstName || ""}
+              type="text"
+              autoComplete="given-name"
+              onChange={handleChange}
+              required
+              className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary/30"
+            />
+            {fields.firstName.errors && (
+              <p className="mt-1 text-xs text-red-600">{errorText(fields.firstName.errors)}</p>
+            )}
+          </div>
+          <div>
+            <label htmlFor={fields.lastName.id} className="block text-sm text-slate-700">
+              Last name <span className="text-red-500">*</span>
+            </label>
+            <input
+              id={fields.lastName.id}
+              name={fields.lastName.name}
+              key={fields.lastName.key}
+              defaultValue={requestTransfer?.lastName || ""}
+              type="text"
+              autoComplete="family-name"
+              onChange={handleChange}
+              required
+              className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary/30"
+            />
+            {fields.lastName.errors && (
+              <p className="mt-1 text-xs text-red-600">{errorText(fields.lastName.errors)}</p>
+            )}
+          </div>
         </div>
-        <div>
-          <label className="block text-gray-700">First Name</label>
-          <input
-            name={fields.firstName.name}
-            key={fields.firstName.key}
-            defaultValue={requestTransfer?.firstName}
-            type='text' 
-            placeholder='First Name' 
-            onChange={handleChange}
-            className="w-full px-3 py-2 border rounded"
-          />
-          <p className="text-sm text-red-500">{fields.firstName.errors}</p>
+
+        {/* Contact */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label htmlFor={fields.email.id} className="block text-sm text-slate-700">
+              Email <span className="text-red-500">*</span>
+            </label>
+            <input
+              id={fields.email.id}
+              name={fields.email.name}
+              key={fields.email.key}
+              defaultValue={requestTransfer?.email || ""}
+              type="email"
+              autoComplete="email"
+              onChange={handleChange}
+              required
+              className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary/30"
+            />
+            {fields.email.errors && (
+              <p className="mt-1 text-xs text-red-600">{errorText(fields.email.errors)}</p>
+            )}
+          </div>
+          <div>
+            <label htmlFor={fields.mobile.id} className="block text-sm text-slate-700">
+              Mobile <span className="text-red-500">*</span>
+            </label>
+            <input
+              id={fields.mobile.id}
+              name={fields.mobile.name}
+              key={fields.mobile.key}
+              defaultValue={requestTransfer?.mobile || ""}
+              type="tel"
+              autoComplete="tel"
+              placeholder="(+66) 99 108 7999"
+              onChange={handleChange}
+              required
+              className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary/30"
+            />
+            {fields.mobile.errors && (
+              <p className="mt-1 text-xs text-red-600">{errorText(fields.mobile.errors)}</p>
+            )}
+          </div>
         </div>
-        <div>
-          <label className="block text-gray-700">Last Name</label>
-          <input
-            type="text"
-            name={fields.lastName.name}
-            key={fields.lastName.key}
-            defaultValue={requestTransfer?.lastName}
-            placeholder="Last Name"
-            onChange={handleChange}
-            className="w-full px-3 py-2 border rounded"
-          />
-          <p className="text-sm text-red-500">{fields.lastName.errors}</p>
+
+        {/* Trip */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="sm:col-span-1">
+            <label htmlFor={fields.date.id} className="block text-sm text-slate-700">
+              Pickup date/time <span className="text-red-500">*</span>
+            </label>
+            <input
+              id={fields.date.id}
+              name={fields.date.name}
+              key={fields.date.key}
+              defaultValue={requestTransfer?.date || ""}
+              type="datetime-local"
+              onChange={handleChange}
+              required
+              className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary/30"
+            />
+            {fields.date.errors && (
+              <p className="mt-1 text-xs text-red-600">{errorText(fields.date.errors)}</p>
+            )}
+          </div>
+
+          {/* Passengers */}
+          <div className="sm:col-span-1">
+            <label htmlFor="passengers" className="block text-sm text-slate-700">
+              Passengers <span className="text-red-500">*</span>
+            </label>
+            <input
+              id="passengers"
+              name={/* if schema includes it, use that field; else fall back */ (fields as any)?.passengers?.name || "passengers"}
+              key={(fields as any)?.passengers?.key || "passengers"}
+              defaultValue={
+                (fields as any)?.passengers?.initialValue ||
+                requestTransfer?.passengers ||
+                bookingData?.passengers ||
+                1
+              }
+              type="number"
+              inputMode="numeric"
+              min={1}
+              max={12}
+              step={1}
+              onChange={handleChange}
+              required
+              className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary/30"
+            />
+            {(fields as any)?.passengers?.errors && (
+              <p className="mt-1 text-xs text-red-600">{errorText((fields as any).passengers.errors)}</p>
+            )}
+            <p className="mt-1 text-xs text-slate-500">Max 12 per vehicle. Let us know if you need child seats.</p>
+          </div>
         </div>
-        <div>
-          <label className="block text-gray-700">Email</label>
-          <input
-            type="email"
-            name={fields.email.name}
-            key={fields.email.key}
-            defaultValue={requestTransfer?.email}
-            onChange={handleChange}
-            placeholder="Your Email"
-            className="w-full px-3 py-2 border rounded"
-          />
-          <p className="text-sm text-red-500">{fields.email.errors}</p>
+
+        {/* Optional */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label htmlFor={fields.flightNo.id} className="block text-sm text-slate-700">
+              Flight no. (optional)
+            </label>
+            <input
+              id={fields.flightNo.id}
+              name={fields.flightNo.name}
+              key={fields.flightNo.key}
+              defaultValue={requestTransfer?.flightNo || ""}
+              type="text"
+              placeholder="TG123"
+              onChange={handleChange}
+              className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary/30"
+            />
+            {fields.flightNo.errors && (
+              <p className="mt-1 text-xs text-red-600">{errorText(fields.flightNo.errors)}</p>
+            )}
+          </div>
+          <div>
+            <label htmlFor="notes" className="block text-sm text-slate-700">
+              Notes (optional)
+            </label>
+            <textarea
+              id="notes"
+              name={(fields as any)?.notes?.name || "notes"}
+              defaultValue={requestTransfer?.notes || ""}
+              rows={3}
+              onChange={handleChange}
+              placeholder="Child seat, special requests, etc."
+              className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary/30"
+            />
+          </div>
         </div>
-        <div>
-          <label className="block text-gray-700">Mobile</label>
-          <input
-            type="tel"
-            name={fields.mobile.name}
-            key={fields.mobile.key}
-            defaultValue={requestTransfer?.mobile}
-            placeholder="Your Mobile"
-            onChange={handleChange}
-            className="w-full px-3 py-2 border rounded"
-          />
-          <p className="text-sm text-red-500">{fields.mobile.errors}</p>
+
+        {/* Summary (read-only vehicle/route) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label className="block text-sm text-slate-700">Vehicle</label>
+            <input
+              type="text"
+              name={fields.carModel.name}
+              key={fields.carModel.key}
+              defaultValue={fields.carModel.initialValue || bookingData?.carModel || ""}
+              readOnly
+              className="mt-1 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600"
+            />
+          </div>
+          <div>
+            <label className="block text-sm text-slate-700">Rate</label>
+            <input
+              type="text"
+              name={fields.rate.name}
+              key={fields.rate.key}
+              defaultValue={fields.rate.initialValue || bookingData?.rate || ""}
+              readOnly
+              className="mt-1 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600"
+            />
+          </div>
+          <div>
+            <label className="block text-sm text-slate-700">Pickup</label>
+            <input
+              type="text"
+              name={fields.pickupPoint.name}
+              key={fields.pickupPoint.key}
+              defaultValue={bookingData?.pickupPoint || ""}
+              readOnly
+              className="mt-1 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600"
+            />
+          </div>
+          <div>
+            <label className="block text-sm text-slate-700">Drop‑off</label>
+            <input
+              type="text"
+              name={fields.dropoffPoint.name}
+              key={fields.dropoffPoint.key}
+              defaultValue={fields.dropoffPoint.initialValue || bookingData?.dropoffPoint || ""}
+              readOnly
+              className="mt-1 w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600"
+            />
+          </div>
         </div>
-        <div>
-          <label className="block text-gray-700">Pickup: Date/Time</label>
-          <input
-            type="datetime-local"
-            name={fields.date.name}
-            key={fields.date.key}
-            defaultValue={requestTransfer?.date}
-            // placeholder="Date"
-            onChange={handleChange}
-            className="w-full px-3 py-2 border rounded"
-          />
+
+        <div className="pt-2">
+          <button
+            type="submit"
+            className="w-full inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90"
+          >
+            Review booking
+          </button>
         </div>
-        <div>
-          <label className="block text-gray-700">Flight No</label>
-          <input
-            type="text"
-            name={fields.flightNo.name}
-            key={fields.flightNo.key}
-            defaultValue={requestTransfer?.flightNo}
-            placeholder="Your Flight No."
-            onChange={handleChange}
-            className="w-full px-3 py-2 border rounded"
-          />
-        </div>
-        <div>
-          <label className="block text-gray-700">Car Type</label>
-          <input
-            type="text"
-            name={fields.carType.name}
-            key={fields.carType.key}
-            defaultValue={bookingData.carType}
-            // onChange={handleChange}
-            className="w-full px-3 py-2 border rounded"
-            readOnly
-          />
-        </div>
-        <div>
-          <label className="block text-gray-700">Pickup Location</label>
-          <input
-            type="text"
-            name={fields.pickupPoint.name}
-            key={fields.pickupPoint.key}
-            defaultValue={bookingData.pickupPoint}
-            //onChange={handleChange}
-            className="w-full px-3 py-2 border rounded"
-            readOnly
-          />
-        </div>
-        <div>
-          <label className="block text-gray-700">Dropoff Location</label>
-          <input
-            type="text"
-            name={fields.dropoffPoint.name}
-            key={fields.dropoffPoint.key}
-            defaultValue={fields.dropoffPoint.initialValue || bookingData.dropoffPoint}
-            //onChange={handleChange}
-            className="w-full px-3 py-2 border rounded"
-            readOnly
-          />
-        </div>
-        <div>
-          <label className="block text-gray-700">Car Model</label>
-          <input
-            type="text"
-            name={fields.carModel.name}
-            key={fields.carModel.key}
-            defaultValue={fields.carModel.initialValue || bookingData.carModel}
-            //onChange={handleChange}
-            className="w-full px-3 py-2 border rounded"
-            readOnly
-            
-          />
-        </div>
-        <div>
-          <label className="block text-gray-700">Rate</label>
-          <input
-            type="text"
-            name={fields.rate.name}
-            key={fields.rate.key}
-            defaultValue={fields.rate.initialValue || bookingData.rate}
-            //onChange={handleChange}
-            className="w-full px-3 py-2 border rounded"
-            readOnly
-          />
-        </div>
-          { 
-          <button type="submit"  className="w-full bg-blue-500 text-white py-2 rounded">
-            Next
-          </button>   
-          }    
       </form>
     </div>
-  );
-};
- 
-export default BookingStep;
+  )
+}
+
+export default BookingStep

@@ -18,152 +18,177 @@ import { Divide } from 'lucide-react';
     };
     
     const [center,setCenter ] = useState({
-      // diamond pool villa samui 
-      lat: 9.550519, 
-      lng: 100.0662909
+      // need to update to Samui-Transfers.com Office
+      lat: 9.53216, 
+      lng: 100.04386
     });
 
     const [map, setMap] = useState(null)
-    
-  // Pickup location
-    useEffect(() => {
-      console.log("source: ", source);
-      console.log("destination: ", destination);
-      if(source?.length != [] && map){
-        map.panTo(
-          {
-            lat: source.lat,
-            lng: source.lng
-          }
-        )
-        setCenter({
-          lat: source.lat,
-          lng: source.lng
-        })
-      };
 
-      if(source.length != [] && destination.length != []){
-        directionRoute();
-      };
+    // Normalize various point shapes into {lat, lng}
+  const getCoords = (pt) => {
+    if (!pt) return null;
+    if (typeof pt.lat === 'number' && typeof pt.lng === 'number') return { lat: pt.lat, lng: pt.lng };
+    if (pt.geometry?.location) {
+      const loc = pt.geometry.location;
+      const lat = typeof loc.lat === 'function' ? loc.lat() : loc.lat;
+      const lng = typeof loc.lng === 'function' ? loc.lng() : loc.lng;
+      if (typeof lat === 'number' && typeof lng === 'number') return { lat, lng };
+    }
+    if (pt.location && typeof pt.location.lat === 'function') {
+      return { lat: pt.location.lat(), lng: pt.location.lng() };
+    }
+    return null;
+  };
 
-    },[source]);
-
-
-  // Destination drop off
-    useEffect(() => {
-      if(destination?.length != [] && map ){
-        map.panTo(
-          {
-            lat: destination.lat,
-            lng: destination.lng
-          })
-        setCenter({
-          lat: destination.lat,
-          lng: destination.lng
-        })
-      }
-      if(source.length != [] && destination.length != []){
-        directionRoute();
-      }
-    },[destination])
-
-    const directionRoute = () => {
-      const DirectionService = new google.maps.DirectionsService();
-      DirectionService.route({
-        // origin:{lat: source.lat, lng: source.lng},
-        // destination:{lat: destination.lat, lng: destination.lng},
-        origin: source,
-        destination: destination,
-        travelMode: google.maps.TravelMode.DRIVING
-      }, (result, status) => {
-        if(status === google.maps.DirectionsStatus.OK){
-          console.log('result: ' + result  );
-          setDirectionRoutePoints(result)
-        }else{
-          console.error('Error: ' + Error);
+  const directionRoute = (src, dst) => {
+    if (typeof google === 'undefined' || !google.maps) return;
+    const DirectionService = new google.maps.DirectionsService();
+    DirectionService.route(
+      {
+        origin: src,
+        destination: dst,
+        travelMode: google.maps.TravelMode.DRIVING,
+      },
+      (result, status) => {
+        if (status === 'OK' || status === google.maps.DirectionsStatus?.OK) {
+          setDirectionRoutePoints(result);
+        } else {
+          console.error('Directions error:', status);
+          setDirectionRoutePoints(null);
         }
-      })
-    };
-      
-      const onLoad = useCallback(function callback(map) {
-        // This is just an example of getting and using the map instance!!! don't just blindly copy!
-        const bounds = new window.google.maps.LatLngBounds(center);
-        map.fitBounds(bounds);
-        setMap(map)
-      }, [])
+      }
+    );
+  };
 
-      const onUnmount = useCallback(function callback(map) {
-        setMap(null)
-      }, []);
+    // React to source/destination/map changes safely
+    useEffect(() => {
+      const src = getCoords(source);
+      const dst = getCoords(destination);
 
+      if (map && src) {
+        map.panTo(src);
+        setCenter(src);
+      } else if (map && !src && dst) {
+        map.panTo(dst);
+        setCenter(dst);
+      }
 
-    return (
-      <div className='w-full h-full relative mx-auto bg-white'>
-          <GoogleMap
+      if (src && dst) {
+        directionRoute(src, dst);
+      } else {
+        setDirectionRoutePoints(null);
+      }
+    }, [source, destination, map]); // re-run when any change
+
+    const onLoad = useCallback(function callback(m) {
+      // Fit to initial center
+      if (typeof google !== 'undefined' && google.maps) {
+        const bounds = new google.maps.LatLngBounds(center);
+        m.fitBounds(bounds);
+      }
+      setMap(m);
+    }, [center]);
+
+    const onUnmount = useCallback(function callback() {
+      setMap(null);
+    }, []);
+
+    const src = getCoords(source);
+    const dst = getCoords(destination);
+    const g = typeof window !== "undefined" ? window.google : undefined
+    if (!g?.maps) return null
+
+    // Guarded check for a valid DirectionsResult
+    const hasDirections = !!(directionRoutePoints && Array.isArray(directionRoutePoints.routes) && directionRoutePoints.routes.length > 0);
+
+  return (
+    <div className='w-full h-full relative mx-auto bg-white'>
+        <GoogleMap
             mapContainerStyle={containerStyle}
             center={center}
-            zoom={10}
+            zoom={14}
             onLoad={onLoad}
             onUnmount={onUnmount}
             options={{mapId:'976a7c2e003306bf'}}
           >
-            { /* Child components, such as markers, info windows, etc. */ }
-            { source?.length != []? <MarkerF
-                position={{lat: source.lat, lng: source.lng}} 
-                icon={{
-                  url: '/source-destination.png',
-                  scaledSize:{
-                    width: 60,
-                    height: 60
-                  }
-                }}
-              >
+            {/* Source marker */}
+        {src && (
+          <MarkerF
+            position={src}
+            title="Pickup"
+            icon={{ url: '/icons/pickup-pin.svg', scaledSize: new g.maps.Size(32, 32) }}
+          />
+        )}
+        {dst && (
+          <MarkerF
+            position={dst}
+            title="Drop‑off"
+            icon={{ url: '/icons/dropoff-pin.svg', scaledSize: new g.maps.Size(32, 32) }}
+          />
+        )}
 
-              <OverlayViewF
-                position={{lat: source.lat, lng: source.lng}} 
-                mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
-              >
-                {/* Show location label
-                <div>
-                  <p className='text-orange-400'>{source.label}</p>
-                </div> */}
+        Pickup label above marker
+        {/* {src ? (
+          <OverlayViewF
+            position={src}
+            mapPaneName={OverlayView.FLOAT_PANE}
+            getPixelPositionOffset={(width, height) => ({ x: -width / 2, y: -30 })}
+          >
+            <div className="rounded bg-emerald-600 text-white text-xs px-2 py-1 shadow">
+              Pickup
+            </div>
+          </OverlayViewF>
+        ) : null} */}
 
-              </OverlayViewF>
-                </MarkerF>: null }
+        {/* Destination marker */}
+        {/* {dst ? (
+          <MarkerF
+            position={dst}
+            title="Drop-off"
+            icon={{
+              // Red circle marker (SVG symbol)
+              path: g.maps.SymbolPath.CIRCLE,
+              scale: 10,
+              fillColor: '#dc2626',       // red-600
+              fillOpacity: 1,
+              strokeColor: '#ffffff',
+              strokeWeight: 2,
+            }}
+          />
+        ) : null} */}
 
-                { destination?.length != []? <MarkerF
-                    position={{lat: destination.lat, lng: destination.lng }} 
-                    icon={{
-                      url: '/source-destination.png',
-                      scaledSize:{
-                        width: 60,
-                        height: 60
-                      }
-                    }}
-                  >
-                <OverlayViewF
-                  position={{lat: destination.lat, lng: destination.lng}} 
-                  mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
-                >
-                </OverlayViewF>
-              </MarkerF> : null }
+        {/* Drop-off label above marker
+        {dst ? (
+          <OverlayViewF
+            position={dst}
+            mapPaneName={OverlayView.FLOAT_PANE}
+            getPixelPositionOffset={(width, height) => ({ x: -width / 2, y: -30 })}
+          >
+            <div className="rounded bg-red-600 text-white text-xs px-2 py-1 shadow">
+              Drop‑off
+            </div>
+          </OverlayViewF>
+        ) : null} */}
 
-              {/* render route on the maps  */}
-              
-              <DirectionsRenderer 
-                directions={directionRoutePoints}
-                options={{
-                polylineOptions:{
-                  strokeColor: "#D94141",
-                  strokeWeight: 4,
-                  draggable: false,
-                },
-                  suppressMarkers: true
-                }}
-              />
+        {/* render route on the maps  */}
+        {hasDirections && (
+          <DirectionsRenderer 
+            directions={directionRoutePoints}
+            options={{
+              polylineOptions:{
+                strokeColor: "#D94141",
+                strokeWeight: 4,
+                draggable: false,
+              },
+              suppressMarkers: true
+            }}
+          />
+        )}
           </GoogleMap>
       </div>
       ) 
 }
+
 
 export default GoogleMapsSection;

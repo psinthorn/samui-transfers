@@ -57,8 +57,8 @@ const WhyChooseUs = () => {
   //   </div>
   // </div>
     <div className='my-2 relative'>
-      <h1 className='text-center text-7xl md:text-7xl text-primary'>Why Choose Us</h1>
-      <p className='text-center  font-light mt-1 md:text-lg text-sm mb-8 text-slate-600'>We are committed to </p>
+      <h1 className='text-center  text-primary text-3xl sm:text-3xl md:text-5xl lg:text-7xl'>Why Choose Us</h1>
+      <p className='text-center mt-1 md:text-lg text-sm mb-8 '>We are committed to </p>
       <div className="grid grid-cols-1 w-full sm:grid-cols-2 sm:p-8 sm:bg-none  md:grid-cols-2 md:p-16 lg:grid-cols-2 lg:py-24  gap-8">
       
           {items.map((item) => (
@@ -67,6 +67,7 @@ const WhyChooseUs = () => {
             </div>
             )
           )}
+
         </div>
     </div>
   )
