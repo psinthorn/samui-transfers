@@ -1,10 +1,13 @@
 "use client";
+<<<<<<< HEAD
+=======
 
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Menu, Phone, Facebook, MessageCircle } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa";
+>>>>>>> main
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,6 +18,15 @@ import {
 } from "@/components/ui/dropdown-menu";
 import StRec from "@/public/ci/restlogopngv1/ST_Branding_V1-07.png";
 
+<<<<<<< HEAD
+import { Facebook, Menu, Phone, LogIn, LogOut, Shield } from 'lucide-react'
+import { Badge } from '../ui/badge'
+import Link from 'next/link'
+// import Image from 'next/image'
+import { FaWhatsapp } from 'react-icons/fa'
+import { useRole } from '@/components/utilities/useRole'
+import { signIn, signOut } from 'next-auth/react'
+=======
 const MainMenu = [
   { id: 1, title: "Home", link: "/" },
   { id: 2, title: "About Us", link: "/about-us" },
@@ -22,6 +34,7 @@ const MainMenu = [
   { id: 4, title: "FAQ(s)", link: "/faqs" },
   { id: 5, title: "Contact", link: "/contact" },
 ];
+>>>>>>> main
 
 export default function Header() {
   const pathname = usePathname();
@@ -35,6 +48,39 @@ export default function Header() {
   const whatsappHref = `https://wa.me/${publicInfo.whatsapp}`;
   const isExternal = (url) => /^https?:\/\//.test(url);
 
+<<<<<<< HEAD
+
+const Header = () => {
+  const { role, status, session } = useRole()
+  const MainMenu = [
+    // {
+    //   id: 1,
+    //   title: 'Home',
+    //   link: '/',
+    // },
+    {
+      id: 2,
+      title: 'About Us',
+      link: '/about-us',
+    },
+    {
+      id: 3,
+      title: 'Why Choose Us',
+      link: '/why-choose-us',
+    },
+    {
+      id: 4,
+      title: 'FAQ(s)',
+      link: '/faqs',
+    },
+    {
+      id: 5,
+      title: 'Contact',
+      link: '/contact',
+    }
+  ]
+=======
+>>>>>>> main
   return (
     <header className="sticky top-0 z-40 border-b border-black/5 bg-primary text-white">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -44,6 +90,50 @@ export default function Header() {
           <span className="hidden sm:inline text-sm font-semibold tracking-wide">Samui Transfers</span>
         </Link>
 
+<<<<<<< HEAD
+        {/* desktop navbar  */}
+        <div className='hidden md:flex md:gap-8 md:items-center'>
+            {/* <p className='text-3xl font-bold text-orange-500'> */}
+              <Link href="/">
+                {/* <Image src={RosLogo} alt='Ros Logo' width={100}/> */}
+                <strong className='text-2xl text-white font-bold'>SMTS</strong>
+              </Link>
+            {/* </p> */}
+            {MainMenu.map((item) => (
+              <div key={item.id} className='flex gap-4 items-center text-md text-white'>
+              <Link href={item.link} >{item.title}</Link>
+            </div>
+            ))
+          }
+          {role === 'ADMIN' && (
+            <div className='flex gap-4 items-center text-md text-white'>
+              <Link href='/Admin'>Admin</Link>
+            </div>
+          )}
+        </div>    
+          
+        {/* mobile navbar */}
+        <div className='flex md:hidden gap-5'>
+            {/* <p className='text-3xl font-bold text-orange-500'>
+              <a href="/">rRSs</a>
+            </p> */}
+            
+            <DropdownMenu className="">
+              <DropdownMenuTrigger><Menu size='32' color='#fff' /></DropdownMenuTrigger>
+              <DropdownMenuContent className='w-300'>
+                <DropdownMenuLabel>
+                  <Link href="/" >Home</Link>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {MainMenu.map((item) => (
+                  <DropdownMenuItem key={item.id}>
+                    <Link href={item.link} >{item.title}</Link>
+                  </DropdownMenuItem>
+                ))
+                } 
+              </DropdownMenuContent>
+            </DropdownMenu>
+=======
         {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-6" aria-label="Main">
           {MainMenu.map((item) => (
@@ -59,6 +149,7 @@ export default function Header() {
             </Link>
           ))}
         </nav>
+>>>>>>> main
 
         {/* Actions */}
         <div className="hidden md:flex items-center gap-3">
@@ -105,6 +196,35 @@ export default function Header() {
           </Link>
         </div>
 
+<<<<<<< HEAD
+        <div className='hidden lg:flex items-center gap-3'>
+          <div className='flex gap-0 text-slate-700 items-center'>
+            <Phone size='20' color='#fff' className='gap-0'/><span className='text-xs pr-2 text-white'>(+66)99-108-7999 </span>
+            <FaWhatsapp size='20' color='#fff' className='gap-0'/><span className='text-xs pr-2 text-white'>(+66)99-108-7999</span>
+            <Link href="https://www.facebook.com/profile.php?id=61578880422159" target='_blank' className='gap-0 pr-2 text-white'>
+              <Facebook size='20' color='#fff' />
+            </Link>
+          </div>
+          {status === 'loading' && <span className='text-white text-xs'>...</span>}
+          {status !== 'loading' && !session && (
+            <button onClick={() => signIn(undefined, { callbackUrl: '/' })} className='flex items-center gap-1 text-xs text-white border border-white/30 hover:bg-white/10 px-2 py-1 rounded'>
+              <LogIn size={14}/> Sign In
+            </button>
+          )}
+          {session && (
+            <>
+              {role === 'ADMIN' && <Shield size={16} className='text-white' />}
+              <span className='text-white text-xs'>{session.user?.email}</span>
+              <button onClick={() => signOut({ callbackUrl: '/' })} className='flex items-center gap-1 text-xs text-white border border-white/30 hover:bg-white/10 px-2 py-1 rounded'>
+                <LogOut size={14}/> Sign Out
+              </button>
+            </>
+          )}
+        </div>            
+    </div>
+  )
+}
+=======
         {/* Mobile menu */}
         <div className="md:hidden">
           <DropdownMenu>
@@ -133,6 +253,7 @@ export default function Header() {
                 >
                   Book now
                 </Link>
+>>>>>>> main
 
                 {/* <Link
                   href="/aichat"

@@ -16,11 +16,16 @@ import MainBanner from '@/components/hero/MainBanner'
 import { useRequestTransferContext } from '@/context/RequestTransferContext'
 import MiniVanVisual from '@/components/utilities/MiniVanVisual'
 import AIChat from '@/components/ai/AIChat'
+<<<<<<< HEAD
+// import RoleUpdateForm from './role-update-form.tsx'
+// import CarListOptions from '../components/vehicle/CarListOptions'
+=======
 import CarListOptions from '@/components/vehicle/CarListOptions'
 import Image from 'next/image'
 
 const GoogleMapsSection = dynamic(() => import("@/components/Home/GoogleMapsSection"), { ssr: false })
 const SearchSection = dynamic(() => import("@/components/Home/SearchSection"), { ssr: false })
+>>>>>>> main
 
 export default function Home() {
 // const googleAPiKeyContext = process.env.NEXT_PUBLIC_GOOGLE_API_KEY

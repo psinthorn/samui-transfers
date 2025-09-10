@@ -6,7 +6,7 @@ export default function Page() {
   return (
     <>
       <Image 
-        src={Banner} 
+        // src={Banner} 
         layout="responsive" 
         width={1920} 
         height={1024}

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Montserrat } from "next/font/google";
 import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
+import SessionClientProvider from "@/components/auth/SessionClientProvider";
 
 import "./globals.css";
 import RequestTransferContextProvider from "@/context/RequestTransferContext";
@@ -26,19 +27,19 @@ export default function RootLayout({
     // <ClerkProvider>
       <html lang="en">
         <body className={`montserrat.className, h-auto`}>
-          <div className="h-full mx-auto flex flex-col">
-            <Header />
+          <SessionClientProvider>
+            <div className="min-h-screen mx-auto flex flex-col">
+              <Header />
               <SourceContextProvider>
                 <DestinationContextProvider>
                   <RequestTransferContextProvider>
-                  {children}
+                    <div className="flex-1">{children}</div>
                   </RequestTransferContextProvider>
                 </DestinationContextProvider>
               </SourceContextProvider>
-          </div>
-          <div className="h-20">
-            <Footer />
-          </div>
+              <Footer />
+            </div>
+          </SessionClientProvider>
         </body>
       </html>
     // </ClerkProvider>
