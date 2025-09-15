@@ -2,7 +2,7 @@
 
 import * as z from "zod";
 import { loginSchema } from "@/schemas";
-import { zodResolver } from "@hookform/resolvers/zod";
+
 import { 
     Form,
     FormControl,
@@ -18,6 +18,7 @@ import { loginAction } from '@/actions/login'
 import { useState, useTransition } from "react";
 import { FormError } from "@/components/formError";
 import { FormSuccess } from "@/components/formSuccess";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 export const LoginForm = () => {
     const [ isPending, startTransition ] = useTransition();

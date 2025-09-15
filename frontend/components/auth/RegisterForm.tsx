@@ -2,7 +2,7 @@
 
 import * as z from "zod";
 import { registerSchema } from "@/schemas";
-import { zodResolver } from "@hookform/resolvers/zod";
+
 import { 
     Form,
     FormControl,
@@ -18,6 +18,7 @@ import { registerAction } from '@/actions/register'
 import { useState, useTransition } from "react";
 import { FormError } from "@/components/formError";
 import { FormSuccess } from "@/components/formSuccess";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 export const RegisterForm = () => {
     const [ isPending, startTransition ] = useTransition();
