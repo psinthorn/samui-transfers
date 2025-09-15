@@ -81,7 +81,7 @@ export default function PaymentStep({ formData, handleChange, nextStep, prevStep
       </section>
 
       {/* QR code / PromptPay */}
-      <section className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {/* <section className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="rounded-lg border border-slate-200 bg-white p-4">
           <Label className="text-sm text-slate-700">Scan QR code</Label>
           <div className="mt-2 flex items-center justify-center">
@@ -109,7 +109,7 @@ export default function PaymentStep({ formData, handleChange, nextStep, prevStep
             {copied === "PromptPay" ? "Copied!" : "Copy number"}
           </button>
         </div>
-      </section>
+      </section> */}
 
       {/* Upload payment slip (optional) */}
       <section className="mt-4 rounded-lg border border-slate-200 bg-white p-4">

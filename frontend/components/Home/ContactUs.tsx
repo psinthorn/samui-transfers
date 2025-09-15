@@ -250,7 +250,7 @@ export default function ContactUs({ lang, className = "", showLanguageSelector }
           </div>
 
             {/* Form Card */}
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 sm:p-6">
+            {/* <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 sm:p-6">
               <h2 className="text-base sm:text-lg font-semibold text-slate-800 mb-4">
                 {L.formHeader}
               </h2>
@@ -341,7 +341,7 @@ export default function ContactUs({ lang, className = "", showLanguageSelector }
                   </p>
                 </div>
               </form>
-            </div>
+            </div> */}
         </div>
       </div>
     </section>
