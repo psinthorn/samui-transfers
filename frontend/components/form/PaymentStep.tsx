@@ -112,7 +112,7 @@ export default function PaymentStep({ formData, handleChange, nextStep, prevStep
       </section> */}
 
       {/* Upload payment slip (optional) */}
-      <section className="mt-4 rounded-lg border border-slate-200 bg-white p-4">
+      {/* <section className="mt-4 rounded-lg border border-slate-200 bg-white p-4">
         <Label htmlFor="paymentSlip" className="text-sm text-slate-700">
           Upload payment slip (optional)
         </Label>
@@ -132,7 +132,7 @@ export default function PaymentStep({ formData, handleChange, nextStep, prevStep
         <p className="mt-2 text-xs text-slate-500">
           We’ll verify your payment and confirm by email/WhatsApp within 24 hours.
         </p>
-      </section>
+      </section> */}
     </div>
   )
 }
