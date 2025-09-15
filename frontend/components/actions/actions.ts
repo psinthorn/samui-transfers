@@ -24,9 +24,9 @@ export const OnboardUser =  async (prevState: any ,formDara: FormData) => {
       id: (await session).user?.id
     },
     data: {
-      firstName: submission.value.firstName as string,
-      lastName: submission.value.lastName as string,
-      address: submission.value.address as string
+      // firstName: submission.value.firstName as string,
+      // lastName: submission.value.lastName as string,
+      // address: submission.value.address as string
     }
   });
 
