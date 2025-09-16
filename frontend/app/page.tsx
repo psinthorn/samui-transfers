@@ -7,7 +7,7 @@ import dynamic from "next/dynamic"
 // import SearchSection from '@/components/Home/SearchSection'
 import SourceContext, { useSourceContext } from '@/context/SourceContext'
 import DestinationContext, { useDestinationContext } from '@/context/DestinationContext'
-// import WhyChooseUs from '@/components/why-us/WhyChooseUs'
+import WhyChooseUs from '@/components/Home/WhyChooseUs'
 // import GoogleApiKeyContext from '@/context/GoogleApiKeyContext'
 import { useState, useEffect, useContext } from "react";
 import { GoogleMap, LoadScript } from '@react-google-maps/api'
@@ -48,16 +48,20 @@ const { destination, setDestination } = useDestinationContext();
   if (!isLoaded) return <div className="p-4 text-sm text-gray-600">Loading map…</div>
 
   return (
-    (
-      // <LoadScript 
-      //   libraries={['places']}
-      //   googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_API_KEY || ''}
-      // >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ">
+    <main className="min-h-screen bg-slate-50">
+      {/* <LoadScript 
+         libraries={['places']}
+         googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_API_KEY || ''}
+       > */}
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:py-12">
           <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-1 py-4 gap-0 bg-white">
             <div>
               <SearchSection />
             </div>
+          </div>
+          {/* Why Choose Us: Option C - directly after the search block */}
+          <div className="mt-8">
+            <WhyChooseUs />
           </div>
              {canShowMap && (
               <div className="grid grid-cols-1 lg:grid-cols-2 mb-24 py-4 bg-white mt-8">
@@ -72,7 +76,7 @@ const { destination, setDestination } = useDestinationContext();
             )}
 
               
-            <div className='w-full mx-auto p-6 gap-5  bg-white border-rounded-lg '>
+            <div className='w-full mx-auto p-6 gap-5 bg-white border-rounded-lg'>
               <div className='w-full text-center py-8 sm:py-12 md:py-16 lg:py-24'>
                 <h1 className='text-primary items-center  text-center text-3xl sm:text-3xl md:text-5xl lg:text-7xl'>Vehicles & Drivers</h1>
                 <p>Choose from a variety of vehicles and professional drivers for your trip.</p>
@@ -135,7 +139,8 @@ const { destination, setDestination } = useDestinationContext();
                 </div>
                 <AIChat />
               </div>
-            </div>
-      // </LoadScript>    
-  ));
+      </div>
+      {/* </LoadScript> */}
+    </main>
+  );
 }

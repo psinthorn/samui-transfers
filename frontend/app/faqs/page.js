@@ -95,7 +95,7 @@ export default function FAQPage() {
 
   return (
     <main className="min-h-screen bg-slate-50">
-      <div className="mx-auto max-w-3xl px-4 py-8 sm:py-12">
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:py-12">
         <header className="mb-6">
           <div className="flex items-center justify-between gap-3">
             <div>

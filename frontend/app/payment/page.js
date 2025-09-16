@@ -24,19 +24,15 @@ const PaymentPage = () => {
   };
 
   return (
-    <section className="bg-blue-50 dark:bg-slate-200 py-8 flex justify-center items-center min-h-screen">
-      <div className="w-full max-w-3xl px-4 sm:px-6 lg:px-8">
-        <div className="mb-6 text-center">
-          <p className="text-base font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-200">
-            Payment
-          </p>
-          <h2 className="font-heading mb-4 font-bold tracking-tight text-gray-900 dark:text-white text-3xl sm:text-5xl">
-            Complete Your Payment
-          </h2>
-        </div>
+    <main className="min-h-screen bg-slate-50">
+      <div className="mx-auto max-w-3xl px-4 py-8 sm:py-12">
+        <header className="mb-6 text-center">
+          <p className="text-xs font-semibold uppercase tracking-wide text-primary">Payment</p>
+          <h1 className="mt-1 text-2xl sm:text-3xl font-semibold text-slate-900">Complete your payment</h1>
+        </header>
         <PaymentStep formData={formData} handleChange={handleChange} handleSubmit={handleSubmit} />
       </div>
-    </section>
+    </main>
   );
 };
 

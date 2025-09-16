@@ -56,7 +56,8 @@ export default function AIChatPage() {
   }
 
   return (
-    <main className="mx-auto w-full max-w-3xl px-4 sm:px-6 lg:px-8 py-6">
+    <main className="min-h-screen bg-slate-50">
+      <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:py-12">
       <header className="mb-4">
         <p className="text-xs font-semibold uppercase tracking-wide text-primary">Support</p>
         <h1 className="mt-1 text-2xl sm:text-3xl font-semibold text-slate-900">AI Chat</h1>
@@ -119,6 +120,7 @@ export default function AIChatPage() {
           </div>
         </form>
       </section>
+      </div>
     </main>
   )
 }
