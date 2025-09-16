@@ -13,7 +13,7 @@ const BookingForm = ({ bookingData }) => {
   const {requestTransfer, setRequestTransfer } = useRequestTransferContext();
   console.log(requestTransfer);
   const [formData, setFormData] = useState({
-    ...bookingData | undefined,
+    ...(bookingData ?? {}),
   });
 
   const [currentStep, setCurrentStep] = useState(1);

@@ -1,7 +1,6 @@
 "use client"
 
-import Head from 'next/head';
-import React, { useState } from 'react';
+import React from 'react';
 import BookingForm from '../../components/form/BookingForm';
 import { useRequestTransferContext } from '@/context/RequestTransferContext';
 
@@ -51,15 +50,10 @@ export default function Booking() {
   // console.log("Form Data on Main Booking Page: ", formData);
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <Head>
-        <title>Car Transfer Booking</title>
-        <meta name="description" content="Car Transfer Booking on Koh Samui" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-      <main className="py-10">
-        <BookingForm bookingData={requestTransfer}/>
-      </main>
-    </div>
+    <main className="min-h-screen bg-slate-50">
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:py-12">
+        <BookingForm bookingData={requestTransfer} />
+      </div>
+    </main>
   );
 }

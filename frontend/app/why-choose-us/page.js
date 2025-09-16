@@ -3,9 +3,11 @@ import WhyChooseUs from '@/components/Home/WhyChooseUs'
 
 const Page = () => {
   return (
-    <div className='mx-auto p-6 text-gray-800 mt-8'>
-      <WhyChooseUs />
-    </div>
+    <main className="min-h-screen bg-slate-50">
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:py-12">
+        <WhyChooseUs />
+      </div>
+    </main>
   )
 }
 

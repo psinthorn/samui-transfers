@@ -41,29 +41,68 @@ export default function ConfirmationStep({ formData = {}, handleSendmail, prevSt
       </header>
 
       <div className="rounded-md border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
-        This is not a confirmation. We’ll contact you shortly to confirm availability and driver details.
+        This is not a confirmation. Well contact you shortly to confirm availability and driver details.
       </div>
 
-      <dl className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-sm">
-        <Item label="Request ID" value={formData.requestNumber || "—"} />
-        <Item label="Flight no." value={formData.flightNo || "—"} />
-        <Item label="Name" value={`${formData.firstName || ""} ${formData.lastName || ""}`.trim() || "—"} />
-        <Item label="Passengers" value={passengers ? String(passengers) : "—"} />
-        <Item label="Email" value={formData.email || "—"} />
-        <Item label="Mobile" value={formData.mobile || "—"} />
-        <Item label="Pickup date/time" value={formData.date || "—"} />
-        <Item label="Pickup" value={formData.pickupPoint || "—"} />
-        <Item label="Drop‑off" value={formData.dropoffPoint || "—"} />
-        <Item
-          label="Vehicle"
-          value={[formData.carType, formData.carModel].filter(Boolean).join(" — ") || "—"}
-        />
-        <Item label="Notes" value={formData.note || formData.notes || "—"} />
-      </dl>
+      {/* Route: pickup and drop-off grouped clearly in the same column */}
+      <section className="mt-4 rounded-lg border border-slate-200 bg-white p-4">
+        <h3 className="text-sm font-semibold text-slate-900">Route</h3>
+        <div className="mt-3 flex flex-col gap-3">
+          <div className="flex items-start gap-3">
+            <span className="mt-1 inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500" aria-hidden="true" />
+            <div className="min-w-0">
+              <p className="text-xs uppercase tracking-wide text-slate-500">Pickup</p>
+              <p className="text-sm font-medium text-slate-900 break-words">{formData.pickupPoint || "—"}</p>
+            </div>
+          </div>
+          <div className="flex items-start gap-3">
+            <span className="mt-1 inline-flex h-2.5 w-2.5 rounded-full bg-sky-500" aria-hidden="true" />
+            <div className="min-w-0">
+              <p className="text-xs uppercase tracking-wide text-slate-500">Dropoff</p>
+              <p className="text-sm font-medium text-slate-900 break-words">{formData.dropoffPoint || "—"}</p>
+            </div>
+          </div>
+        </div>
+      </section>
 
-      <div className="mt-4 flex items-center justify-between border-t border-slate-200 pt-3">
+      {/* Details */}
+      <section className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+          <h3 className="text-sm font-semibold text-slate-900">Passenger</h3>
+          <dl className="mt-2 space-y-2 text-sm">
+            <Item label="Name" value={`${formData.firstName || ""} ${formData.lastName || ""}`.trim() || "—"} />
+            <Item label="Passengers" value={passengers ? String(passengers) : "—"} />
+          </dl>
+        </div>
+        <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+          <h3 className="text-sm font-semibold text-slate-900">Contact</h3>
+          <dl className="mt-2 space-y-2 text-sm">
+            <Item label="Email" value={formData.email || "—"} />
+            <Item label="Mobile" value={formData.mobile || "—"} />
+          </dl>
+        </div>
+        <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 sm:col-span-2">
+          <h3 className="text-sm font-semibold text-slate-900">Trip</h3>
+          <dl className="mt-2 grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+            <Item label="Pickup date/time" value={formData.date || "—"} />
+            <Item label="Flight no." value={formData.flightNo || "—"} />
+            <Item label="Vehicle" value={[formData.carType, formData.carModel].filter(Boolean).join(" — ") || "—"} />
+          </dl>
+        </div>
+        {Boolean(formData.note || formData.notes) && (
+          <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 sm:col-span-2">
+            <h3 className="text-sm font-semibold text-slate-900">Notes</h3>
+            <p className="mt-2 text-sm text-slate-800 whitespace-pre-line">
+              {formData.note || formData.notes}
+            </p>
+          </div>
+        )}
+      </section>
+
+      {/* Total */}
+      <div className="mt-4 flex items-center justify-between rounded-lg border border-slate-200 bg-white p-4">
         <span className="text-sm text-slate-600">Total</span>
-        <span className="text-base font-semibold text-slate-900">
+        <span className="text-base sm:text-lg font-semibold text-slate-900">
           {formData.rate ? `${formData.rate} THB` : "—"}
         </span>
       </div>
@@ -138,8 +177,8 @@ export default function ConfirmationStep({ formData = {}, handleSendmail, prevSt
 function Item({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="flex items-start justify-between gap-3">
-      <dt className="text-slate-500">{label}</dt>
-      <dd className="text-right">{value}</dd>
+      <dt className="text-slate-500 whitespace-nowrap">{label}</dt>
+      <dd className="text-right break-words">{value}</dd>
     </div>
   )
 }
