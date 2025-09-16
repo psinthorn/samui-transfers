@@ -1,27 +1,65 @@
+"use client";
 import Link from "next/link";
 import { Mail, Phone, MapPin, Facebook } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa";
 import Image from 'next/image';
 import StLogoLong from '@/public/ci/ST_Branding_V1-03.png' // Assuming you have a logo image
+import { company, companyLinks } from "@/data/company";
+import { useLanguage } from "@/context/LanguageContext";
+
+const LABELS = {
+  en: {
+    resources: "Resources",
+    aboutUs: "About Us",
+    whyChooseUs: "Why Choose Us",
+    faqs: "FAQ(s)",
+    contact: "Contact Us",
+    followUs: "Follow us",
+    facebook: "Facebook",
+    legal: "Legal",
+    privacy: "Privacy Policy",
+    terms: "Terms & Conditions",
+    rights: (year) => `© ${year} samui-transfers.com™. All Rights Reserved.`,
+    tagline1: "A Local Transfer Service",
+    tagline2: "Koh Samui, Thailand",
+  },
+  th: {
+    resources: "ข้อมูล",
+    aboutUs: "เกี่ยวกับเรา",
+    whyChooseUs: "ทำไมต้องเลือกเรา",
+    faqs: "คำถามที่พบบ่อย",
+    contact: "ติดต่อเรา",
+    followUs: "ติดตามเรา",
+    facebook: "เฟซบุ๊ก",
+    legal: "ข้อมูลทางกฎหมาย",
+    privacy: "นโยบายความเป็นส่วนตัว",
+    terms: "ข้อกำหนดและเงื่อนไข",
+    rights: (year) => `© ${year} samui-transfers.com™ สงวนลิขสิทธิ์`,
+    tagline1: "บริการรับส่งท้องถิ่น",
+    tagline2: "เกาะสมุย ประเทศไทย",
+  },
+};
 
 export default function Footer() {
   const year = new Date().getFullYear();
+  const { lang, toggle } = useLanguage();
+  const t = LABELS[lang];
 
-  // Public company info (use NEXT_PUBLIC_ so it's available client-side)
+  // Public company info from NEXT_PUBLIC_* only to keep SSR/CSR consistent
   const managed = {
-    name: process.env.MANAGED_BY_NAME || "Samui Transfers Management",
-    website: process.env.MANAGED_BY_WEBSITE || "https://www.f2.co.th",
-    email: process.env.MANAGED_BY_EMAIL || "info@f2.co.th",
-    phone: process.env.MANAGED_BY_PHONE || "+66 64 027 0528",
-    reg: process.env.MANAGED_BY_TAX_ID || "",
+    name: company.managedBy.name,
+    website: company.managedBy.website,
+    email: company.email,
+    phone: company.phone,
+    reg: company.managedBy.taxId,
   };
 
   const dev = {
-    name: process.env.MANAGED_BY_NAME || "Samui Transfers Management",
-    website: process.env.MANAGED_BY_WEBSITE || "https://www.f2.co.th",
-    email: process.env.MANAGED_BY_EMAIL || "info@f2.co.th",
-    phone: process.env.MANAGED_BY_PHONE || "+66 64 027 0528",
-    reg: process.env.MANAGED_BY_TAX_ID || "",
+    name: company.managedBy.name,
+    website: company.managedBy.website,
+    email: company.email,
+    phone: company.phone,
+    reg: company.managedBy.taxId,
   };
 
   return (
@@ -32,46 +70,46 @@ export default function Footer() {
             <Link href="/" className="flex justify-center text-center  items-center">
               <Image src={StLogoLong} alt="Samui Transfers Logo" width={254} />
             </Link>
-            <p className='text-white hover:text-gray-200 dark:hover:text-gray-200 text-sm'>A Local Transfer Service</p>
-            <p className='text-white hover:text-gray-200 dark:hover:text-gray-200 text-sm'>Koh Samui, Thailand</p>
+            <p className='text-white hover:text-gray-200 dark:hover:text-gray-200 text-sm'>{t.tagline1}</p>
+            <p className='text-white hover:text-gray-200 dark:hover:text-gray-200 text-sm'>{t.tagline2}</p>
           </div>
 
           <div className="grid grid-cols-2 gap-8 sm:gap-6 sm:grid-cols-4">
             <div>
-              <h2 className="mb-6 text-sm font-semibold text-primary uppercase dark:text-white">Resources</h2>
+              <h2 className="mb-6 text-sm font-semibold text-primary uppercase dark:text-white">{t.resources}</h2>
               <ul className="text-white dark:text-gray-400 font-medium gap-4">
                 <li className="mb-4">
-                  <Link href="/about-us" className="hover:underline">About Us</Link>
+                  <Link href="/about-us" className="hover:underline">{t.aboutUs}</Link>
                 </li>
                 <li className="mb-4">
-                  <Link href="/why-choose-us" className="hover:underline">Why Choose Us</Link>
+                  <Link href="/why-choose-us" className="hover:underline">{t.whyChooseUs}</Link>
                 </li>
                 <li className="mb-4">
-                  <Link href="/faqs" className="hover:underline">{`Faq(s)`}</Link>
+                  <Link href="/faqs" className="hover:underline">{t.faqs}</Link>
                 </li>
                 <li className="mb-4">
-                  <Link href="/contact" className="hover:underline">Contact Us</Link>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h2 className="mb-6 text-sm font-semibold text-primary uppercase dark:text-white">Follow us</h2>
-              <ul className="text-white dark:text-gray-400 font-medium">
-                <li className="mb-4">
-                  <Link href="https://www.facebook.com/profile.php?id=61578880422159" className="hover:underline ">Facebook</Link>
+                  <Link href="/contact" className="hover:underline">{t.contact}</Link>
                 </li>
               </ul>
             </div>
 
             <div>
-              <h2 className="mb-6 text-sm font-semibold text-primary uppercase dark:text-white">Legal</h2>
+              <h2 className="mb-6 text-sm font-semibold text-primary uppercase dark:text-white">{t.followUs}</h2>
               <ul className="text-white dark:text-gray-400 font-medium">
                 <li className="mb-4">
-                  <Link href="/privacy" className="hover:underline">Privacy Policy</Link>
+                  <Link href="https://www.facebook.com/profile.php?id=61578880422159" className="hover:underline ">{t.facebook}</Link>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h2 className="mb-6 text-sm font-semibold text-primary uppercase dark:text-white">{t.legal}</h2>
+              <ul className="text-white dark:text-gray-400 font-medium">
+                <li className="mb-4">
+                  <Link href="/privacy" className="hover:underline">{t.privacy}</Link>
                 </li>
                 <li>
-                  <Link href="/terms" className="hover:underline">Terms &amp; Conditions</Link>
+                  <Link href="/terms" className="hover:underline">{t.terms}</Link>
                 </li>
               </ul>
             </div>
@@ -82,7 +120,7 @@ export default function Footer() {
 
         <div className="sm:flex sm:items-center sm:justify-between">
           <span className="text-sm text-white sm:text-center dark:text-gray-400">
-            © {year} <Link href="https://www.samui-transfers.com" className="hover:underline">samui-transfers.com™</Link>. All Rights Reserved.
+            {t.rights(year)}
           </span>
           <div className="flex mt-4 sm:justify-center sm:mt-0">
             <Link href="https://www.facebook.com/profile.php?id=61578880422159" className="text-white hover:text-gray-900 dark:hover:text-white" target='_blank'>
@@ -91,6 +129,12 @@ export default function Footer() {
               </svg>
               <span className="sr-only">Facebook page</span>
             </Link>
+            <button
+              onClick={toggle}
+              className="ml-3 inline-flex items-center gap-2 rounded-md bg-white/10 px-3 py-2 text-xs text-white hover:bg-white/20"
+            >
+              EN/TH
+            </button>
           </div>
         </div>
 

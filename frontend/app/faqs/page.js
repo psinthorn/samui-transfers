@@ -1,22 +1,21 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   Accordion,
   AccordionItem,
   AccordionTrigger,
   AccordionContent,
 } from "@/components/ui/accordion";
-import { Card, CardContent } from "@/components/ui/card";
 import { LANG, pick } from "@/data/i18n/core";
 import { faqs } from "@/data/content/faqs";
+import { useLanguage } from "@/context/LanguageContext";
 
 const LABELS = {
   en: {
     kicker: "Support",
     title: "Frequently Asked Questions",
     subtitle: "Quick answers about transfers, pricing, and booking.",
-    language: "Language",
     searchPlaceholder: "Search questions...",
     noResults: "No results. Try a different keyword.",
     emailSupport: "Email support",
@@ -25,7 +24,6 @@ const LABELS = {
     kicker: "การสนับสนุน",
     title: "คำถามที่พบบ่อย",
     subtitle: "คำตอบรวดเร็วเกี่ยวกับการรับส่ง ราคา และการจอง",
-    language: "ภาษา",
     searchPlaceholder: "ค้นหาคำถาม...",
     noResults: "ไม่พบผลลัพธ์ ลองคำค้นอื่น",
     emailSupport: "อีเมลฝ่ายสนับสนุน",
@@ -34,45 +32,21 @@ const LABELS = {
 
 export default function FAQPage() {
   const [query, setQuery] = useState("");
-  const [localLang, setLocalLang] = useState("en");
-  const effectiveLang = localLang === "th" ? "th" : "en";
-  const L = LABELS[effectiveLang];
-
-  // Initialize from ?lang or browser language; keep URL in sync without reload
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const url = new URL(window.location.href);
-    const q = (url.searchParams?.get("lang") || "").toLowerCase();
-    if (q === "en" || q === "th") {
-      setLocalLang(q);
-    } else {
-      const nav = navigator.language?.toLowerCase() || "";
-      setLocalLang(nav.startsWith("th") ? "th" : "en");
-    }
-  }, []);
-
-  const onChangeLang = (value) => {
-    const lang = value === "th" ? "th" : "en";
-    setLocalLang(lang);
-    if (typeof window !== "undefined") {
-      const url = new URL(window.location.href);
-      url.searchParams.set("lang", lang);
-      window.history.replaceState({}, "", url.toString());
-    }
-  };
+  const { lang } = useLanguage();
+  const L = LABELS[lang === "th" ? "th" : "en"];
 
   // Build localized view of FAQs
   const localized = useMemo(() => {
     return (faqs || []).map((sec, idx) => ({
       id: `sec-${idx}`,
-      category: pick(effectiveLang, sec.category),
+      category: pick(lang, sec.category),
       questions: sec.items.map((it, i) => ({
         id: `q-${idx}-${i}`,
-        question: pick(effectiveLang, it.q),
-        answer: pick(effectiveLang, it.a),
+        question: pick(lang, it.q),
+        answer: pick(lang, it.a),
       })),
     }));
-  }, [effectiveLang]);
+  }, [lang]);
 
   // Filter by query against localized strings
   const filtered = useMemo(() => {
@@ -107,20 +81,7 @@ export default function FAQPage() {
               </h1>
               <p className="mt-2 text-sm text-slate-600">{L.subtitle}</p>
             </div>
-            <div className="shrink-0">
-              <label className="sr-only" htmlFor="lang">
-                {L.language}
-              </label>
-              <select
-                id="lang"
-                value={effectiveLang}
-                onChange={(e) => onChangeLang(e.target.value)}
-                className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 focus:ring-2 focus:ring-primary/30"
-              >
-                <option value="en">English</option>
-                <option value="th">ไทย</option>
-              </select>
-            </div>
+            {/* Language selector controlled globally via Header/Footer toggle */}
           </div>
         </header>
 
@@ -139,7 +100,7 @@ export default function FAQPage() {
           />
         </div>
 
-        {/* Sections as cards (match Privacy page card style) */}
+        {/* Sections as cards */}
         {filtered.map((section) => (
           <section
             key={section.id}

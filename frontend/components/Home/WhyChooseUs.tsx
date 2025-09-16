@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useState } from "react"
 import { type Lang, pick } from "@/data/i18n/core"
 import { whyChooseUs } from "@/data/content/whyChooseUs"
+import { useLanguage } from "@/context/LanguageContext"
 
 type Props = {
   // If provided, component becomes controlled; selector is hidden unless showLanguageSelector=true
@@ -35,23 +36,16 @@ export default function WhyChooseUsSection({
   subtitleOverride,
   showLanguageSelector,
 }: Props) {
-  const [localLang, setLocalLang] = useState<Lang>("en")
-  const effectiveLang = (lang ?? localLang) as Lang
+  const { lang: globalLang } = useLanguage()
+  const [localLang, setLocalLang] = useState<Lang>(globalLang ?? "en")
+  const effectiveLang = (lang ?? globalLang ?? localLang) as Lang
   const labels = LABELS[effectiveLang]
 
   // Initialize from ?lang or browser language (no useSearchParams to avoid CSR bailout)
   useEffect(() => {
-    if (lang) return // controlled externally
-    if (typeof window === "undefined") return
-    const url = new URL(window.location.href)
-    const q = (url.searchParams.get("lang") || "").toLowerCase()
-    if (q === "en" || q === "th") {
-      setLocalLang(q as Lang)
-    } else {
-      const nav = navigator.language?.toLowerCase() || ""
-      setLocalLang(nav.startsWith("th") ? "th" : "en")
-    }
-  }, [lang])
+    // Keep local state in sync with global when not controlled via prop
+    if (!lang) setLocalLang(globalLang)
+  }, [lang, globalLang])
 
   const onChangeLang = (value: Lang) => {
     if (!lang) setLocalLang(value)
@@ -72,7 +66,7 @@ export default function WhyChooseUsSection({
   )
 
   // Show selector when uncontrolled by default; allow override via prop
-  const shouldShowSelector = showLanguageSelector ?? (lang == null)
+  const shouldShowSelector = showLanguageSelector ?? false
 
   return (
     <section className={`w-full ${className}`}>

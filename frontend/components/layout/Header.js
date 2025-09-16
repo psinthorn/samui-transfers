@@ -13,19 +13,51 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useLanguage } from "@/context/LanguageContext";
 import StRec from "@/public/ci/restlogopngv1/ST_Branding_V1-07.png";
 
-const MainMenu = [
-  { id: 1, title: "Home", link: "/" },
-  { id: 2, title: "About Us", link: "/about-us" },
-  { id: 3, title: "Why Choose Us", link: "/why-choose-us" },
-  { id: 4, title: "FAQ(s)", link: "/faqs" },
-  { id: 5, title: "Contact", link: "/contact" },
-];
+const MENU = {
+  en: [
+    { id: 1, title: "Home", link: "/" },
+    { id: 2, title: "About Us", link: "/about-us" },
+    { id: 3, title: "Why Choose Us", link: "/why-choose-us" },
+    { id: 4, title: "FAQ(s)", link: "/faqs" },
+    { id: 5, title: "Contact", link: "/contact" },
+  ],
+  th: [
+    { id: 1, title: "หน้าแรก", link: "/" },
+    { id: 2, title: "เกี่ยวกับเรา", link: "/about-us" },
+    { id: 3, title: "ทำไมต้องเลือกเรา", link: "/why-choose-us" },
+    { id: 4, title: "คำถามที่พบบ่อย", link: "/faqs" },
+    { id: 5, title: "ติดต่อเรา", link: "/contact" },
+  ],
+};
+
+const LABELS = {
+  en: {
+    bookNow: "Book now",
+    menu: "Menu",
+    aiChat: "AI Chat",
+    whatsapp: "WhatsApp",
+    brand: "Samui Transfers",
+    langShort: { en: "EN", th: "TH" },
+  },
+  th: {
+    bookNow: "จองเลย",
+    menu: "เมนู",
+    aiChat: "แชท AI",
+    whatsapp: "WhatsApp",
+    brand: "สมุยทรานส์เฟอร์",
+    langShort: { en: "EN", th: "TH" },
+  },
+};
 
 export default function Header() {
   const pathname = usePathname();
   const isActive = (href) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
+  const { lang, toggle } = useLanguage();
+  const labels = LABELS[lang];
+  const MainMenu = MENU[lang];
 
   // Public info from env
   const publicInfo = {
@@ -41,7 +73,7 @@ export default function Header() {
         {/* Brand */}
         <Link href="/" className="flex items-center gap-2" aria-label="Samui Transfers — Home">
           <Image src={StRec} alt="Samui Transfers Logo" width={40} height={40} priority />
-          <span className="hidden sm:inline text-sm font-semibold tracking-wide">Samui Transfers</span>
+          <span className="hidden sm:inline text-sm font-semibold tracking-wide">{labels.brand}</span>
         </Link>
 
         {/* Desktop nav */}
@@ -62,13 +94,22 @@ export default function Header() {
 
         {/* Actions */}
         <div className="hidden md:flex items-center gap-3">
+          {/* Language toggle */}
+          <button
+            onClick={toggle}
+            className="inline-flex items-center gap-2 rounded-md bg-white/10 px-3 py-2 text-sm text-white hover:bg-white/20"
+            aria-label="Toggle language"
+          >
+            {labels.langShort.en}/{labels.langShort.th}
+          </button>
+
           {/* Book now (primary) */}
           <Link
-            href="/"
+            href="/booking"
             aria-label="Book now"
             className="inline-flex items-center gap-2 rounded-md bg-white px-3 py-2 text-sm font-semibold text-primary hover:bg-white/90"
           >
-            Book now
+            {labels.bookNow}
           </Link>
 
           {/* AI Chat (links to in-app page) */}
@@ -112,7 +153,7 @@ export default function Header() {
               <Menu size={24} />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel>Menu</DropdownMenuLabel>
+              <DropdownMenuLabel>{labels.menu}</DropdownMenuLabel>
               <DropdownMenuSeparator />
               {MainMenu.map((item) => (
                 <DropdownMenuItem key={item.id} asChild>
@@ -126,12 +167,18 @@ export default function Header() {
               ))}
               <DropdownMenuSeparator />
               <div className="px-2 py-1.5 flex flex-col gap-2">
+                <button
+                  onClick={toggle}
+                  className="inline-flex items-center justify-center gap-2 rounded-md bg-white px-3 py-2 text-sm font-semibold text-primary hover:bg-white/90"
+                >
+                  {labels.langShort.en}/{labels.langShort.th}
+                </button>
                 <Link
                   href="/booking"
                   aria-label="Book now"
                   className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-3 py-2 text-sm font-semibold text-white hover:bg-primary/90"
                 >
-                  Book now
+                  {labels.bookNow}
                 </Link>
 
                 {/* <Link
@@ -149,7 +196,7 @@ export default function Header() {
                   className="inline-flex items-center justify-center gap-2 rounded-md bg-emerald-500 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-600"
                 >
                   <FaWhatsapp className="h-4 w-4" />
-                  WhatsApp
+                  {labels.whatsapp}
                 </a>
 
                 {/* Removed Call us on mobile */}

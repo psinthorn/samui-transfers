@@ -5,10 +5,31 @@ import React, { useMemo, useState } from "react"
 import { HiUser, HiOutlineBriefcase } from "react-icons/hi"
 import RateCalculate from "../utilities/RateCalculate"
 import { useRequestTransferContext } from "@/context/RequestTransferContext"
+import { useLanguage } from "@/context/LanguageContext"
 
 const CarItem = ({ car, distance }) => {
   const { requestTransfer, setRequestTransfer } = useRequestTransferContext()
   const [activeID, setActiveID] = useState()
+  const { lang } = useLanguage()
+  const locale = lang === "th" ? "th-TH" : "en-US"
+
+  const LABELS = lang === "th"
+    ? {
+        noImage: "ไม่มีรูปภาพ",
+        estimated: "ประมาณค่าโดยสาร",
+        seats: "ที่นั่ง",
+        luggage: "สัมภาระ",
+        selected: "เลือกแล้ว",
+        choose: "เลือกรถ",
+      }
+    : {
+        noImage: "No image",
+        estimated: "Estimated fare",
+        seats: "seats",
+        luggage: "luggage",
+        selected: "Selected",
+        choose: "Choose vehicle",
+      }
 
   // Compute estimated rate (no state race conditions)
   const rateEstimate = useMemo(() => {
@@ -36,8 +57,12 @@ const CarItem = ({ car, distance }) => {
     })
   }
 
-  const priceText =
-    rateEstimate > 0 ? `${Math.round(rateEstimate).toLocaleString()} THB` : "—"
+  const currency = "THB"
+  const formatter = useMemo(
+    () => new Intl.NumberFormat(locale, { style: "currency", currency, maximumFractionDigits: 0 }),
+    [locale]
+  )
+  const priceText = rateEstimate > 0 ? formatter.format(Math.round(rateEstimate)) : "—"
 
   return (
     <button
@@ -56,14 +81,14 @@ const CarItem = ({ car, distance }) => {
         {car?.image ? (
           <Image
             src={car.image}
-            alt={car?.model || car?.type || "Vehicle"}
+            alt={car?.model || car?.type || (lang === "th" ? "รถ" : "Vehicle")}
             fill
             sizes="(max-width: 768px) 128px, 160px"
             className="object-cover"
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-slate-100 text-xs text-slate-500">
-            No image
+            {LABELS.noImage}
           </div>
         )}
       </div>
@@ -81,7 +106,7 @@ const CarItem = ({ car, distance }) => {
           </div>
           <div className="text-right">
             <p className="text-sm font-semibold text-slate-900">{priceText}</p>
-            <p className="text-xs text-slate-500">Estimated</p>
+            <p className="text-xs text-slate-500">{LABELS.estimated}</p>
           </div>
         </div>
 
@@ -89,12 +114,12 @@ const CarItem = ({ car, distance }) => {
         <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-slate-600">
           <span className="inline-flex items-center gap-1">
             <HiUser className="h-4 w-4 text-slate-500" />
-            {car?.seat || "-"} seats
+            {car?.seat || "-"} {LABELS.seats}
           </span>
           {car?.luggage ? (
             <span className="inline-flex items-center gap-1">
               <HiOutlineBriefcase className="h-4 w-4 text-slate-500" />
-              {car.luggage} luggage
+              {car.luggage} {LABELS.luggage}
             </span>
           ) : null}
         </div>
@@ -114,7 +139,7 @@ const CarItem = ({ car, distance }) => {
                 : "bg-white text-primary ring-1 ring-inset ring-primary hover:bg-primary/5",
             ].join(" ")}
           >
-            {isSelected ? "Selected" : "Choose vehicle"}
+            {isSelected ? LABELS.selected : LABELS.choose}
           </span>
         </div>
       </div>

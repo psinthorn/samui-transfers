@@ -1,6 +1,8 @@
 "use client"
 
 import { useJsApiLoader } from "@react-google-maps/api"
+import { useRef, useMemo } from "react"
+import { useLanguage } from "@/context/LanguageContext"
 import dynamic from "next/dynamic"
 import { useSourceContext } from "@/context/SourceContext"
 import { useDestinationContext } from "@/context/DestinationContext"
@@ -12,11 +14,19 @@ const GoogleMapsSection = dynamic(() => import("@/components/Home/GoogleMapsSect
 const SearchSection = dynamic(() => import("@/components/Home/SearchSection"), { ssr: false })
 
 export default function Home() {
-  const { isLoaded, loadError } = useJsApiLoader({
-    id: "google-maps",
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_API_KEY || "",
-    libraries: ["places"],
-  })
+  const { lang } = useLanguage()
+  const initialLangRef = useRef(lang)
+  const loaderOptions = useMemo(
+    () => ({
+      id: "google-maps",
+      googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_API_KEY || "",
+      libraries: ["places"] as any,
+      language: initialLangRef.current,
+      region: initialLangRef.current === "th" ? "TH" : "US",
+    }),
+    []
+  )
+  const { isLoaded, loadError } = useJsApiLoader(loaderOptions)
 
   const { source } = useSourceContext()
   const { destination } = useDestinationContext()

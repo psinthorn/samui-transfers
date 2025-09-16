@@ -7,6 +7,7 @@ import "./globals.css";
 import RequestTransferContextProvider from "@/context/RequestTransferContext";
 import SourceContextProvider from "@/context/SourceContext";
 import DestinationContextProvider from "@/context/DestinationContext";
+import { LanguageProvider } from "@/context/LanguageContext";
 
 
 const inter = Inter({ subsets: ["latin"] });
@@ -26,19 +27,21 @@ export default function RootLayout({
     // <ClerkProvider>
       <html lang="en">
         <body className={`montserrat.className, h-auto`}>
-          <div className="h-full mx-auto flex flex-col">
-            <Header />
-              <SourceContextProvider>
-                <DestinationContextProvider>
-                  <RequestTransferContextProvider>
-                  {children}
-                  </RequestTransferContextProvider>
-                </DestinationContextProvider>
-              </SourceContextProvider>
-          </div>
-          <div className="h-20">
-            <Footer />
-          </div>
+          <LanguageProvider>
+            <div className="h-full mx-auto flex flex-col">
+              <Header />
+                <SourceContextProvider>
+                  <DestinationContextProvider>
+                    <RequestTransferContextProvider>
+                      {children}
+                    </RequestTransferContextProvider>
+                  </DestinationContextProvider>
+                </SourceContextProvider>
+              <div className="h-20">
+                <Footer />
+              </div>
+            </div>
+          </LanguageProvider>
         </body>
       </html>
     // </ClerkProvider>

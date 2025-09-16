@@ -5,10 +5,14 @@ import { useForm } from "@conform-to/react"
 import { requestSchema } from "@/components/utilities/ZodSchemas"
 import { useEffect, useState } from "react"
 import { useRequestTransferContext } from "@/context/RequestTransferContext"
+import { useLanguage } from "@/context/LanguageContext"
+import { pick } from "@/data/i18n/core"
+import { bookingText } from "@/data/content/booking"
 
 const BookingStep = ({ bookingData, handleChange, nextStep }: any) => {
   const { requestTransfer, setRequestTransfer } = useRequestTransferContext()
   const [isFormValid, setIsFormValid] = useState(false)
+  const { lang } = useLanguage()
 
   const [form, fields] = useForm({
     onValidate({ formData }: { formData: FormData }) {
@@ -43,15 +47,15 @@ const BookingStep = ({ bookingData, handleChange, nextStep }: any) => {
     <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 sm:p-6">
       <form id={form.id} onSubmit={form.onSubmit} noValidate className="flex flex-col gap-4">
         <header>
-          <h2 className="text-base sm:text-lg font-semibold text-slate-900">Passenger details</h2>
-          <p className="text-sm text-slate-600 mt-1">We’ll use this to confirm your booking.</p>
+          <h2 className="text-base sm:text-lg font-semibold text-slate-900">{pick(lang, bookingText.form.passengerDetails.title)}</h2>
+          <p className="text-sm text-slate-600 mt-1">{pick(lang, bookingText.form.passengerDetails.subtitle)}</p>
         </header>
 
         {/* Name */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label htmlFor={fields.firstName.id} className="block text-sm text-slate-700">
-              First name <span className="text-red-500">*</span>
+              {pick(lang, bookingText.form.passengerDetails.firstName)} <span className="text-red-500">*</span>
             </label>
             <input
               id={fields.firstName.id}
@@ -70,7 +74,7 @@ const BookingStep = ({ bookingData, handleChange, nextStep }: any) => {
           </div>
           <div>
             <label htmlFor={fields.lastName.id} className="block text-sm text-slate-700">
-              Last name <span className="text-red-500">*</span>
+              {pick(lang, bookingText.form.passengerDetails.lastName)} <span className="text-red-500">*</span>
             </label>
             <input
               id={fields.lastName.id}
@@ -93,7 +97,7 @@ const BookingStep = ({ bookingData, handleChange, nextStep }: any) => {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label htmlFor={fields.email.id} className="block text-sm text-slate-700">
-              Email <span className="text-red-500">*</span>
+              {pick(lang, bookingText.form.passengerDetails.email)} <span className="text-red-500">*</span>
             </label>
             <input
               id={fields.email.id}
@@ -112,7 +116,7 @@ const BookingStep = ({ bookingData, handleChange, nextStep }: any) => {
           </div>
           <div>
             <label htmlFor={fields.mobile.id} className="block text-sm text-slate-700">
-              Mobile <span className="text-red-500">*</span>
+              {pick(lang, bookingText.form.passengerDetails.mobile)} <span className="text-red-500">*</span>
             </label>
             <input
               id={fields.mobile.id}
@@ -121,7 +125,7 @@ const BookingStep = ({ bookingData, handleChange, nextStep }: any) => {
               defaultValue={requestTransfer?.mobile || ""}
               type="tel"
               autoComplete="tel"
-              placeholder="(+66) 99 108 7999"
+              placeholder={pick(lang, bookingText.form.passengerDetails.mobilePlaceholder)}
               onChange={handleChange}
               required
               className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary/30"
@@ -136,7 +140,7 @@ const BookingStep = ({ bookingData, handleChange, nextStep }: any) => {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="sm:col-span-1">
             <label htmlFor={fields.date.id} className="block text-sm text-slate-700">
-              Pickup date/time <span className="text-red-500">*</span>
+              {pick(lang, bookingText.form.passengerDetails.pickupDateTime)} <span className="text-red-500">*</span>
             </label>
             <input
               id={fields.date.id}
@@ -156,7 +160,7 @@ const BookingStep = ({ bookingData, handleChange, nextStep }: any) => {
           {/* Passengers */}
           <div className="sm:col-span-1">
             <label htmlFor="passengers" className="block text-sm text-slate-700">
-              Passengers <span className="text-red-500">*</span>
+              {pick(lang, bookingText.form.passengerDetails.passengers)} <span className="text-red-500">*</span>
             </label>
             <input
               id="passengers"
@@ -180,7 +184,7 @@ const BookingStep = ({ bookingData, handleChange, nextStep }: any) => {
             {(fields as any)?.passengers?.errors && (
               <p className="mt-1 text-xs text-red-600">{errorText((fields as any).passengers.errors)}</p>
             )}
-            <p className="mt-1 text-xs text-slate-500">Max 12 per vehicle. Let us know if you need child seats.</p>
+            <p className="mt-1 text-xs text-slate-500">{pick(lang, bookingText.form.passengerDetails.passengersHint)}</p>
           </div>
         </div>
 
@@ -188,7 +192,7 @@ const BookingStep = ({ bookingData, handleChange, nextStep }: any) => {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label htmlFor={fields.flightNo.id} className="block text-sm text-slate-700">
-              Flight no. (optional)
+              {pick(lang, bookingText.form.passengerDetails.flightNo)}
             </label>
             <input
               id={fields.flightNo.id}
@@ -206,7 +210,7 @@ const BookingStep = ({ bookingData, handleChange, nextStep }: any) => {
           </div>
           <div>
             <label htmlFor="notes" className="block text-sm text-slate-700">
-              Notes (optional)
+              {pick(lang, bookingText.form.passengerDetails.notes)}
             </label>
             <textarea
               id="notes"
@@ -214,7 +218,7 @@ const BookingStep = ({ bookingData, handleChange, nextStep }: any) => {
               defaultValue={requestTransfer?.notes || ""}
               rows={3}
               onChange={handleChange}
-              placeholder="Child seat, special requests, etc."
+              placeholder={pick(lang, bookingText.form.passengerDetails.notesPlaceholder)}
               className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary/30"
             />
           </div>
@@ -223,7 +227,7 @@ const BookingStep = ({ bookingData, handleChange, nextStep }: any) => {
         {/* Summary (read-only vehicle/route) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label className="block text-sm text-slate-700">Vehicle</label>
+            <label className="block text-sm text-slate-700">{pick(lang, bookingText.form.passengerDetails.vehicle)}</label>
             <input
               type="text"
               name={fields.carModel.name}
@@ -234,7 +238,7 @@ const BookingStep = ({ bookingData, handleChange, nextStep }: any) => {
             />
           </div>
           <div>
-            <label className="block text-sm text-slate-700">Rate</label>
+            <label className="block text-sm text-slate-700">{pick(lang, bookingText.form.passengerDetails.rate)}</label>
             <input
               type="text"
               name={fields.rate.name}
@@ -245,7 +249,7 @@ const BookingStep = ({ bookingData, handleChange, nextStep }: any) => {
             />
           </div>
           <div>
-            <label className="block text-sm text-slate-700">Pickup</label>
+            <label className="block text-sm text-slate-700">{pick(lang, bookingText.form.passengerDetails.pickup)}</label>
             <input
               type="text"
               name={fields.pickupPoint.name}
@@ -256,7 +260,7 @@ const BookingStep = ({ bookingData, handleChange, nextStep }: any) => {
             />
           </div>
           <div>
-            <label className="block text-sm text-slate-700">Drop‑off</label>
+            <label className="block text-sm text-slate-700">{pick(lang, bookingText.form.passengerDetails.dropoff)}</label>
             <input
               type="text"
               name={fields.dropoffPoint.name}
@@ -273,7 +277,7 @@ const BookingStep = ({ bookingData, handleChange, nextStep }: any) => {
             type="submit"
             className="w-full inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90"
           >
-            Review booking
+            {pick(lang, bookingText.form.passengerDetails.reviewCta)}
           </button>
         </div>
       </form>

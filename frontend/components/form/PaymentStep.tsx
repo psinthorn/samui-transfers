@@ -2,7 +2,9 @@
 
 import React, { useState } from "react"
 import Image from "next/image"
-import { Label } from "../ui/label"
+import { useLanguage } from "@/context/LanguageContext"
+import { bookingText } from "@/data/content/booking"
+import { pick } from "@/data/i18n/core"
 
 type Props = {
   formData?: any
@@ -28,6 +30,7 @@ const BANK = {
 export default function PaymentStep({ formData, handleChange, nextStep, prevStep }: Props) {
   const [copied, setCopied] = useState<string | null>(null)
   const [slipName, setSlipName] = useState<string>("")
+  const { lang } = useLanguage()
 
   const copy = async (text: string, label: string) => {
     try {
@@ -42,10 +45,10 @@ export default function PaymentStep({ formData, handleChange, nextStep, prevStep
   return (
     <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 sm:p-6">
       <header className="text-center">
-        <p className="text-xs font-semibold uppercase tracking-wide text-primary">Payment</p>
-        <h2 className="mt-1 text-xl sm:text-2xl font-semibold text-slate-900">Payment details</h2>
+        <p className="text-xs font-semibold uppercase tracking-wide text-primary">{pick(lang, bookingText.payment.kicker)}</p>
+        <h2 className="mt-1 text-xl sm:text-2xl font-semibold text-slate-900">{pick(lang, bookingText.payment.title)}</h2>
         <p className="mt-1 text-sm text-slate-600">
-          Pay 100% to confirm your booking. Send your slip after payment.
+          {pick(lang, bookingText.payment.subtitle)}
         </p>
       </header>
 
@@ -59,23 +62,23 @@ export default function PaymentStep({ formData, handleChange, nextStep, prevStep
           ) : null}
           <div className="min-w-0">
             <p className="text-sm font-medium text-slate-900">{BANK.name}</p>
-            <p className="text-xs text-slate-600">{BANK.type} account</p>
+            <p className="text-xs text-slate-600">{BANK.type} {pick(lang, bookingText.payment.accountType)}</p>
           </div>
         </div>
 
         <dl className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3 text-sm">
-          <Row label="Account name" value={BANK.accountName} />
+          <Row label={pick(lang, bookingText.payment.accountName)} value={BANK.accountName} />
           <Row
-            label="Account number"
+            label={pick(lang, bookingText.payment.accountNumber)}
             value={BANK.accountNumber}
-            onCopy={() => copy(BANK.accountNumber, "Account number")}
-            copied={copied === "Account number"}
+            onCopy={() => copy(BANK.accountNumber, pick(lang, bookingText.payment.accountNumber))}
+            copied={copied === pick(lang, bookingText.payment.accountNumber)}
           />
           <Row
-            label="SWIFT"
+            label={pick(lang, bookingText.payment.swift)}
             value={BANK.swift}
-            onCopy={() => copy(BANK.swift, "SWIFT")}
-            copied={copied === "SWIFT"}
+            onCopy={() => copy(BANK.swift, pick(lang, bookingText.payment.swift))}
+            copied={copied === pick(lang, bookingText.payment.swift)}
           />
         </dl>
       </section>
@@ -148,6 +151,7 @@ function Row({
   onCopy?: () => void
   copied?: boolean
 }) {
+  const { lang } = useLanguage()
   return (
     <div className="flex items-start justify-between gap-3">
       <dt className="text-slate-500">{label}</dt>
@@ -159,7 +163,7 @@ function Row({
             onClick={onCopy}
             className="inline-flex items-center justify-center rounded-md border border-slate-300 bg-white px-2 py-1 text-xs text-slate-700 hover:bg-slate-50"
           >
-            {copied ? "Copied" : "Copy"}
+            {copied ? pick(lang, bookingText.payment.copied) : pick(lang, bookingText.payment.copy)}
           </button>
         ) : null}
       </dd>
