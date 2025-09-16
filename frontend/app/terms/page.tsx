@@ -1,34 +1,12 @@
 "use client"
 
-import React, { Suspense, useEffect, useMemo, useState } from "react"
-import { type Lang } from "@/data/i18n/core"
+import React, { Suspense, useMemo } from "react"
 import { terms } from "@/data/legal/terms"
+import { useLanguage } from "@/context/LanguageContext"
 
 function TermsContent() {
-  const [lang, setLang] = useState<Lang>("en")
-
-  useEffect(() => {
-    if (typeof window === "undefined") return
-    const url = new URL(window.location.href)
-    const q = (url.searchParams?.get("lang") || "").toLowerCase()
-    if (q === "en" || q === "th") {
-      setLang(q as Lang)
-    } else {
-      const nav = navigator.language?.toLowerCase() || ""
-      setLang(nav.startsWith("th") ? "th" : "en")
-    }
-  }, [])
-
+  const { lang } = useLanguage()
   const t = useMemo(() => terms[lang] || terms.en, [lang])
-
-  const onChangeLang = (value: Lang) => {
-    setLang(value)
-    if (typeof window !== "undefined") {
-      const url = new URL(window.location.href)
-      url.searchParams.set("lang", value)
-      window.history.replaceState({}, "", url.toString())
-    }
-  }
 
   return (
     <main className="min-h-screen bg-slate-50">
@@ -39,18 +17,6 @@ function TermsContent() {
               <p className="text-xs font-semibold uppercase tracking-wide text-primary">{t.legal}</p>
               <h1 className="mt-1 text-2xl sm:text-3xl font-semibold text-slate-900">{t.title}</h1>
               <p className="mt-2 text-sm text-slate-600">{t.intro}</p>
-            </div>
-            <div className="shrink-0">
-              <label className="sr-only" htmlFor="lang">{t.language}</label>
-              <select
-                id="lang"
-                value={lang}
-                onChange={(e) => onChangeLang(e.target.value as Lang)}
-                className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 focus:ring-2 focus:ring-primary/30"
-              >
-                <option value="en">English</option>
-                <option value="th">ไทย</option>
-              </select>
             </div>
           </div>
         </header>

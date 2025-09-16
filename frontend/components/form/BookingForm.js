@@ -1,12 +1,15 @@
 "use client"
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import BookingStep from './BookingStep';
 import ConfirmationStep from './ConfirmationStep';
 import ThankYouStep from './ThankYouStep';
 import StepNavigation from './StepNavigation';
 import { CreateRequest } from '../actions/actions';
 import { useRequestTransferContext } from '@/context/RequestTransferContext';
+import { useLanguage } from '@/context/LanguageContext'
+import { pick } from '@/data/i18n/core'
+import { bookingText } from '@/data/content/booking'
 
 
 const BookingForm = ({ bookingData }) => {
@@ -75,21 +78,24 @@ const BookingForm = ({ bookingData }) => {
 
   };
 
+  const { lang } = useLanguage()
+  const stepLabels = useMemo(() => bookingText.steps.labels.map((l) => pick(lang, l)), [lang])
+
   return (
     <section className="bg-blue-50 dark:bg-slate-200 py-8 flex justify-center items-center min-h-screen">
       <div className="w-full max-w-3xl px-4 sm:px-6 lg:px-8">
         <div className="mb-6 text-center">
           <p className="text-base font-semibold uppercase tracking-wide  text-gray-900 dark:text-blue-200">
-            Transfer Booking
+            {pick(lang, bookingText.form.kicker)}
           </p>
           <h2 className="font-heading mb-4 font-bold tracking-tight text-primary dark:text-white text-3xl sm:text-5xl">
-            Book Your Transfer
+            {pick(lang, bookingText.form.title)}
           </h2>
         </div>
         {showMessage && (
           <p className="mt-4 mb-4 text-center text-green-600">{responseMessage}</p>
         )}
-        <StepNavigation currentStep={currentStep} />
+        <StepNavigation currentStep={currentStep} steps={stepLabels} />
         {currentStep === 1 && (
           <BookingStep bookingData={formData} handleChange={ handleChange } nextStep={ nextStep }  />
         )}

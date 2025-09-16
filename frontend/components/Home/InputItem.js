@@ -5,17 +5,32 @@ import { useSourceContext } from '@/context/SourceContext'
 import Image from 'next/image'
 import { useState } from 'react'
 import GooglePlacesAutocomplete from 'react-google-places-autocomplete'
+import { useLanguage } from '@/context/LanguageContext'
+
+const LABELS = {
+  en: {
+    source: { placeholder: 'Pickup location', iconAlt: 'Pickup pin' },
+    destination: { placeholder: 'Drop‑off location', iconAlt: 'Drop‑off pin' },
+  },
+  th: {
+    source: { placeholder: 'จุดรับ', iconAlt: 'หมุดจุดรับ' },
+    destination: { placeholder: 'จุดส่ง', iconAlt: 'หมุดจุดส่ง' },
+  },
+}
 
 // InputItem component for source and destination input
 const InputItem = ({ type }) => {
   const [value, setValue] = useState(null)
+  const { lang } = useLanguage()
   const { setSource } = useSourceContext()
   const { setDestination } = useDestinationContext()
 
-  // check if type is source or destination and set the placeholder accordingly
-  const placeholder = type === 'source' ? 'Pickup location' : 'Drop‑off location'
+  // Localized placeholder and icon alt based on type
+  const key = type === 'source' ? 'source' : 'destination'
+  const t = (LABELS[lang === 'th' ? 'th' : 'en'] || LABELS.en)[key]
+  const placeholder = t.placeholder
   const iconSrc = type === 'source' ? '/icons/pickup-pin.svg' : '/icons/dropoff-pin.svg'
-  const iconAlt = type === 'source' ? 'Pickup pin' : 'Drop‑off pin'
+  const iconAlt = t.iconAlt
 
   const getLatAndLng = (selected, which) => {
     setValue(selected)
@@ -49,6 +64,7 @@ const InputItem = ({ type }) => {
           value,
           onChange: (place) => getLatAndLng(place, type),
           placeholder,
+          'aria-label': placeholder,
           isClearable: true,
           className: 'w-full',
           components: { DropdownIndicator: null, IndicatorSeparator: null },

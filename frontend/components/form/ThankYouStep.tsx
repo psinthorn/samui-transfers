@@ -3,16 +3,20 @@
 import React from "react"
 import Link from "next/link"
 import PaymentStep from "./PaymentStep"
+import { useLanguage } from "@/context/LanguageContext"
+import { bookingText } from "@/data/content/booking"
+import { pick } from "@/data/i18n/core"
 
 type Props = { formData: any }
 
 export default function ThankYouStep({ formData = {} }: Props) {
+  const { lang } = useLanguage()
   const rateNum = Number(formData?.rate || 0)
   const total = rateNum > 0 ? rateNum : undefined
-  const totalText =
-    typeof total === "number"
-      ? total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-      : "—"
+  const formatter = React.useMemo(
+    () => new Intl.NumberFormat(lang === 'th' ? 'th-TH' : 'en-US', { style: 'currency', currency: 'THB', maximumFractionDigits: 0 }),
+    [lang]
+  )
 
   const whatsapp = (process.env.NEXT_PUBLIC_SUPPORT_WHATSAPP || "66991087999").replace(/[^\d]/g, "")
   const whatsappHref = `https://wa.me/${whatsapp}`
@@ -25,21 +29,15 @@ export default function ThankYouStep({ formData = {} }: Props) {
         <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-green-100 text-green-600">
           ✓
         </div>
-        <h2 className="text-xl sm:text-2xl font-semibold text-slate-900">Thank you for your booking</h2>
-        <p className="mt-1 text-sm text-slate-600">
-          We received your request and will confirm availability shortly.
-        </p>
+        <h2 className="text-xl sm:text-2xl font-semibold text-slate-900">{pick(lang, bookingText.thankyou.title)}</h2>
+        <p className="mt-1 text-sm text-slate-600">{pick(lang, bookingText.thankyou.subtitle)}</p>
       </div>
 
       {/* Summary card */}
       <div className="mt-4 rounded-lg border border-slate-200 bg-slate-50 p-4">
-        <p className="text-sm text-slate-700">Fare total</p>
-        <p className="text-2xl font-bold text-slate-900">
-          {totalText} THB
-        </p>
-        <p className="mt-1 text-sm text-slate-600">
-          Make a 100% deposit to confirm your booking.
-        </p>
+        <p className="text-sm text-slate-700">{pick(lang, bookingText.thankyou.fareTotal)}</p>
+        <p className="text-2xl font-bold text-slate-900">{typeof total === 'number' ? formatter.format(total) : "—"}</p>
+        <p className="mt-1 text-sm text-slate-600">{pick(lang, bookingText.thankyou.makeDeposit)}</p>
       </div>
 
       {/* Payment options */}
@@ -49,21 +47,21 @@ export default function ThankYouStep({ formData = {} }: Props) {
 
       {/* Help/next steps */}
       <div className="mt-4 rounded-md border border-slate-200 bg-white p-4 text-sm text-slate-700">
-        <p className="font-medium text-slate-800">Send your payment slip</p>
+        <p className="font-medium text-slate-800">{pick(lang, bookingText.thankyou.sendSlip)}</p>
         <ul className="mt-2 list-disc pl-5 space-y-1">
           <li>
-            Email:{" "}
+            {pick(lang, bookingText.thankyou.email)}:{" "}
             <a href={`mailto:${supportEmail}`} className="text-primary hover:underline">
               {supportEmail}
             </a>
           </li>
           <li>
-            WhatsApp:{" "}
+            {pick(lang, bookingText.thankyou.whatsapp)}:{" "}
             <a href={whatsappHref} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
               +{whatsapp}
             </a>
           </li>
-          <li>We will confirm your booking within 24 hours.</li>
+          <li>{pick(lang, bookingText.thankyou.willConfirm)}</li>
         </ul>
       </div>
 
@@ -73,13 +71,13 @@ export default function ThankYouStep({ formData = {} }: Props) {
           href="/"
           className="inline-flex items-center justify-center rounded-md border border-slate-300 bg-white px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
         >
-          Back to home
+          {pick(lang, bookingText.thankyou.backHome)}
         </Link>
         <Link
           href="/"
           className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90"
         >
-          New booking
+          {pick(lang, bookingText.thankyou.newBooking)}
         </Link>
         <a
           href={whatsappHref}
@@ -87,7 +85,7 @@ export default function ThankYouStep({ formData = {} }: Props) {
           rel="noopener noreferrer"
           className="inline-flex items-center justify-center rounded-md bg-emerald-500 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-600"
         >
-          Chat on WhatsApp
+          {pick(lang, bookingText.thankyou.chatWhatsApp)}
         </a>
       </div>
     </div>
