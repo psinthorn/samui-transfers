@@ -3,6 +3,7 @@ import { Inter, Montserrat } from "next/font/google";
 import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
 import { SessionProvider } from "next-auth/react";
+import SessionClientProvider from "@/components/auth/SessionClientProvider";
 
 import "./globals.css";
 import RequestTransferContextProvider from "@/context/RequestTransferContext";
@@ -39,6 +40,7 @@ export default function RootLayout({
       <html lang="en">
         <body className={`${montserrat.className} h-auto`}>
           <SessionProvider>
+            <SessionClientProvider />
             <LanguageProvider initialLang={initialLang}>
               <ToastProvider>
                 <div className="h-full mx-auto flex flex-col">

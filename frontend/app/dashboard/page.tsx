@@ -1,6 +1,8 @@
 import { auth } from "@/auth"
 import LocalizedRecentEmpty from "./LocalizedRecentEmpty"
 
+export const runtime = "nodejs"
+
 export default async function DashboardHome() {
   const session = await auth()
   return (

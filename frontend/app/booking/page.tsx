@@ -1,12 +1,13 @@
-"use client"
+import ClientBookingEntry from './ClientBookingEntry'
+import { auth } from "@/auth"
+import { redirect } from "next/navigation"
+export const runtime = "nodejs"
 
-import React from 'react';
-import BookingForm from '../../components/form/BookingForm';
-import { useRequestTransferContext } from '@/context/RequestTransferContext';
-
-export default function Booking() {
-  const { requestTransfer, setRequestTransfer } = useRequestTransferContext();
-  console.log("Booking Request is: ", requestTransfer);
+export default async function Booking() {
+  const session = await auth()
+  if (!session?.user) {
+    redirect(`/sign-in?callbackUrl=${encodeURIComponent('/booking')}`)
+  }
   // // Set the initial form data
   //   const [formData, setFormData] = useState({
   //     ...requestTransfer,
@@ -52,7 +53,7 @@ export default function Booking() {
   return (
     <main className="min-h-screen bg-slate-50">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:py-12">
-        <BookingForm bookingData={requestTransfer} />
+        <ClientBookingEntry />
       </div>
     </main>
   );

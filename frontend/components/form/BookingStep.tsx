@@ -9,7 +9,7 @@ import { useLanguage } from "@/context/LanguageContext"
 import { pick } from "@/data/i18n/core"
 import { bookingText } from "@/data/content/booking"
 
-const BookingStep = ({ bookingData, handleChange, nextStep }: any) => {
+const BookingStep = ({ bookingData, handleChange, nextStep, serverErrors = {} }: any) => {
   const { requestTransfer, setRequestTransfer } = useRequestTransferContext()
   const [isFormValid, setIsFormValid] = useState(false)
   const { lang } = useLanguage()
@@ -42,6 +42,7 @@ const BookingStep = ({ bookingData, handleChange, nextStep }: any) => {
   }, [bookingData, requestTransfer])
 
   const errorText = (err: unknown) => Array.isArray(err) ? err.join(", ") : (err as string)
+  const serverErrFor = (name: string) => (serverErrors as any)?.[name] as string[] | undefined
 
   return (
     <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 sm:p-6">
@@ -68,8 +69,8 @@ const BookingStep = ({ bookingData, handleChange, nextStep }: any) => {
               required
               className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary/30"
             />
-            {fields.firstName.errors && (
-              <p className="mt-1 text-xs text-red-600">{errorText(fields.firstName.errors)}</p>
+            {(fields.firstName.errors || serverErrFor('firstName')) && (
+              <p className="mt-1 text-xs text-red-600">{errorText(fields.firstName.errors || serverErrFor('firstName'))}</p>
             )}
           </div>
           <div>
@@ -87,8 +88,8 @@ const BookingStep = ({ bookingData, handleChange, nextStep }: any) => {
               required
               className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary/30"
             />
-            {fields.lastName.errors && (
-              <p className="mt-1 text-xs text-red-600">{errorText(fields.lastName.errors)}</p>
+            {(fields.lastName.errors || serverErrFor('lastName')) && (
+              <p className="mt-1 text-xs text-red-600">{errorText(fields.lastName.errors || serverErrFor('lastName'))}</p>
             )}
           </div>
         </div>
@@ -110,8 +111,8 @@ const BookingStep = ({ bookingData, handleChange, nextStep }: any) => {
               required
               className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary/30"
             />
-            {fields.email.errors && (
-              <p className="mt-1 text-xs text-red-600">{errorText(fields.email.errors)}</p>
+            {(fields.email.errors || serverErrFor('email')) && (
+              <p className="mt-1 text-xs text-red-600">{errorText(fields.email.errors || serverErrFor('email'))}</p>
             )}
           </div>
           <div>
@@ -130,8 +131,8 @@ const BookingStep = ({ bookingData, handleChange, nextStep }: any) => {
               required
               className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary/30"
             />
-            {fields.mobile.errors && (
-              <p className="mt-1 text-xs text-red-600">{errorText(fields.mobile.errors)}</p>
+            {(fields.mobile.errors || serverErrFor('mobile')) && (
+              <p className="mt-1 text-xs text-red-600">{errorText(fields.mobile.errors || serverErrFor('mobile'))}</p>
             )}
           </div>
         </div>
@@ -152,8 +153,8 @@ const BookingStep = ({ bookingData, handleChange, nextStep }: any) => {
               required
               className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary/30"
             />
-            {fields.date.errors && (
-              <p className="mt-1 text-xs text-red-600">{errorText(fields.date.errors)}</p>
+            {(fields.date.errors || serverErrFor('date')) && (
+              <p className="mt-1 text-xs text-red-600">{errorText(fields.date.errors || serverErrFor('date'))}</p>
             )}
           </div>
 
@@ -181,8 +182,8 @@ const BookingStep = ({ bookingData, handleChange, nextStep }: any) => {
               required
               className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary/30"
             />
-            {(fields as any)?.passengers?.errors && (
-              <p className="mt-1 text-xs text-red-600">{errorText((fields as any).passengers.errors)}</p>
+            {((fields as any)?.passengers?.errors || serverErrFor('passengers')) && (
+              <p className="mt-1 text-xs text-red-600">{errorText((fields as any).passengers?.errors || serverErrFor('passengers'))}</p>
             )}
             <p className="mt-1 text-xs text-slate-500">{pick(lang, bookingText.form.passengerDetails.passengersHint)}</p>
           </div>
