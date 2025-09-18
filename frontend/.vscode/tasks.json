@@ -12,6 +12,18 @@
 				"$tsc"
 			],
 			"group": "build"
+		},
+		{
+			"label": "Install PDF generation deps",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"i",
+				"pdfkit",
+				"@types/pdfkit"
+			],
+			"problemMatcher": [],
+			"group": "build"
 		}
 	]
 }

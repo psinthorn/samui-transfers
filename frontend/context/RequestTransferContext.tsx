@@ -6,7 +6,7 @@ type RequestTransferProviderProps = {
   children: React.ReactNode;
 };
 
-type requestTransferType = {
+export type requestTransferType = {
   requestNumber: string;
   firstName: string;
   lastName: string;

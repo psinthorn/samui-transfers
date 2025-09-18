@@ -23,8 +23,8 @@ export default function middleware(req: NextRequest) {
     return NextResponse.next()
   }
 
-  // 2) Protect /dashboard and /admin routes (auth required)
-  const isProtected = path.startsWith("/dashboard") || path.startsWith("/admin")
+  // 2) Protect /dashboard, /admin, and /booking routes (auth required)
+  const isProtected = path.startsWith("/dashboard") || path.startsWith("/admin") || path.startsWith("/booking")
   if (isProtected && !hasSessionCookie) {
     const callback = `${nextUrl.pathname}${nextUrl.search}`
     const url = new URL(`/sign-in`, nextUrl)
@@ -46,5 +46,5 @@ export default function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/sign-in", "/dashboard/:path*", "/admin/:path*"],
+  matcher: ["/sign-in", "/dashboard/:path*", "/admin/:path*", "/booking/:path*"],
 }

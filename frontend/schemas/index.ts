@@ -44,3 +44,41 @@ export const profileSchema = z.object({
     .max(100, { message: "name_too_long" }),
 });
 
+// Booking payload validation: normalize types and strip unknown/sensitive fields
+export const bookingRequestSchema = z
+  .object({
+    requestNumber: z.string().trim().min(1).optional(),
+    firstName: z.string().trim().min(1, "First name is required"),
+    lastName: z.string().trim().min(1, "Last name is required"),
+    email: z.string().trim().email("Valid email is required"),
+    mobile: z.string().trim().min(6, "Phone is required"),
+    address: z.string().trim().optional(),
+    flightNo: z.string().trim().optional(),
+    flightTime: z.string().trim().optional(),
+    arrival: z.string().trim().optional(),
+    departure: z.string().trim().optional(),
+    date: z.string().trim().min(1, "Pickup date/time is required"),
+    time: z.string().trim().optional(),
+    pickupPoint: z.string().trim().min(1, "Pickup point is required"),
+    dropoffPoint: z.string().trim().min(1, "Drop-off point is required"),
+    carType: z.string().trim().optional(),
+    carModel: z.string().trim().optional(),
+    passengers: z.coerce.number().int().min(1, "At least 1 passenger"),
+    distance: z.coerce.number().min(0).optional(),
+    quantity: z.coerce.number().int().min(0).optional(),
+    rate: z.coerce.number().min(0).optional(),
+    total: z.coerce.number().min(0).optional(),
+    luggage: z.string().trim().optional(),
+    notes: z.string().trim().optional(),
+    recaptchaToken: z.string().optional(),
+  })
+  .refine((d) => {
+    // Simple validation that pickup and dropoff are not identical
+    if (!d.pickupPoint || !d.dropoffPoint) return true
+    return d.pickupPoint.trim().toLowerCase() !== d.dropoffPoint.trim().toLowerCase()
+  }, { message: "Pickup and drop-off must differ", path: ["dropoffPoint"] })
+  // Zod strips unknown keys by default; using .strict() would error on extra keys
+;
+
+export type BookingRequest = z.infer<typeof bookingRequestSchema>;
+

@@ -2,7 +2,7 @@ import NextAuth, { type NextAuthConfig } from "next-auth"
 import Credentials from "next-auth/providers/credentials"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import { db } from "@/lib/db"
-import bcrypt from "bcrypt"
+import bcrypt from "bcryptjs"
 
 const config: NextAuthConfig = {
   adapter: PrismaAdapter(db),
@@ -20,6 +20,7 @@ const config: NextAuthConfig = {
         if (!email || !password) return null
         const user = await db.user.findUnique({ where: { email } })
         if (!user || !user.password) return null
+        if ((user as any).disabled) return null
         const valid = await bcrypt.compare(password, user.password)
         if (!valid) return null
         return { id: user.id, email: user.email!, name: user.name ?? undefined, role: (user as any).role }

@@ -78,21 +78,7 @@ export default function Header() {
   const whatsappHref = `https://wa.me/${publicInfo.whatsapp}`;
   // const isExternal = (url) => /^https?:\/\//.test(url);
 
-  // Reflect auth state to lightweight cookies readable by Edge middleware
-  useEffect(() => {
-    try {
-      if (status === "authenticated") {
-        document.cookie = `isAuthed=1; path=/; max-age=3600; samesite=lax`;
-        if (role) {
-          document.cookie = `role=${role}; path=/; max-age=3600; samesite=lax`;
-        }
-      } else {
-        // expire cookies quickly when logged out
-        document.cookie = `isAuthed=; path=/; max-age=0; samesite=lax`;
-        document.cookie = `role=; path=/; max-age=0; samesite=lax`;
-      }
-    } catch {}
-  }, [status, role]);
+  // Cookie mirroring handled globally by SessionClientProvider
 
   return (
   <header className="sticky top-0 z-40 text-white bg-primary backdrop-blur supports-[backdrop-filter]:bg-primary/95">

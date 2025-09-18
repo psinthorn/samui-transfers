@@ -22,13 +22,21 @@ model User {
   image         String?
   password      String?
   role          String            @default("USER")
+  disabled      Boolean           @default(false)
   preferredLanguage String        @default("en")
   marketingEmails   Boolean       @default(false)
   accounts      Account[]
   sessions      Session[]
+  bookings      Booking[]
+  auditActorLogs  AuditLog[]    @relation("AuditActor")
+  auditTargetLogs AuditLog[]    @relation("AuditTarget")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([role])
+  @@index([disabled])
+  @@index([createdAt])
 }
  
 model Account {
@@ -69,4 +77,47 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model Booking {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  requestNumber String?
+  details    Json
+  status     BookingStatus @default(PENDING)
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([createdAt])
+  @@index([status])
+  @@index([userId, createdAt])
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+model AuditLog {
+  id            String       @id @default(cuid())
+  actorId       String
+  actor         User         @relation("AuditActor", fields: [actorId], references: [id], onDelete: Cascade)
+  targetUserId  String
+  targetUser    User         @relation("AuditTarget", fields: [targetUserId], references: [id], onDelete: Cascade)
+  action        AuditAction
+  details       Json
+  createdAt     DateTime     @default(now())
+
+  @@index([targetUserId, createdAt])
+  @@index([actorId, createdAt])
+  @@index([action])
+}
+
+enum AuditAction {
+  USER_ROLE_CHANGED
+  USER_DISABLED_TOGGLED
 }
