@@ -111,14 +111,14 @@ export default function Footer() {
                 <li>
                   <Link href="/terms" className="hover:underline">{t.terms}</Link>
                 </li>
-                <li>
+                {/* <li>
                    <button
                     onClick={toggle}
                     className="ml-3 inline-flex items-center gap-2 rounded-md bg-white/10 px-3 py-2 text-xs text-white hover:bg-white/20"
                   >
                     EN/TH
                   </button>
-                </li>
+                </li> */}
               </ul>
             </div>
           </div>
