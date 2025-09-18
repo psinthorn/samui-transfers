@@ -35,7 +35,7 @@ const LABELS = {
   },
 }
 
-const SearchSection = () => {
+const SearchSection = ({ mapsReady = true }) => {
   const {source, setSource} = useSourceContext();
   const {destination, setDestination} = useDestinationContext(); 
   const {requestTransfer, setRequestTransfer} = useRequestTransferContext();
@@ -103,8 +103,8 @@ const SearchSection = () => {
             <p className='font-thin text-sm sm:text-base md:text-lg lg:text-xl'>
               {L.prompt}
             </p>
-            <InputItem type='source' />
-            <InputItem type='destination' /> 
+            <InputItem type='source' mapsReady={mapsReady} />
+            <InputItem type='destination' mapsReady={mapsReady} /> 
           </div>
           <div className=''>
               <div className='w-full text-2xl font-light items-center'>            

@@ -3,8 +3,12 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Menu, Phone, Facebook, MessageCircle } from "lucide-react";
+import { Menu } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa";
+import { useSession, signOut } from "next-auth/react";
+import { useEffect } from "react";
+import { pick } from "@/data/i18n/core";
+import { navText } from "@/data/content/nav";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -35,18 +39,12 @@ const MENU = {
 
 const LABELS = {
   en: {
-    bookNow: "Book now",
-    menu: "Menu",
     aiChat: "AI Chat",
-    whatsapp: "WhatsApp",
     brand: "Samui Transfers",
     langShort: { en: "EN", th: "TH" },
   },
   th: {
-    bookNow: "จองเลย",
-    menu: "เมนู",
     aiChat: "แชท AI",
-    whatsapp: "WhatsApp",
     brand: "สมุยทรานส์เฟอร์",
     langShort: { en: "EN", th: "TH" },
   },
@@ -58,6 +56,19 @@ export default function Header() {
   const { lang, toggle } = useLanguage();
   const labels = LABELS[lang];
   const MainMenu = MENU[lang];
+  const { data: session, status } = useSession();
+  const isAuthed = status === "authenticated";
+  const role = session?.user?.role;
+  const isAdmin = role === "ADMIN";
+  const email = session?.user?.email || "";
+  const displayName = session?.user?.name || email;
+  const photo = session?.user?.image || null;
+  const initials = (displayName || "?")
+    .split(" ")
+    .map((s) => s[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
 
   // Public info from env
   const publicInfo = {
@@ -65,10 +76,26 @@ export default function Header() {
     aiChatUrl: process.env.NEXT_PUBLIC_AI_CHAT_URL || "/#chat",
   };
   const whatsappHref = `https://wa.me/${publicInfo.whatsapp}`;
-  const isExternal = (url) => /^https?:\/\//.test(url);
+  // const isExternal = (url) => /^https?:\/\//.test(url);
+
+  // Reflect auth state to lightweight cookies readable by Edge middleware
+  useEffect(() => {
+    try {
+      if (status === "authenticated") {
+        document.cookie = `isAuthed=1; path=/; max-age=3600; samesite=lax`;
+        if (role) {
+          document.cookie = `role=${role}; path=/; max-age=3600; samesite=lax`;
+        }
+      } else {
+        // expire cookies quickly when logged out
+        document.cookie = `isAuthed=; path=/; max-age=0; samesite=lax`;
+        document.cookie = `role=; path=/; max-age=0; samesite=lax`;
+      }
+    } catch {}
+  }, [status, role]);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-black/5 bg-primary text-white">
+  <header className="sticky top-0 z-40 text-white bg-primary backdrop-blur supports-[backdrop-filter]:bg-primary/95">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Brand */}
         <Link href="/" className="flex items-center gap-2" aria-label="Samui Transfers — Home">
@@ -76,15 +103,15 @@ export default function Header() {
           <span className="hidden sm:inline text-sm font-semibold tracking-wide">{labels.brand}</span>
         </Link>
 
-        {/* Desktop nav */}
+        {/* Desktop nav (short, centered set) */}
         <nav className="hidden md:flex items-center gap-6" aria-label="Main">
-          {MainMenu.map((item) => (
+          {MainMenu.filter((m) => ["/", "/why-choose-us", "/faqs", "/contact"].includes(m.link)).map((item) => (
             <Link
               key={item.id}
               href={item.link}
               aria-current={isActive(item.link) ? "page" : undefined}
-              className={`text-sm transition-colors ${
-                isActive(item.link) ? "font-semibold text-white" : "text-white/80 hover:text-white"
+              className={`relative text-sm text-white/85 hover:text-white transition-colors ${
+                isActive(item.link) ? "after:absolute after:left-0 after:-bottom-1 after:h-0.5 after:w-full after:bg-white" : ""
               }`}
             >
               {item.title}
@@ -92,60 +119,84 @@ export default function Header() {
           ))}
         </nav>
 
-        {/* Actions */}
-        <div className="hidden md:flex items-center gap-3">
-          
-          {/* Book now (primary) */}
-          <Link
-            href="/booking"
-            aria-label="Book now"
-            className="inline-flex items-center gap-2 rounded-md bg-white px-3 py-2 text-sm font-semibold text-primary hover:bg-white/90"
+        {/* Actions (desktop) */}
+        <div className="hidden md:flex items-center gap-2">
+          {/* Language toggle */}
+          <button
+            onClick={toggle}
+            className="inline-flex items-center rounded-md px-2.5 py-1.5 text-xs bg-white/10 hover:bg-white/15"
+            aria-label="Toggle language"
           >
-            {labels.bookNow}
-          </Link>
+            {labels.langShort.en}/{labels.langShort.th}
+          </button>
 
-          {/* AI Chat (links to in-app page) */}
-          {/* <Link
-            href="/aichat"
-            aria-label="AI Chat"
-            className="inline-flex items-center gap-2 rounded-md bg-white/10 px-3 py-2 text-sm text-white hover:bg-white/20"
-          >
-            <MessageCircle className="h-4 w-4" />
-            AI Chat
-          </Link> */}
-
-          {/* WhatsApp */}
+          {/* WhatsApp compact */}
           <a
             href={whatsappHref}
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Chat on WhatsApp"
-            className="inline-flex items-center gap-2 rounded-md bg-emerald-500 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-600"
+            title="Chat on WhatsApp"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-md bg-emerald-500 hover:bg-emerald-600"
           >
             <FaWhatsapp className="h-4 w-4" />
-            WhatsApp
           </a>
 
-          {/* Facebook */}
+          {/* Book now (primary) */}
           <Link
-            href="https://www.facebook.com/profile.php?id=61578880422159"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Facebook"
-            className="inline-flex items-center rounded-md p-2 hover:bg-white/10"
+            href="/booking"
+            aria-label="Book now"
+            className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-primary hover:bg-white/95"
           >
-            <Facebook className="h-5 w-5" />
+            {pick(lang, navText.bookNow)}
           </Link>
 
-          {/* Language toggle */}
-                <button
-                  onClick={toggle}
-                  className="inline-flex items-center gap-2 rounded-md bg-white/10 px-3 py-2 text-sm text-white hover:bg-white/20"
-                  aria-label="Toggle language"
-                >
-                  {labels.langShort.en}/{labels.langShort.th}
-                </button>
-
+          {/* User menu */}
+          {isAuthed ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger className="rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-white">
+                {photo ? (
+                  <Image src={photo} alt={displayName || "User"} width={32} height={32} className="h-8 w-8 rounded-full object-cover" />
+                ) : (
+                  <div className="h-8 w-8 rounded-full bg-white/20 grid place-items-center text-xs font-semibold">
+                    {initials}
+                  </div>
+                )}
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel className="text-xs text-slate-500">{pick(lang, navText.signedInAs)}</DropdownMenuLabel>
+                <div className="px-3 py-1 text-sm text-slate-700 truncate">{displayName}</div>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href="/dashboard">{pick(lang, navText.dashboard)}</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/dashboard/profile">{pick(lang, navText.profile)}</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/dashboard/settings">{pick(lang, navText.settings)}</Link>
+                </DropdownMenuItem>
+                {isAdmin && (
+                  <DropdownMenuItem asChild>
+                    <Link href="/admin">{pick(lang, navText.admin)}</Link>
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <button onClick={() => signOut({ callbackUrl: "/" })} className="w-full text-left">
+                    {pick(lang, navText.signOut)}
+                  </button>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Link
+              href="/sign-in"
+              className={`text-sm text-white/85 hover:text-white px-2 ${isActive("/sign-in") ? "font-semibold" : ""}`}
+            >
+              {pick(lang, navText.signIn)}
+            </Link>
+          )}
         </div>
 
         {/* Mobile menu */}
@@ -155,7 +206,7 @@ export default function Header() {
               <Menu size={24} />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel>{labels.menu}</DropdownMenuLabel>
+              <DropdownMenuLabel>{pick(lang, navText.menu)}</DropdownMenuLabel>
               <DropdownMenuSeparator />
               {MainMenu.map((item) => (
                 <DropdownMenuItem key={item.id} asChild>
@@ -167,25 +218,63 @@ export default function Header() {
                   </Link>
                 </DropdownMenuItem>
               ))}
+              {/* Signed-in details */}
+              {isAuthed && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuLabel className="text-xs text-slate-500">{pick(lang, navText.signedInAs)}</DropdownMenuLabel>
+                  <div className="px-3 py-1 text-sm text-slate-700 truncate">{displayName}</div>
+                </>
+              )}
+              {/* Auth-aware mobile items */}
+              {isAuthed ? (
+                <>
+                  <DropdownMenuItem asChild>
+                    <Link href="/dashboard" className={`w-full ${isActive("/dashboard") ? "font-semibold text-primary" : ""}`}>
+                      {pick(lang, navText.dashboard)}
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/dashboard/profile" className={`w-full ${isActive("/dashboard/profile") ? "font-semibold text-primary" : ""}`}>
+                      {pick(lang, navText.profile)}
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/dashboard/settings" className={`w-full ${isActive("/dashboard/settings") ? "font-semibold text-primary" : ""}`}>
+                      {pick(lang, navText.settings)}
+                    </Link>
+                  </DropdownMenuItem>
+                  {isAdmin && (
+                    <DropdownMenuItem asChild>
+                      <Link href="/admin" className={`w-full ${isActive("/admin") ? "font-semibold text-primary" : ""}`}>
+                        {pick(lang, navText.admin)}
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuItem asChild>
+                    <button onClick={() => signOut({ callbackUrl: "/" })} className="w-full text-left">
+                      {pick(lang, navText.signOut)}
+                    </button>
+                  </DropdownMenuItem>
+                </>
+              ) : (
+                <>
+                  <DropdownMenuItem asChild>
+                    <Link href="/sign-in" className={`w-full ${isActive("/sign-in") ? "font-semibold text-primary" : ""}`}>
+                      {pick(lang, navText.signIn)}
+                    </Link>
+                  </DropdownMenuItem>
+                </>
+              )}
               <DropdownMenuSeparator />
               <div className="px-2 py-1.5 flex flex-col gap-2">
-               
                 <Link
                   href="/booking"
                   aria-label="Book now"
                   className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-3 py-2 text-sm font-semibold text-white hover:bg-primary/90"
                 >
-                  {labels.bookNow}
+                  {pick(lang, navText.bookNow)}
                 </Link>
-
-                {/* <Link
-                  href="/aichat"
-                  className="inline-flex items-center justify-center gap-2 rounded-md bg-white px-3 py-2 text-sm font-semibold text-primary hover:bg-white/90"
-                >
-                  <MessageCircle className="h-4 w-4" />
-                  AI Chat
-                </Link> */}
-
                 <a
                   href={whatsappHref}
                   target="_blank"
@@ -193,23 +282,20 @@ export default function Header() {
                   className="inline-flex items-center justify-center gap-2 rounded-md bg-emerald-500 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-600"
                 >
                   <FaWhatsapp className="h-4 w-4" />
-                  {labels.whatsapp}
+                  {pick(lang, navText.whatsApp)}
                 </a>
-
-                 {/* Language toggle */}
-                 <button
+                <button
                   onClick={toggle}
                   className="inline-flex items-center justify-center gap-2 rounded-md bg-white px-3 py-2 text-sm font-semibold text-primary hover:bg-white/90"
-                  >
+                >
                   {labels.langShort.en}/{labels.langShort.th}
                 </button>
-                
-                {/* Removed Call us on mobile */}
               </div>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </div>
+      <div className="h-px w-full bg-white/10" />
     </header>
   );
 }

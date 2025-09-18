@@ -31,3 +31,16 @@ export const confirmPasswordSchema = z
     message: "Passwords do not match",
   });
 
+export const settingsSchema = z.object({
+  preferredLanguage: z.enum(["en", "th"], { required_error: "Language is required" }),
+  marketingEmails: z.boolean().optional().default(false),
+});
+
+export const profileSchema = z.object({
+  name: z
+    .string({ required_error: "name_required" })
+    .trim()
+    .min(1, { message: "name_required" })
+    .max(100, { message: "name_too_long" }),
+});
+

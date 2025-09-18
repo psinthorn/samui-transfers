@@ -1,10 +1,9 @@
 "use client"
 
-import React, { useCallback, useEffect, useState, memo } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useSourceContext } from '@/context/SourceContext'
 import { useDestinationContext } from '@/context/DestinationContext'
-import { DirectionsRenderer, GoogleMap, MarkerF, OverlayView, OverlayViewF, useJsApiLoader } from '@react-google-maps/api';
-import { Divide } from 'lucide-react';
+import { DirectionsRenderer, GoogleMap, MarkerF } from '@react-google-maps/api';
 
   // Google Maps Section component for rendering google maps and direction route
   const GoogleMapsSection = () => {
@@ -96,8 +95,8 @@ import { Divide } from 'lucide-react';
 
     const src = getCoords(source);
     const dst = getCoords(destination);
-    const g = typeof window !== "undefined" ? window.google : undefined
-    if (!g?.maps) return null
+  const g = typeof window !== 'undefined' ? window.google : undefined
+  if (!g?.maps) return null
 
     // Guarded check for a valid DirectionsResult
     const hasDirections = !!(directionRoutePoints && Array.isArray(directionRoutePoints.routes) && directionRoutePoints.routes.length > 0);

@@ -16,15 +16,16 @@ const SearchSection = dynamic(() => import("@/components/Home/SearchSection"), {
 export default function Home() {
   const { lang } = useLanguage()
   const initialLangRef = useRef(lang)
+  const LIBRARIES = useMemo(() => ["places"] as ("places")[], [])
   const loaderOptions = useMemo(
     () => ({
-      id: "google-maps",
+      id: `google-maps-${initialLangRef.current}`,
       googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_API_KEY || "",
-      libraries: ["places"] as any,
+      libraries: LIBRARIES,
       language: initialLangRef.current,
       region: initialLangRef.current === "th" ? "TH" : "US",
     }),
-    []
+    [LIBRARIES]
   )
   const { isLoaded, loadError } = useJsApiLoader(loaderOptions)
 
