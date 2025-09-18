@@ -94,15 +94,7 @@ export default function Header() {
 
         {/* Actions */}
         <div className="hidden md:flex items-center gap-3">
-          {/* Language toggle */}
-          <button
-            onClick={toggle}
-            className="inline-flex items-center gap-2 rounded-md bg-white/10 px-3 py-2 text-sm text-white hover:bg-white/20"
-            aria-label="Toggle language"
-          >
-            {labels.langShort.en}/{labels.langShort.th}
-          </button>
-
+          
           {/* Book now (primary) */}
           <Link
             href="/booking"
@@ -144,6 +136,16 @@ export default function Header() {
           >
             <Facebook className="h-5 w-5" />
           </Link>
+
+          {/* Language toggle */}
+                <button
+                  onClick={toggle}
+                  className="inline-flex items-center gap-2 rounded-md bg-white/10 px-3 py-2 text-sm text-white hover:bg-white/20"
+                  aria-label="Toggle language"
+                >
+                  {labels.langShort.en}/{labels.langShort.th}
+                </button>
+
         </div>
 
         {/* Mobile menu */}
@@ -167,12 +169,7 @@ export default function Header() {
               ))}
               <DropdownMenuSeparator />
               <div className="px-2 py-1.5 flex flex-col gap-2">
-                <button
-                  onClick={toggle}
-                  className="inline-flex items-center justify-center gap-2 rounded-md bg-white px-3 py-2 text-sm font-semibold text-primary hover:bg-white/90"
-                >
-                  {labels.langShort.en}/{labels.langShort.th}
-                </button>
+               
                 <Link
                   href="/booking"
                   aria-label="Book now"
@@ -199,6 +196,14 @@ export default function Header() {
                   {labels.whatsapp}
                 </a>
 
+                 {/* Language toggle */}
+                 <button
+                  onClick={toggle}
+                  className="inline-flex items-center justify-center gap-2 rounded-md bg-white px-3 py-2 text-sm font-semibold text-primary hover:bg-white/90"
+                  >
+                  {labels.langShort.en}/{labels.langShort.th}
+                </button>
+                
                 {/* Removed Call us on mobile */}
               </div>
             </DropdownMenuContent>

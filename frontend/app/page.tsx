@@ -70,11 +70,9 @@ const { destination, setDestination } = useDestinationContext();
               <SearchSection />
             </div>
           </div>
-          {/* Why Choose Us: Option C - directly after the search block */}
-          <div className="mt-8">
-            <WhyChooseUs lang={lang as any} showLanguageSelector={false} />
-          </div>
-             {canShowMap && (
+          
+          {/* Route map: Option A - directly after the search block */}
+          {canShowMap && (
               <div className="grid grid-cols-1 lg:grid-cols-2 mb-24 py-4 bg-white mt-8">
                 <div className="col-span-1 flex flex-col justify-center gap-4 p-8">
                   <h1 className=" text-primary text-3xl sm:text-3xl md:text-5xl lg:text-7xl">{pick(lang, homeText.route.title)}</h1>
@@ -85,6 +83,12 @@ const { destination, setDestination } = useDestinationContext();
                 </div>
               </div>
             )}
+
+          {/* Why Choose Us: Option C - directly after the search block */}
+          <div className="mt-8">
+            <WhyChooseUs lang={lang as any} showLanguageSelector={false} />
+          </div>
+             
 
               
             <div className='w-full mx-auto p-6 gap-5 bg-white border-rounded-lg'>
