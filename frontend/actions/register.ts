@@ -37,7 +37,9 @@ export const registerAction = async (name: string, email: string, password: stri
       name: validName,
       email: validEmail,
       password: hashedPassword,
-    },
+      // NOTE: After running `pnpm prisma migrate dev && pnpm prisma generate`, remove the `as any` cast.
+      role: "USER",
+    } as any,
   });
 
   // TODO: Send a verification email to the user

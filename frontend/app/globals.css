@@ -108,3 +108,22 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer components {
+  /* Shared page layout + typography utilities */
+  .page-gutter {
+    @apply container mx-auto px-4 sm:px-6 lg:px-8;
+  }
+  .page-section {
+    @apply py-8 sm:py-10;
+  }
+  .page-title {
+    @apply text-2xl sm:text-3xl font-semibold tracking-tight;
+  }
+  .card {
+    @apply rounded-xl border bg-card text-card-foreground shadow-sm;
+  }
+  .card-padding {
+    @apply p-4 sm:p-6;
+  }
+}

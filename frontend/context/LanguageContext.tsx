@@ -11,7 +11,7 @@ export type LanguageContextValue = {
 
 const LanguageContext = createContext<LanguageContextValue | undefined>(undefined);
 
-function getInitialLang(): Lang {
+function getInitialLang(fallback?: Lang): Lang {
   if (typeof window === "undefined") return "en";
   try {
     const url = new URL(window.location.href);
@@ -22,17 +22,18 @@ function getInitialLang(): Lang {
     const stored = localStorage.getItem("lang");
     if (stored === "en" || stored === "th") return stored as Lang;
   } catch {}
+  if (fallback === "en" || fallback === "th") return fallback;
   const nav = (typeof navigator !== "undefined" ? navigator.language : "").toLowerCase();
   return nav.startsWith("th") ? "th" : "en";
 }
 
-export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  // To avoid hydration mismatch, render EN on server and on the initial client render,
-  // then sync to the preferred language after mount.
-  const [lang, setLangState] = useState<Lang>("en");
+export function LanguageProvider({ children, initialLang }: { children: React.ReactNode; initialLang?: Lang }) {
+  // Initialize with server-provided language (if any) to avoid hydration mismatch,
+  // then on mount prefer URL/localStorage overrides.
+  const [lang, setLangState] = useState<Lang>(initialLang ?? "en");
 
   useEffect(() => {
-    const preferred = getInitialLang();
+    const preferred = getInitialLang(initialLang);
     if (preferred !== lang) setLangState(preferred);
   }, []);
 
@@ -41,6 +42,8 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     if (typeof window !== "undefined") {
       try {
         localStorage.setItem("lang", value);
+        // Persist as a cookie so server can read initial language in layout
+        document.cookie = `lang=${value}; path=/; max-age=31536000; samesite=lax`;
         const url = new URL(window.location.href);
         url.searchParams.set("lang", value);
         window.history.replaceState({}, "", url.toString());
@@ -48,7 +51,27 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const toggle = () => setLang(lang === "en" ? "th" : "en");
+  const toggle = () => {
+    const value: Lang = lang === "en" ? "th" : "en";
+    // Persist new lang and hard-reload so Google Maps/Places script is reloaded with new locale
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem("lang", value);
+        document.cookie = `lang=${value}; path=/; max-age=31536000; samesite=lax`;
+        const url = new URL(window.location.href);
+        url.searchParams.set("lang", value);
+        // Use location.replace to reload and avoid adding a new history entry
+        window.location.replace(url.toString());
+        return; // stop here; page will reload
+      } catch {
+        // Fallback: trigger a hard reload
+        window.location.reload();
+        return;
+      }
+    }
+    // SSR fallback (shouldn't normally happen here)
+    setLangState(value);
+  };
 
   // Sync when back/forward changes the URL
   useEffect(() => {

@@ -106,3 +106,46 @@ Notes:
 
 ## License
 No license specified. All rights reserved
+
+---
+
+## RBAC Authentication (Admin + Dashboard)
+
+This project includes a minimal role-based access control setup using NextAuth v5 and Prisma.
+
+What’s included:
+- Prisma `Role` enum and `User.role` (USER/ADMIN)
+- NextAuth v5 route handler with Credentials provider and PrismaAdapter
+- JWT/session callbacks that propagate `user.id` and `user.role`
+- Middleware to protect `/admin/*` (ADMIN only) and `/dashboard/*` (authenticated users)
+- Skeleton pages for Admin and User Dashboard
+
+Environment variables (frontend/.env.local):
+```dotenv
+DATABASE_URL=postgresql://user:pass@host:5432/db
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=your_strong_secret
+```
+
+Setup:
+```bash
+cd frontend
+pnpm install
+pnpm prisma migrate dev -n "rbac"
+pnpm prisma generate
+pnpm dev
+```
+
+Sign-in and roles:
+- Register a user via your existing sign-up form (default role USER)
+- Promote an ADMIN in the database or add a seed script
+- Visit `/dashboard` when signed in; `/admin` requires ADMIN
+
+Files:
+- `frontend/prisma/schema.prisma` — Role enum, User.role, NextAuth models
+- `frontend/app/api/auth/[...nextauth]/route.ts` — NextAuth v5 config (handlers/auth/signIn/signOut)
+- `frontend/lib/auth.ts` — `auth()`, `requireUser()`, `requireAdmin()` helpers
+- `frontend/middleware.ts` — RBAC guard for routes
+- `frontend/app/admin/*` — Admin layout/page
+- `frontend/app/dashboard/*` — Dashboard layout/page
+- `frontend/types/next-auth.d.ts` — Types for Session/JWT with role

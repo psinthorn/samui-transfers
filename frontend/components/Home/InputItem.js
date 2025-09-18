@@ -19,7 +19,7 @@ const LABELS = {
 }
 
 // InputItem component for source and destination input
-const InputItem = ({ type }) => {
+const InputItem = ({ type, mapsReady }) => {
   const [value, setValue] = useState(null)
   const { lang } = useLanguage()
   const { setSource } = useSourceContext()
@@ -56,27 +56,46 @@ const InputItem = ({ type }) => {
     )
   }
 
+  const g = typeof window !== 'undefined' ? window.google : undefined
+  const ok = !!g?.maps?.places && mapsReady !== false
+
   return (
     <div className="flex h-full items-center gap-3 mt-3 rounded-lg bg-slate-100 px-3 py-2 ring-1 ring-transparent focus-within:ring-2 focus-within:ring-primary/40">
       <Image src={iconSrc} width={28} height={28} alt={iconAlt} priority />
-      <GooglePlacesAutocomplete
-        selectProps={{
-          value,
-          onChange: (place) => getLatAndLng(place, type),
-          placeholder,
-          'aria-label': placeholder,
-          isClearable: true,
-          className: 'w-full',
-          components: { DropdownIndicator: null, IndicatorSeparator: null },
-          styles: {
-            control: (base) => ({ ...base, backgroundColor: 'transparent', border: 'none', boxShadow: 'none', minHeight: '2.25rem' }),
-            valueContainer: (base) => ({ ...base, paddingLeft: 0 }),
-            input: (base) => ({ ...base, color: '#111827' }),
-            placeholder: (base) => ({ ...base, color: '#6b7280' }),
-            menu: (base) => ({ ...base, zIndex: 50 }),
-          },
-        }}
-      />
+      {ok ? (
+        <GooglePlacesAutocomplete
+          apiKey={process.env.NEXT_PUBLIC_GOOGLE_API_KEY}
+          apiOptions={{
+            language: lang === 'th' ? 'th' : 'en',
+            region: lang === 'th' ? 'TH' : 'US',
+            libraries: ['places'],
+          }}
+          selectProps={{
+            value,
+            onChange: (place) => getLatAndLng(place, type),
+            placeholder,
+            'aria-label': placeholder,
+            isClearable: true,
+            className: 'w-full',
+            components: { DropdownIndicator: null, IndicatorSeparator: null },
+            styles: {
+              control: (base) => ({ ...base, backgroundColor: 'transparent', border: 'none', boxShadow: 'none', minHeight: '2.25rem' }),
+              valueContainer: (base) => ({ ...base, paddingLeft: 0 }),
+              input: (base) => ({ ...base, color: '#111827' }),
+              placeholder: (base) => ({ ...base, color: '#6b7280' }),
+              menu: (base) => ({ ...base, zIndex: 50 }),
+            },
+          }}
+        />
+      ) : (
+        <input
+          aria-label={placeholder}
+          placeholder={placeholder}
+          className="w-full bg-transparent outline-none text-slate-900 placeholder:text-slate-400"
+          value={value?.label || ''}
+          onChange={(e) => setValue({ label: e.target.value })}
+        />
+      )}
     </div>
   )
 }
