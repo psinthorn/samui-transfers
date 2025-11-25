@@ -2,6 +2,7 @@
 
 import { useEffect } from "react"
 import { useSession } from "next-auth/react"
+import { useRouter, usePathname } from "next/navigation"
 
 /**
  * SessionClientProvider
@@ -11,25 +12,36 @@ import { useSession } from "next-auth/react"
  * - role: "USER" | "ADMIN" when available, removed on logout/unknown
  */
 export default function SessionClientProvider() {
-	const { status, data } = useSession()
-	const role = (data?.user as any)?.role as "USER" | "ADMIN" | undefined
+	const { data: session, status } = useSession()
+	const router = useRouter()
+	const pathname = usePathname()
 
 	useEffect(() => {
-		try {
-			if (status === "authenticated") {
-				document.cookie = `isAuthed=1; path=/; max-age=3600; samesite=lax`
-				if (role) {
-					document.cookie = `role=${role}; path=/; max-age=3600; samesite=lax`
+		if (status === "loading") return
+
+		// If user is signed in
+		if (status === "authenticated" && session?.user) {
+			// Define pages that don't need redirect
+			const publicPages = [
+				"/sign-in",
+				"/sign-up",
+				"/forgot-password",
+				"/reset-password",
+				"/verify-email",
+			]
+
+			// If on a public page, redirect based on role
+			if (typeof pathname === "string" && publicPages.includes(pathname)) {
+				const userRole = (session.user as any).role || "USER"
+
+				if (userRole === "ADMIN") {
+					router.push("/admin")
+				} else {
+					router.push("/dashboard")
 				}
-			} else {
-				// expire cookies when not authenticated
-				document.cookie = `isAuthed=; path=/; max-age=0; samesite=lax`
-				document.cookie = `role=; path=/; max-age=0; samesite=lax`
 			}
-		} catch {
-			// no-op in non-browser or restricted contexts
 		}
-	}, [status, role])
+	}, [session, status, pathname, router])
 
 	return null
 }

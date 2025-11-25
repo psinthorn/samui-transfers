@@ -23,6 +23,46 @@ async function main() {
   })
   console.log(`Seeded admin: ${email}`)
 
+  // Seed test users
+  const testUsers = [
+    {
+      email: "user@test.com",
+      name: "Test User",
+      password: "Test_123!",
+      role: "USER",
+    },
+    {
+      email: "john@example.com",
+      name: "John Doe",
+      password: "John_123!",
+      role: "USER",
+    },
+    {
+      email: "jane@example.com",
+      name: "Jane Smith",
+      password: "Jane_123!",
+      role: "USER",
+    },
+  ]
+
+  for (const testUser of testUsers) {
+    const hashedPassword = await bcrypt.hash(testUser.password, 10)
+    await prisma.user.upsert({
+      where: { email: testUser.email },
+      update: {
+        emailVerified: new Date(),
+      },
+      create: {
+        email: testUser.email,
+        name: testUser.name,
+        password: hashedPassword,
+        role: testUser.role,
+        emailVerified: new Date(),
+      },
+    })
+    console.log(`Seeded user: ${testUser.email}`)
+  }
+
   // Seed legacy AI chatbot context (English) including Terms & Conditions and Privacy Policy
   const legacyContext = `
 # Welcome to Samui Transfers #

@@ -54,7 +54,7 @@ export const bookingRequestSchema = z
     firstName: z.string().trim().min(1, "First name is required"),
     lastName: z.string().trim().min(1, "Last name is required"),
     email: z.string().trim().email("Valid email is required"),
-    mobile: z.string().trim().min(6, "Phone is required"),
+    mobile: z.string().trim().min(6, "Phone must be at least 6 characters").optional().or(z.literal("")),
     address: z.string().trim().optional(),
     flightNo: z.string().trim().optional(),
     flightTime: z.string().trim().optional(),

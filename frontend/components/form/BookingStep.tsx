@@ -12,6 +12,16 @@ import { bookingText } from "@/data/content/booking"
 const BookingStep = ({ bookingData, handleChange, nextStep, serverErrors = {} }: any) => {
   const { requestTransfer, setRequestTransfer } = useRequestTransferContext()
   const [isFormValid, setIsFormValid] = useState(false)
+  const [formValues, setFormValues] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    mobile: "",
+    date: "",
+    passengers: 1,
+    flightNo: "",
+    notes: "",
+  })
   const { lang } = useLanguage()
 
   const [form, fields] = useForm({
@@ -36,10 +46,41 @@ const BookingStep = ({ bookingData, handleChange, nextStep, serverErrors = {} }:
     shouldRevalidate: "onInput",
   })
 
-  // Ensure defaults hydrate from bookingData/context on mount/update
+  // Sync bookingData to form values when bookingData changes (e.g., from session)
   useEffect(() => {
-    // no extra local state needed; defaults are set on inputs below
-  }, [bookingData, requestTransfer])
+    if (bookingData?.firstName || bookingData?.lastName || bookingData?.email) {
+      console.log("📝 Syncing session data to form:", bookingData)
+      setFormValues(prev => ({
+        ...prev,
+        firstName: bookingData?.firstName || prev.firstName,
+        lastName: bookingData?.lastName || prev.lastName,
+        email: bookingData?.email || prev.email,
+      }))
+    }
+  }, [bookingData?.firstName, bookingData?.lastName, bookingData?.email])
+
+  // Also sync from requestTransfer context
+  useEffect(() => {
+    if (requestTransfer) {
+      setFormValues(prev => ({
+        ...prev,
+        firstName: requestTransfer?.firstName || prev.firstName,
+        lastName: requestTransfer?.lastName || prev.lastName,
+        email: requestTransfer?.email || prev.email,
+        mobile: requestTransfer?.mobile || prev.mobile,
+        date: requestTransfer?.date || prev.date,
+        passengers: requestTransfer?.passengers || prev.passengers,
+        flightNo: requestTransfer?.flightNo || prev.flightNo,
+        notes: requestTransfer?.notes || prev.notes,
+      }))
+    }
+  }, [requestTransfer])
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
+    setFormValues(prev => ({ ...prev, [name]: value }))
+    handleChange(e)
+  }
 
   const errorText = (err: unknown) => Array.isArray(err) ? err.join(", ") : (err as string)
   const serverErrFor = (name: string) => (serverErrors as any)?.[name] as string[] | undefined
@@ -62,10 +103,10 @@ const BookingStep = ({ bookingData, handleChange, nextStep, serverErrors = {} }:
               id={fields.firstName.id}
               name={fields.firstName.name}
               key={fields.firstName.key}
-              defaultValue={requestTransfer?.firstName || ""}
+              value={formValues.firstName}
               type="text"
               autoComplete="given-name"
-              onChange={handleChange}
+              onChange={handleInputChange}
               required
               className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary/30"
             />
@@ -81,10 +122,10 @@ const BookingStep = ({ bookingData, handleChange, nextStep, serverErrors = {} }:
               id={fields.lastName.id}
               name={fields.lastName.name}
               key={fields.lastName.key}
-              defaultValue={requestTransfer?.lastName || ""}
+              value={formValues.lastName}
               type="text"
               autoComplete="family-name"
-              onChange={handleChange}
+              onChange={handleInputChange}
               required
               className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary/30"
             />
@@ -104,10 +145,10 @@ const BookingStep = ({ bookingData, handleChange, nextStep, serverErrors = {} }:
               id={fields.email.id}
               name={fields.email.name}
               key={fields.email.key}
-              defaultValue={requestTransfer?.email || ""}
+              value={formValues.email}
               type="email"
               autoComplete="email"
-              onChange={handleChange}
+              onChange={handleInputChange}
               required
               className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary/30"
             />
@@ -117,18 +158,17 @@ const BookingStep = ({ bookingData, handleChange, nextStep, serverErrors = {} }:
           </div>
           <div>
             <label htmlFor={fields.mobile.id} className="block text-sm text-slate-700">
-              {pick(lang, bookingText.form.passengerDetails.mobile)} <span className="text-red-500">*</span>
+              {pick(lang, bookingText.form.passengerDetails.mobile)}
             </label>
             <input
               id={fields.mobile.id}
               name={fields.mobile.name}
               key={fields.mobile.key}
-              defaultValue={requestTransfer?.mobile || ""}
+              value={formValues.mobile}
               type="tel"
               autoComplete="tel"
               placeholder={pick(lang, bookingText.form.passengerDetails.mobilePlaceholder)}
-              onChange={handleChange}
-              required
+              onChange={handleInputChange}
               className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary/30"
             />
             {(fields.mobile.errors || serverErrFor('mobile')) && (
@@ -147,9 +187,9 @@ const BookingStep = ({ bookingData, handleChange, nextStep, serverErrors = {} }:
               id={fields.date.id}
               name={fields.date.name}
               key={fields.date.key}
-              defaultValue={requestTransfer?.date || ""}
+              value={formValues.date}
               type="datetime-local"
-              onChange={handleChange}
+              onChange={handleInputChange}
               required
               className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary/30"
             />
@@ -165,20 +205,14 @@ const BookingStep = ({ bookingData, handleChange, nextStep, serverErrors = {} }:
             </label>
             <input
               id="passengers"
-              name={/* if schema includes it, use that field; else fall back */ (fields as any)?.passengers?.name || "passengers"}
-              key={(fields as any)?.passengers?.key || "passengers"}
-              defaultValue={
-                (fields as any)?.passengers?.initialValue ||
-                requestTransfer?.passengers ||
-                bookingData?.passengers ||
-                1
-              }
+              name="passengers"
+              value={formValues.passengers}
               type="number"
               inputMode="numeric"
               min={1}
               max={12}
               step={1}
-              onChange={handleChange}
+              onChange={handleInputChange}
               required
               className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary/30"
             />
@@ -199,10 +233,10 @@ const BookingStep = ({ bookingData, handleChange, nextStep, serverErrors = {} }:
               id={fields.flightNo.id}
               name={fields.flightNo.name}
               key={fields.flightNo.key}
-              defaultValue={requestTransfer?.flightNo || ""}
+              value={formValues.flightNo}
               type="text"
               placeholder="TG123"
-              onChange={handleChange}
+              onChange={handleInputChange}
               className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary/30"
             />
             {fields.flightNo.errors && (
@@ -215,10 +249,10 @@ const BookingStep = ({ bookingData, handleChange, nextStep, serverErrors = {} }:
             </label>
             <textarea
               id="notes"
-              name={(fields as any)?.notes?.name || "notes"}
-              defaultValue={requestTransfer?.notes || ""}
+              name="notes"
+              value={formValues.notes}
               rows={3}
-              onChange={handleChange}
+              onChange={handleInputChange}
               placeholder={pick(lang, bookingText.form.passengerDetails.notesPlaceholder)}
               className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary/30"
             />

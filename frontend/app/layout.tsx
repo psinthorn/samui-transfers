@@ -5,6 +5,7 @@ import Footer from "../components/layout/Footer";
 import { SessionProvider } from "next-auth/react";
 import SessionClientProvider from "@/components/auth/SessionClientProvider";
 
+
 import "./globals.css";
 import RequestTransferContextProvider from "@/context/RequestTransferContext";
 import SourceContextProvider from "@/context/SourceContext";
@@ -41,23 +42,25 @@ export default function RootLayout({
         <body className={`${montserrat.className} h-auto`}>
           <SessionProvider>
             <SessionClientProvider />
-            <LanguageProvider initialLang={initialLang}>
-              <ToastProvider>
-                <div className="h-full mx-auto flex flex-col">
-                  <Header />
-                    <SourceContextProvider>
-                      <DestinationContextProvider>
-                        <RequestTransferContextProvider>
-                          {children}
-                        </RequestTransferContextProvider>
-                      </DestinationContextProvider>
-                    </SourceContextProvider>
-                  <div className="h-20">
-                    <Footer />
+           
+              <LanguageProvider initialLang={initialLang}>
+                <ToastProvider>
+                  <div className="h-full mx-auto flex flex-col">
+                    <Header />
+                      <SourceContextProvider>
+                        <DestinationContextProvider>
+                          <RequestTransferContextProvider>
+                            {children}
+                          </RequestTransferContextProvider>
+                        </DestinationContextProvider>
+                      </SourceContextProvider>
+                    <div className="h-20">
+                      <Footer />
+                    </div>
                   </div>
-                </div>
-              </ToastProvider>
-            </LanguageProvider>
+                </ToastProvider>
+              </LanguageProvider>
+           
           </SessionProvider>
         </body>
       </html>
