@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { requireUser } from "@/lib/auth"
 import { db } from "@/lib/db"
 import nodemailer from "nodemailer"
+import { generateBookingEmailHtml } from "@/lib/email"
 import { bookingRequestSchema, BookingRequest } from "@/schemas"
 import { ZodError } from "zod"
 
@@ -96,21 +97,83 @@ export async function POST(req: Request) {
       whatsapp: (process.env.SUPPORT_WHATSAPP || "66991087999").replace(/[^\d]/g, ""),
       address: process.env.COMPANY_ADDRESS || "9/38 Moo 6, Bo Phut, Ko Samui, Surat Thani 84320, Thailand",
       facebook: process.env.COMPANY_FACEBOOK || "https://www.facebook.com/profile.php?id=61578880422159",
-      website: process.env.COMPANY_WEBSITE || "https://samui-transfers.com",
+      website:
+        process.env.NODE_ENV !== "production"
+          ? "http://localhost:3000"
+          : process.env.COMPANY_WEBSITE || "https://samui-transfers.com",
+      managedByName: process.env.MANAGED_BY_NAME || "F2 Co.,Ltd.",
+      managedByTaxId: process.env.MANAGED_BY_TAX_ID || "0845560003240",
+      managedByTel: process.env.MANAGED_BY_TEL || "+66 064 027 0528",
+      managedByEmail: process.env.MANAGED_BY_EMAIL || "info@f2.co.th",
     }
 
-    const adminSubject = `New transfer request — ${requestNumber || booking.id}`
-    const adminHtml = `New transfer from ${firstName} ${lastName} — ${pickupPoint} → ${dropoffPoint} on ${date} • Vehicle: ${
-      [carType, carModel].filter(Boolean).join(" — ") || "-"
-    } • Rate: ${rate || "-"}`
+    const bookingUrl = `${COMPANY.website}/dashboard/bookings/${booking.id}`
+    const chatUrl = `${bookingUrl}#chat`
+    const adminHtml = generateBookingEmailHtml({
+      audience: "admin",
+      status: "PENDING",
+      company: COMPANY,
+      bookingId: booking.id,
+      requestNumber: requestNumber || null,
+      details: {
+        firstName,
+        lastName,
+        email,
+        mobile,
+        flightNo,
+        passengers,
+        date,
+        time: (body as any)?.time,
+        carType,
+        carModel,
+        rate,
+        pickupPoint,
+        dropoffPoint,
+        notes,
+      },
+      bookingUrl,
+      chatUrl,
+    })
+    const customerHtml = generateBookingEmailHtml({
+      audience: "customer",
+      status: "PENDING",
+      company: COMPANY,
+      bookingId: booking.id,
+      requestNumber: requestNumber || null,
+      details: {
+        firstName,
+        lastName,
+        email,
+        mobile,
+        flightNo,
+        passengers,
+        date,
+        time: (body as any)?.time,
+        carType,
+        carModel,
+        rate,
+        pickupPoint,
+        dropoffPoint,
+        notes,
+      },
+      bookingUrl,
+      chatUrl,
+    })
 
-    const customerSubject = "Thanks — we’ll confirm your transfer soon"
-    const customerHtml = `We’re reviewing availability. Booking ID: ${requestNumber || booking.id}.\n\nPickup: ${pickupPoint}\nDrop-off: ${dropoffPoint}\nDate/Time: ${date}\nVehicle: ${
-      [carType, carModel].filter(Boolean).join(" — ") || "-"
-    }\nRate: ${rate || "-"}`
-
-    await transporter.sendMail({ from: COMPANY.bookingEmail, to: COMPANY.bookingEmail, subject: adminSubject, html: adminHtml })
-    await transporter.sendMail({ from: COMPANY.bookingEmail, to: email, subject: customerSubject, html: customerHtml })
+    await transporter.sendMail({
+      from: COMPANY.bookingEmail,
+      to: COMPANY.bookingEmail,
+      replyTo: email ? `${[firstName, lastName].filter(Boolean).join(" ")} <${email}>` : undefined,
+      subject: `New transfer request — ${requestNumber || booking.id}`,
+      html: adminHtml,
+    })
+    await transporter.sendMail({
+      from: COMPANY.bookingEmail,
+      to: email,
+      replyTo: COMPANY.supportEmail || COMPANY.bookingEmail,
+      subject: "Thanks — we’ll confirm your transfer soon",
+      html: customerHtml,
+    })
 
     return NextResponse.json({ ok: true, bookingId: booking.id })
   } catch (e: any) {

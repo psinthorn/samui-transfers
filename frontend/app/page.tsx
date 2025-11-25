@@ -191,13 +191,13 @@ export default function Home() {
         {/* <div id="faqs" className='w-full min-h-96 mb-32'>
           <Faq />
         </div> */}
-        <div className='w-full mx-auto text-center min-h-96  py-8 sm:py-12 md:py-16 lg:py-24'>  
+        {/* <div className='w-full mx-auto text-center min-h-96  py-8 sm:py-12 md:py-16 lg:py-24'>  
           <div className="py-12">
             <h1 className='  text-primary sm:pt-12 md:pt-0 text-3xl sm:text-3xl md:text-5xl lg:text-7xl'>{pick(lang, homeText.chat.title)}</h1>
             <p>{pick(lang, homeText.chat.subtitle)}</p>
           </div>
           <AIChat />
-        </div>
+        </div> */}
       </div>
     </main>
   );

@@ -87,7 +87,6 @@ const BookingForm: React.FC<BookingFormProps> = ({ bookingData }) => {
 
   // handle form with POST to api/booking route
   const handleSendmail = async (e?: React.MouseEvent<HTMLButtonElement>) => {
-    console.log("submit form");
     e?.preventDefault?.();
     setServerErrors({});
     const response = await fetch('/api/booking', {

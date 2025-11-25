@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import BookingForm from "../../components/form/BookingForm";
+import BookingForm from "@/components/form/BookingForm";
 import { useRequestTransferContext } from "@/context/RequestTransferContext";
 
 const ClientBookingEntry: React.FC = () => {

@@ -121,3 +121,20 @@ enum AuditAction {
   USER_ROLE_CHANGED
   USER_DISABLED_TOGGLED
 }
+
+model ChatbotContext {
+  id        String   @id @default(cuid())
+  key       String   // e.g., "ai-agent-default" or per-agent key
+  locale    String   @default("en")
+  content   String   // long context text (system context)
+  title     String?
+  enabled   Boolean  @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([key, locale])
+  @@index([key])
+  @@index([locale])
+  @@index([enabled])
+}

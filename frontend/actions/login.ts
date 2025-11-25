@@ -1,22 +1,50 @@
 "use server";
 
-import * as z from "zod";
-import { loginSchema } from "@/schemas";
+import { signIn } from "@/auth";
+import { AuthError } from "next-auth";
 
-export const loginAction = async (email: string, password: string) => {
-  // Simulate an API call to authenticate the user
-  const parsedData = loginSchema.safeParse({ email, password });
+/**
+ * Server action for signing in with credentials
+ * This uses NextAuth's Credentials provider for secure authentication
+ * 
+ * @param email - User email
+ * @param password - User password
+ * @param redirect - Whether to redirect after successful login
+ * @returns Object with success status and callback URL
+ */
+export const loginAction = async (
+  email: string,
+  password: string,
+  callbackUrl?: string
+) => {
+  try {
+    const result = await signIn("credentials", {
+      email,
+      password,
+      redirect: false,
+    });
 
-  if (!parsedData.success) {
-    return { success: false, message: "Invalid input", errors: parsedData.error.issues };
-  }
+    if (result?.error) {
+      return {
+        success: false,
+        error: "Invalid email or password",
+      };
+    }
 
-  const { email: validEmail, password: validPassword } = parsedData.data;
-
-  // Dummy authentication logic
-  if (validEmail === "admin@admin.com" && validPassword === "123") {
-    return { success: true, message: "Login successful!" };
-  } else {
-    return { success: false, message: "Invalid email or password." };
+    return {
+      success: true,
+      callbackUrl: callbackUrl || "/dashboard",
+    };
+  } catch (error) {
+    if (error instanceof AuthError) {
+      return {
+        success: false,
+        error: error.cause?.err?.message || "Authentication failed",
+      };
+    }
+    return {
+      success: false,
+      error: "An unexpected error occurred",
+    };
   }
 };
