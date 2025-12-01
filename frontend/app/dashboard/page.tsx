@@ -9,8 +9,14 @@ export const runtime = "nodejs"
 export default async function DashboardHome() {
   const session = await auth()
 
+  console.log('[Dashboard] Session:', {
+    exists: !!session,
+    user: session?.user ? { email: session.user.email, role: (session.user as any).role } : null
+  })
+
   // Redirect unauthenticated users to sign-in
   if (!session?.user) {
+    console.log('[Dashboard] No session found, redirecting to sign-in')
     redirect("/sign-in?callbackUrl=/dashboard")
   }
 

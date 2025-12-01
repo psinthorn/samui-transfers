@@ -35,7 +35,7 @@ function SignInForm() {
     setError(null)
     startTransition(async () => {
       try {
-        console.log('Attempting sign in with:', { email, callbackUrl })
+        console.log('🔐 [SignIn] Attempting sign in with:', { email, callbackUrl })
         
         const res = await signIn("credentials", { 
           redirect: false, 
@@ -44,19 +44,26 @@ function SignInForm() {
           callbackUrl 
         })
         
-        console.log('Sign in response:', { error: res?.error, ok: res?.ok })
+        console.log('🔐 [SignIn] Sign in response:', { 
+          error: res?.error, 
+          ok: res?.ok, 
+          status: res?.status,
+          url: res?.url
+        })
         
         if (!res?.error) {
           // Sign in successful - wait for session to be established
-          console.log('Sign in successful, redirecting to:', callbackUrl)
+          console.log('✅ [SignIn] Sign in successful, redirecting to:', callbackUrl)
           
-          // Use a more reliable redirect method with longer delay
+          // Wait a bit longer to ensure session is written to cookie
           setTimeout(() => {
+            console.log('🔄 [SignIn] Performing redirect to:', callbackUrl)
             // Force a hard redirect to ensure fresh session check
             window.location.href = callbackUrl
-          }, 500)
+          }, 800)
         } else {
           // Show specific error messages
+          console.error('❌ [SignIn] Sign in failed:', res.error)
           const errorLower = res.error.toLowerCase()
           if (errorLower.includes("not found")) {
             setError(pick(lang, signInText.emailNotFound))
@@ -71,7 +78,7 @@ function SignInForm() {
           }
         }
       } catch (err) {
-        console.error("Sign in error:", err)
+        console.error("❌ [SignIn] Sign in error:", err)
         setError(invalidMsg)
       }
     })
