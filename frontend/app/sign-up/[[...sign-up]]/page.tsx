@@ -48,12 +48,12 @@ export default function Page() {
         return
       }
 
-      // Registration successful - show success message and redirect to verify email page
+      // Registration successful - show success message and redirect to registration success page
       setMessage(res.message)
       
-      // Redirect to email verification page after 1 second
+      // Redirect to registration success page with email parameter
       setTimeout(() => {
-        window.location.href = res.redirectUrl || "/verify-email"
+        window.location.href = `/registration-success?email=${encodeURIComponent(email)}`
       }, 1000)
     })
   }

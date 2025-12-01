@@ -111,10 +111,13 @@ export default function RegistrationSuccessPage() {
           {/* Instructions */}
           <div className="space-y-3">
             <h3 className="font-semibold text-slate-900 text-sm">
-              {pick(lang, registrationSuccessText.instructions)[0]}
+              {lang === "en" ? "Steps to verify your email:" : "ขั้นตอนในการยืนยันอีเมล:"}
             </h3>
             <div className="space-y-2">
-              {pick(lang, registrationSuccessText.instructions).map((instruction, index) => (
+              {(lang === "en" 
+                ? registrationSuccessText.instructions.en 
+                : registrationSuccessText.instructions.th
+              ).map((instruction, index) => (
                 <div key={index} className="flex gap-3">
                   <div className="flex-shrink-0 w-6 h-6 rounded-full bg-green-100 flex items-center justify-center">
                     <span className="text-green-600 text-sm font-semibold">{index + 1}</span>
