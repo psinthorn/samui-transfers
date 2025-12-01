@@ -17,13 +17,24 @@ export function middleware(req: NextRequest) {
   }
 
   // Get session token from cookies (both session and JWT tokens)
+  // Check multiple possible cookie names for maximum compatibility
   const sessionToken = 
     req.cookies.get("next-auth.session-token")?.value || 
     req.cookies.get("__Secure-next-auth.session-token")?.value ||
     req.cookies.get("next-auth.jwt")?.value ||
     req.cookies.get("__Secure-next-auth.jwt")?.value
 
-  console.log(`[Middleware] Path: ${path}, Session: ${sessionToken ? '✓' : '✗'}`)
+  const hasSession = !!sessionToken
+  
+  if (process.env.DEBUG_AUTH || process.env.NODE_ENV === "development") {
+    const allCookies = req.cookies.getAll().map(c => c.name)
+    console.log(`[Middleware] Path: ${path}`)
+    console.log(`[Middleware] Has session: ${hasSession}`)
+    console.log(`[Middleware] Cookie names:`, allCookies)
+    if (sessionToken) {
+      console.log(`[Middleware] Session token found (${sessionToken.substring(0, 20)}...)`)
+    }
+  }
 
   // Check if route is public
   const isPublicRoute = PUBLIC_ROUTES.some(route => path === route || path.startsWith(route + "/"))
@@ -35,8 +46,10 @@ export function middleware(req: NextRequest) {
 
   // For protected routes without a session, redirect to sign-in
   const isProtectedRoute = PROTECTED_ROUTES.some(route => path.startsWith(route))
-  if (isProtectedRoute && !sessionToken) {
-    console.log(`[Middleware] Protected route without session: ${path}, redirecting to sign-in`)
+  if (isProtectedRoute && !hasSession) {
+    if (process.env.DEBUG_AUTH || process.env.NODE_ENV === "development") {
+      console.log(`[Middleware] Protected route without session: ${path}, redirecting to sign-in`)
+    }
     const callbackUrl = `${nextUrl.pathname}${nextUrl.search}`
     const url = new URL("/sign-in", nextUrl)
     url.searchParams.set("callbackUrl", callbackUrl)
@@ -44,8 +57,10 @@ export function middleware(req: NextRequest) {
   }
 
   // Redirect authenticated users away from /sign-in and /sign-up  
-  if ((path === "/sign-in" || path === "/sign-up") && sessionToken) {
-    console.log(`[Middleware] User already authenticated on ${path}, redirecting to /dashboard`)
+  if ((path === "/sign-in" || path === "/sign-up") && hasSession) {
+    if (process.env.DEBUG_AUTH || process.env.NODE_ENV === "development") {
+      console.log(`[Middleware] User already authenticated on ${path}, redirecting to /dashboard`)
+    }
     return NextResponse.redirect(new URL("/dashboard", nextUrl))
   }
 
