@@ -23,6 +23,8 @@ export function middleware(req: NextRequest) {
     req.cookies.get("next-auth.jwt")?.value ||
     req.cookies.get("__Secure-next-auth.jwt")?.value
 
+  console.log(`[Middleware] Path: ${path}, Session: ${sessionToken ? '✓' : '✗'}`)
+
   // Check if route is public
   const isPublicRoute = PUBLIC_ROUTES.some(route => path === route || path.startsWith(route + "/"))
 
@@ -34,6 +36,7 @@ export function middleware(req: NextRequest) {
   // For protected routes without a session, redirect to sign-in
   const isProtectedRoute = PROTECTED_ROUTES.some(route => path.startsWith(route))
   if (isProtectedRoute && !sessionToken) {
+    console.log(`[Middleware] Protected route without session: ${path}, redirecting to sign-in`)
     const callbackUrl = `${nextUrl.pathname}${nextUrl.search}`
     const url = new URL("/sign-in", nextUrl)
     url.searchParams.set("callbackUrl", callbackUrl)
@@ -42,6 +45,7 @@ export function middleware(req: NextRequest) {
 
   // Redirect authenticated users away from /sign-in and /sign-up  
   if ((path === "/sign-in" || path === "/sign-up") && sessionToken) {
+    console.log(`[Middleware] User already authenticated on ${path}, redirecting to /dashboard`)
     return NextResponse.redirect(new URL("/dashboard", nextUrl))
   }
 

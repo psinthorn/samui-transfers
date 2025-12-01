@@ -9,10 +9,18 @@ export default async function AdminHome() {
   const session = await auth()
   const user = session?.user as any
 
+  console.log('[Admin] Session:', {
+    exists: !!session,
+    user: user ? { email: user.email, role: user.role } : null
+  })
+
   if (!user) {
+    console.log('[Admin] No session found, redirecting to sign-in')
     redirect("/sign-in?callbackUrl=/admin")
   }
+  
   if (user.role !== "ADMIN") {
+    console.log('[Admin] User is not admin, role:', user.role, 'redirecting to /Denied')
     redirect("/Denied")
   }
   
