@@ -17,7 +17,6 @@ import { pick } from '@/data/i18n/core';
 import { bookingText } from '@/data/content/booking';
 import { useRateCalculation } from '@/hooks/useRateCalculation';
 import { PriceDisplay } from '@/components/booking/PriceDisplay';
-import { StripeCheckout } from '@/components/form/StripeCheckout';
 import { AlertCircle } from 'lucide-react';
 
 interface EnhancedBookingFormProps {
@@ -269,21 +268,17 @@ export default function EnhancedBookingForm({ bookingData }: EnhancedBookingForm
           />
         )}
 
-        {/* Step 3: Payment */}
+        {/* Step 3: Payment - Currently Disabled */}
         {currentStep === 3 && showPayment && bookingId && (
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 sm:p-6">
             <h2 className="text-lg font-semibold text-slate-900 mb-4">Payment</h2>
             <p className="text-sm text-slate-600 mb-4">
-              Please complete your payment to confirm your booking. Your booking ID is:{' '}
+              Payment processing is currently disabled. Your booking has been created successfully.
+            </p>
+            <p className="text-sm text-slate-600 mb-4">
+              Your booking ID is:{' '}
               <code className="bg-slate-100 px-2 py-1 rounded">{bookingId}</code>
             </p>
-
-            <StripeCheckout
-              bookingId={bookingId}
-              amount={Math.round((finalPrice ?? 0) * 100)} // Stripe expects amount in cents; fallback to 0 if null
-              customerEmail={formData.email}
-              onSuccess={handlePaymentSuccess}
-            />
 
             <button
               onClick={prevStep}
@@ -292,9 +287,7 @@ export default function EnhancedBookingForm({ bookingData }: EnhancedBookingForm
               {pick(lang, bookingText.review.back)}
             </button>
           </div>
-        )}
-
-        {/* Step 4: Thank You */}
+        )}        {/* Step 4: Thank You */}
         {currentStep === 4 && <ThankYouStep formData={formData} />}
       </div>
     </section>
