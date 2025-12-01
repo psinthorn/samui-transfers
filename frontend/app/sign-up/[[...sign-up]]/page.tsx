@@ -48,8 +48,13 @@ export default function Page() {
         return
       }
 
-      // Auto sign-in with the same credentials and redirect to dashboard
-      await signIn("credentials", { email, password, redirect: true, callbackUrl: targetCallbackUrl } as any)
+      // Registration successful - show success message and redirect to registration success page
+      setMessage(res.message)
+      
+      // Redirect to registration success page with email parameter
+      setTimeout(() => {
+        window.location.href = `/registration-success?email=${encodeURIComponent(email)}`
+      }, 1000)
     })
   }
 
