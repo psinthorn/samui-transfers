@@ -52,15 +52,38 @@ function SignInForm() {
         })
         
         if (!res?.error) {
-          // Sign in successful - wait for session to be established
-          console.log('✅ [SignIn] Sign in successful, redirecting to:', callbackUrl)
+          // Sign in successful
+          console.log('✅ [SignIn] Sign in successful, attempting smooth redirect to:', callbackUrl)
           
-          // Wait a bit longer to ensure session is written to cookie
-          setTimeout(() => {
-            console.log('🔄 [SignIn] Performing redirect to:', callbackUrl)
-            // Force a hard redirect to ensure fresh session check
+          // PHASE 1: Try smooth client-side navigation (best UX)
+          try {
+            console.log('📱 [SignIn] Phase 1: Attempting smooth navigation with router.push()...')
+            router.push(callbackUrl)
+            
+            // Optional: Log successful smooth navigation after a delay
+            setTimeout(() => {
+              console.log('✨ [SignIn] Smooth navigation successful!')
+            }, 100)
+          } catch (pushError) {
+            console.error('⚠️  [SignIn] Smooth navigation failed:', pushError)
+          }
+          
+          // PHASE 2: Fallback to hard redirect if smooth fails (reliability)
+          // Wait 1500ms to give smooth navigation time to work
+          const timeoutId = setTimeout(() => {
+            console.log('⏱️  [SignIn] Phase 2: Smooth redirect timeout, using hard redirect fallback...')
+            console.log('🔄 [SignIn] Performing hard redirect to:', callbackUrl)
             window.location.href = callbackUrl
-          }, 800)
+          }, 1500)
+          
+          // Clean up timeout if page unloads naturally
+          const cleanup = () => {
+            clearTimeout(timeoutId)
+            console.log('🧹 [SignIn] Redirect cleanup - navigation completed')
+          }
+          
+          window.addEventListener("beforeunload", cleanup, { once: true })
+          
         } else {
           // Show specific error messages
           console.error('❌ [SignIn] Sign in failed:', res.error)
