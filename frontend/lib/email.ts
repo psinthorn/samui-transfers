@@ -6,7 +6,9 @@ type BookingStatus = "PENDING" | "CONFIRMED" | "COMPLETED" | "CANCELLED"
 
 // Configure email transporter
 const getEmailTransporter = () => {
+  // Try Mailtrap first
   if (process.env.MAILTRAP_HOST) {
+    console.log("Using Mailtrap email configuration")
     return nodemailer.createTransport({
       host: process.env.MAILTRAP_HOST,
       port: parseInt(process.env.MAILTRAP_PORT || "2525"),
@@ -18,6 +20,17 @@ const getEmailTransporter = () => {
   }
 
   // Fallback to SMTP configuration
+  if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
+    console.error("SMTP configuration missing:")
+    console.error("- SMTP_HOST:", process.env.SMTP_HOST ? "✓ set" : "✗ missing")
+    console.error("- SMTP_USER:", process.env.SMTP_USER ? "✓ set" : "✗ missing")
+    console.error("- SMTP_PASS:", process.env.SMTP_PASS ? "✓ set" : "✗ missing")
+    throw new Error(
+      "Email configuration incomplete. Please set SMTP_HOST, SMTP_USER, and SMTP_PASS environment variables."
+    )
+  }
+
+  console.log(`Using SMTP email configuration (${process.env.SMTP_HOST})`)
   return nodemailer.createTransport({
     host: process.env.SMTP_HOST,
     port: parseInt(process.env.SMTP_PORT || "587"),

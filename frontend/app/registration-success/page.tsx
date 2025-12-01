@@ -57,13 +57,18 @@ export default function RegistrationSuccessPage() {
 
       const data = await response.json()
 
-      if (data.success) {
+      if (response.ok && data.success) {
         setResendMessage(pick(lang, registrationSuccessText.resendSuccess))
+        console.log("Verification email resent successfully")
       } else {
-        setResendError(data.error || pick(lang, registrationSuccessText.resendError))
+        const errorMsg = data.error || pick(lang, registrationSuccessText.resendError)
+        setResendError(errorMsg)
+        console.error("Failed to resend verification email:", errorMsg)
       }
     } catch (error) {
-      setResendError(pick(lang, registrationSuccessText.resendError))
+      const errorMsg = error instanceof Error ? error.message : pick(lang, registrationSuccessText.resendError)
+      setResendError(errorMsg)
+      console.error("Error resending verification email:", error)
     } finally {
       setIsResending(false)
     }
