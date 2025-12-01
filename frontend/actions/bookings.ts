@@ -3,6 +3,7 @@
 import { db } from "@/lib/db"
 import { requireAdmin } from "@/lib/auth"
 import nodemailer from "nodemailer"
+import { generateBookingEmailHtml } from "@/lib/email"
 
 export async function updateBookingStatus(bookingId: string, status: "PENDING" | "CONFIRMED" | "COMPLETED" | "CANCELLED") {
   await requireAdmin()
@@ -20,14 +21,23 @@ export async function updateBookingStatus(bookingId: string, status: "PENDING" |
     const COMPANY = {
       name: process.env.COMPANY_NAME || "Samui Transfers",
       bookingEmail: process.env.BOOKING_EMAIL || "booking@samui-transfers.com",
+      supportEmail: process.env.SUPPORT_EMAIL || "info@samui-transfers.com",
       infoEmail: process.env.INFO_EMAIL || "info@samui-transfers.com",
-      website: process.env.COMPANY_WEBSITE || "https://samui-transfers.com",
+      website:
+        process.env.NODE_ENV !== "production"
+          ? "http://localhost:3000"
+          : process.env.COMPANY_WEBSITE || "https://samui-transfers.com",
+      phone: process.env.SUPPORT_PHONE || "(+66) 99 108 7999",
+      whatsapp: (process.env.SUPPORT_WHATSAPP || "66991087999").replace(/[^\d]/g, ""),
+      address: process.env.COMPANY_ADDRESS || "9/38 Moo 6, Bo Phut, Ko Samui, Surat Thani 84320, Thailand",
+      managedByName: process.env.MANAGED_BY_NAME || "F2 Co.,Ltd.",
+      managedByTaxId: process.env.MANAGED_BY_TAX_ID || "0845560003240",
+      managedByTel: process.env.MANAGED_BY_TEL || "+66 064 027 0528",
+      managedByEmail: process.env.MANAGED_BY_EMAIL || "info@f2.co.th",
     }
 
-    const d = (updated.details as any) || {}
-    const idOrNumber = updated.requestNumber || updated.id
-    const route = [d?.pickupPoint, d?.dropoffPoint].filter(Boolean).join(" → ") || "-"
-    const vehicle = [d?.carType, d?.carModel].filter(Boolean).join(" — ") || "-"
+  const d = (updated.details as any) || {}
+  const idOrNumber = updated.requestNumber || updated.id
 
     const subjects: Record<string, string> = {
       PENDING: `Booking update — ${idOrNumber} is pending`,
@@ -36,29 +46,65 @@ export async function updateBookingStatus(bookingId: string, status: "PENDING" |
       CANCELLED: `Booking cancelled — ${idOrNumber}`,
     }
 
-    const html = `
-      <div style="font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#0f172a;background:#ffffff;padding:24px">
-        <div style="max-width:640px;margin:0 auto">
-          <h1 style="margin:0 0 8px 0;font-size:18px;color:#0f172a">Booking ${idOrNumber} — Status: ${status}</h1>
-          <table style="width:100%;font-size:14px;color:#0f172a">
-            <tr><td style="padding:4px 0;color:#475569">Route</td><td style="text-align:right">${route}</td></tr>
-            <tr><td style="padding:4px 0;color:#475569">Vehicle</td><td style="text-align:right">${vehicle}</td></tr>
-            <tr><td style="padding:4px 0;color:#475569">When</td><td style="text-align:right">${d?.date || '-'}</td></tr>
-            <tr><td style="padding:4px 0;color:#475569">Rate</td><td style="text-align:right">${d?.rate ?? '-'}</td></tr>
-          </table>
-          <p style="margin:12px 0 0 0;color:#334155;font-size:13px">
-            You can view details on our site: <a href="${COMPANY.website}/dashboard/bookings/${updated.id}" style="color:#2563eb;text-decoration:none">Booking details</a>
-          </p>
-        </div>
-      </div>
-    `
+    const bookingUrl = `${COMPANY.website}/dashboard/bookings/${updated.id}`
+    const chatUrl = `${bookingUrl}#chat`
+    const adminHtml = generateBookingEmailHtml({
+      audience: "admin",
+      status,
+      company: COMPANY,
+      bookingId: updated.id,
+      requestNumber: updated.requestNumber || null,
+      details: {
+        firstName: d?.firstName,
+        lastName: d?.lastName,
+        email: d?.email,
+        mobile: d?.mobile,
+        flightNo: d?.flightNo,
+        passengers: d?.passengers,
+        date: d?.date,
+        time: d?.time,
+        carType: d?.carType,
+        carModel: d?.carModel,
+        rate: d?.rate,
+        pickupPoint: d?.pickupPoint,
+        dropoffPoint: d?.dropoffPoint,
+        notes: d?.notes,
+      },
+      bookingUrl,
+      chatUrl,
+    })
+    const customerHtml = generateBookingEmailHtml({
+      audience: "customer",
+      status,
+      company: COMPANY,
+      bookingId: updated.id,
+      requestNumber: updated.requestNumber || null,
+      details: {
+        firstName: d?.firstName,
+        lastName: d?.lastName,
+        email: d?.email,
+        mobile: d?.mobile,
+        flightNo: d?.flightNo,
+        passengers: d?.passengers,
+        date: d?.date,
+        time: d?.time,
+        carType: d?.carType,
+        carModel: d?.carModel,
+        rate: d?.rate,
+        pickupPoint: d?.pickupPoint,
+        dropoffPoint: d?.dropoffPoint,
+        notes: d?.notes,
+      },
+      bookingUrl,
+      chatUrl,
+    })
 
-    const subject = subjects[status]
+  const subject = subjects[status]
     const customerEmail = (updated.user?.email as string) || d?.email
     if (subject && customerEmail) {
       await Promise.all([
-        transporter.sendMail({ from: COMPANY.bookingEmail, to: COMPANY.bookingEmail, subject, html }),
-        transporter.sendMail({ from: COMPANY.bookingEmail, to: customerEmail, subject, html }),
+        transporter.sendMail({ from: COMPANY.bookingEmail, to: COMPANY.bookingEmail, replyTo: customerEmail, subject, html: adminHtml }),
+        transporter.sendMail({ from: COMPANY.bookingEmail, to: customerEmail, replyTo: COMPANY.supportEmail || COMPANY.bookingEmail, subject, html: customerHtml }),
       ])
     }
     return { ok: true }

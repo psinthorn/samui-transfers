@@ -22,21 +22,20 @@ export default function Home() {
 
   // Freeze Google Maps loader options to the initial language to avoid reloading the script with different options
   const initialLangRef = useRef(lang)
-  const [retryKey, setRetryKey] = useState(0)
 
   // Keep libraries reference stable across renders
   const LIBRARIES = useMemo(() => ["places"] as ("places")[], [])
 
   const loaderOptions = useMemo(
     () => ({
-      // Scope loader id by initial language + retry to avoid option-mismatch across remounts
-      id: `google-maps-${initialLangRef.current}-${retryKey}`,
+      // Use static id to ensure consistency across all pages
+      id: "script-loader",
       googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_API_KEY || "",
       libraries: LIBRARIES,
       language: initialLangRef.current,
       region: initialLangRef.current === "th" ? "TH" : "US",
     }),
-    [retryKey, LIBRARIES]
+    [LIBRARIES]
   )
 
   const { isLoaded, loadError } = useJsApiLoader(loaderOptions)
@@ -68,18 +67,11 @@ export default function Home() {
           role="alert"
           className="card card-padding text-center border border-red-200 bg-red-50 text-red-700"
         >
-          <p className="text-sm font-medium">We couldn’t load the map.</p>
+          <p className="text-sm font-medium">We couldn't load the map.</p>
           <p className="mt-1 text-xs text-red-600/80">
-            Please check your connection or try again.
+            Please check your connection or try again later.
           </p>
           <div className="mt-3 flex items-center justify-center gap-2">
-            <button
-              type="button"
-              className="inline-flex items-center rounded-md bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700"
-              onClick={() => setRetryKey((k) => k + 1)}
-            >
-              Try again
-            </button>
             <a
               href="https://maps.google.com"
               target="_blank"
@@ -191,13 +183,13 @@ export default function Home() {
         {/* <div id="faqs" className='w-full min-h-96 mb-32'>
           <Faq />
         </div> */}
-        <div className='w-full mx-auto text-center min-h-96  py-8 sm:py-12 md:py-16 lg:py-24'>  
+        {/* <div className='w-full mx-auto text-center min-h-96  py-8 sm:py-12 md:py-16 lg:py-24'>  
           <div className="py-12">
             <h1 className='  text-primary sm:pt-12 md:pt-0 text-3xl sm:text-3xl md:text-5xl lg:text-7xl'>{pick(lang, homeText.chat.title)}</h1>
             <p>{pick(lang, homeText.chat.subtitle)}</p>
           </div>
           <AIChat />
-        </div>
+        </div> */}
       </div>
     </main>
   );

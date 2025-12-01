@@ -1,44 +1,62 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
+import { auth } from "@/auth"
 
-// Lightweight middleware that only redirects authenticated users away from /sign-in.
-// We avoid importing the central auth config to keep the Edge bundle free of Node-only deps (e.g., bcrypt).
-export default function middleware(req: NextRequest) {
+// List of public routes that don't require authentication
+const PUBLIC_ROUTES = ["/", "/sign-in", "/sign-up", "/about-us", "/contact", "/faqs", "/privacy", "/terms", "/why-choose-us", "/service-rate"]
+
+// Routes that require authentication
+const PROTECTED_ROUTES = ["/dashboard", "/admin", "/booking"]
+
+export async function middleware(req: NextRequest) {
   const { nextUrl, cookies } = req
   const path = nextUrl.pathname
 
-  // Detect presence of an Auth.js/NextAuth session cookie (v4/v5, dev/prod names)
-  const hasSessionCookie =
-    cookies.has("next-auth.session-token") ||
-    cookies.has("__Secure-next-auth.session-token") ||
-    cookies.has("authjs.session-token") ||
-    cookies.has("__Secure-authjs.session-token")
-
-  // 1) Redirect authenticated users away from /sign-in
-  if (path === "/sign-in") {
-    if (hasSessionCookie) {
-      const url = new URL("/dashboard", nextUrl)
-      return NextResponse.redirect(url)
-    }
+  // Skip middleware for API routes and static assets
+  if (path.startsWith("/api/") || path.match(/\.(jpg|jpeg|png|gif|css|js|svg|ico|webp)$/)) {
     return NextResponse.next()
   }
 
-  // 2) Protect /dashboard, /admin, and /booking routes (auth required)
-  const isProtected = path.startsWith("/dashboard") || path.startsWith("/admin") || path.startsWith("/booking")
-  if (isProtected && !hasSessionCookie) {
-    const callback = `${nextUrl.pathname}${nextUrl.search}`
-    const url = new URL(`/sign-in`, nextUrl)
-    url.searchParams.set("callbackUrl", callback)
+  // Get session for authentication check
+  let session = null
+  try {
+    const authResult = await auth()
+    session = authResult
+  } catch (error) {
+    console.error("Auth middleware error:", error)
+  }
+
+  // 1) Redirect authenticated users away from /sign-in and /sign-up
+  if ((path === "/sign-in" || path === "/sign-up") && session?.user) {
+    return NextResponse.redirect(new URL("/dashboard", nextUrl))
+  }
+
+  // 2) Protect routes that require authentication
+  const isProtectedRoute = PROTECTED_ROUTES.some(route => path.startsWith(route))
+  if (isProtectedRoute && !session?.user) {
+    const callbackUrl = `${nextUrl.pathname}${nextUrl.search}`
+    const url = new URL("/sign-in", nextUrl)
+    url.searchParams.set("callbackUrl", callbackUrl)
     return NextResponse.redirect(url)
   }
 
-  // 3) Enforce ADMIN role on /admin when authenticated
-  if (path.startsWith("/admin") && hasSessionCookie) {
-    // role cookie is a lightweight hint set by the client after login
-    const role = cookies.get("role")?.value
-    if (role && role !== "ADMIN") {
-      const url = new URL(`/Denied`, nextUrl)
-      return NextResponse.redirect(url)
+  // 3) Enforce ADMIN role on /admin routes
+  if (path.startsWith("/admin") && session?.user) {
+    if (session.user.role !== "ADMIN") {
+      return NextResponse.redirect(new URL("/Denied", nextUrl))
+    }
+  }
+
+  // 4) Prevent access if user is disabled
+  if (session?.user && (session.user as any).disabled) {
+    return NextResponse.redirect(new URL("/sign-in?error=UserDisabled", nextUrl))
+  }
+
+  // 5) Protect email verification page - redirect if already verified
+  if (path === "/verify-email" && session?.user && session.user.email) {
+    // Check if email is already verified
+    if (session.user.emailVerified) {
+      return NextResponse.redirect(new URL("/dashboard", nextUrl))
     }
   }
 
@@ -46,5 +64,8 @@ export default function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/sign-in", "/dashboard/:path*", "/admin/:path*", "/booking/:path*"],
+  // Apply middleware to all routes except static assets and api
+  matcher: [
+    "/((?!_next|.*\\.).*)", // Match all routes except Next.js internals and static files
+  ],
 }

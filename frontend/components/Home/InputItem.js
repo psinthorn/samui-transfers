@@ -32,12 +32,14 @@ const InputItem = ({ type, mapsReady }) => {
   const iconSrc = type === 'source' ? '/icons/pickup-pin.svg' : '/icons/dropoff-pin.svg'
   const iconAlt = t.iconAlt
 
-  const getLatAndLng = (selected, which) => {
+  const getLatAndLng = (selected) => {
+    if (!selected?.value?.place_id) return
+    
     setValue(selected)
     const g = typeof window !== 'undefined' ? window.google : undefined
-    const placeId = selected?.value?.place_id
-    if (!g?.maps?.places || !placeId) return
+    if (!g?.maps?.places) return
 
+    const placeId = selected.value.place_id
     const service = new g.maps.places.PlacesService(document.createElement('div'))
     service.getDetails(
       { placeId, fields: ['geometry.location', 'formatted_address', 'name'] },
@@ -49,7 +51,7 @@ const InputItem = ({ type, mapsReady }) => {
             name: place.formatted_address,
             label: place.name,
           }
-          if (which === 'source') setSource(payload)
+          if (type === 'source') setSource(payload)
           else setDestination(payload)
         }
       }
@@ -72,7 +74,7 @@ const InputItem = ({ type, mapsReady }) => {
           }}
           selectProps={{
             value,
-            onChange: (place) => getLatAndLng(place, type),
+            onChange: (place) => getLatAndLng(place),
             placeholder,
             'aria-label': placeholder,
             isClearable: true,

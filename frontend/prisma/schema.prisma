@@ -11,7 +11,11 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  // Connection URLs are no longer supported in schema files.
+  // Move connection URLs for Migrate to `prisma.config.ts` and pass either
+  // `adapter` for a direct database connection or `accelerateUrl` for Accelerate
+  // to the `PrismaClient` constructor. See https://pris.ly/d/config-datasource
+  // and https://pris.ly/d/prisma7-client-config
 }
 
 model User {
@@ -86,12 +90,21 @@ model Booking {
   requestNumber String?
   details    Json
   status     BookingStatus @default(PENDING)
+  
+  // Payment fields
+  paymentStatus  String @default("PENDING")  // PENDING, COMPLETED, FAILED, REFUNDED
+  paymentId      String?                     // Stripe Payment Intent ID
+  paymentAmount  Decimal?                    // Amount paid in currency units
+  paymentMethod  String?                     // Payment method type
+  paymentDate    DateTime?                   // When payment was processed
 
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
   @@index([createdAt])
   @@index([status])
+  @@index([paymentStatus])
+  @@index([paymentId])
   @@index([userId, createdAt])
 }
 
@@ -120,4 +133,73 @@ model AuditLog {
 enum AuditAction {
   USER_ROLE_CHANGED
   USER_DISABLED_TOGGLED
+}
+
+model ServiceRate {
+  id               String   @id @default(cuid())
+  vehicleType      String   // "minibus", "suv", "sedan"
+  basePrice        Decimal  // Base price in THB
+  distanceRate     Decimal  // Price per km
+  minDistance      Int      // Minimum distance to apply rate
+  maxDistance      Int?     // Maximum distance (null = unlimited)
+  isActive         Boolean  @default(true)
+  description      String?
+  
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  
+  @@index([vehicleType])
+  @@index([isActive])
+}
+
+model PricingRule {
+  id               String   @id @default(cuid())
+  ruleType         String   // "PEAK_HOUR", "SEASONAL", "DISCOUNT"
+  name             String
+  multiplier       Decimal  // e.g., 1.5 for 50% increase
+  startTime        DateTime // For recurring rules: time of day
+  endTime          DateTime // For recurring rules: time of day
+  startDate        DateTime? // For date-based rules
+  endDate          DateTime? // For date-based rules
+  dayOfWeek        Int[]     // [0-6] for Mon-Sun, empty = all days
+  isActive         Boolean  @default(true)
+  description      String?
+  
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  
+  @@index([ruleType])
+  @@index([isActive])
+}
+
+model RateHistory {
+  id               String   @id @default(cuid())
+  bookingId        String
+  vehicleType      String
+  basePrice        Decimal
+  distanceRate     Decimal
+  appliedRules     Json     // Array of applied pricing rules
+  finalPrice       Decimal
+  
+  createdAt        DateTime @default(now())
+  
+  @@index([bookingId])
+  @@index([createdAt])
+}
+
+model ChatbotContext {
+  id        String   @id @default(cuid())
+  key       String   // e.g., "ai-agent-default" or per-agent key
+  locale    String   @default("en")
+  content   String   // long context text (system context)
+  title     String?
+  enabled   Boolean  @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([key, locale])
+  @@index([key])
+  @@index([locale])
+  @@index([enabled])
 }

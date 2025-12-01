@@ -15,30 +15,63 @@ const config: NextAuthConfig = {
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
-        const email = (credentials as any)?.email as string | undefined
-        const password = (credentials as any)?.password as string | undefined
-        if (!email || !password) return null
+        const email = (credentials?.email as string) || ""
+        const password = (credentials?.password as string) || ""
+
+        if (!email || !password) {
+          throw new Error("Email and password are required")
+        }
+
         const user = await db.user.findUnique({ where: { email } })
-        if (!user || !user.password) return null
-        if ((user as any).disabled) return null
-        const valid = await bcrypt.compare(password, user.password)
-        if (!valid) return null
-        return { id: user.id, email: user.email!, name: user.name ?? undefined, role: (user as any).role }
+
+        if (!user || !user.password) {
+          throw new Error("User not found or password not set")
+        }
+
+        // Check if user is disabled
+        if (user.disabled) {
+          throw new Error("User account is disabled")
+        }
+
+        // Check if email is verified
+        if (!user.emailVerified) {
+          throw new Error("Please verify your email before signing in")
+        }
+
+        const isPasswordValid = await bcrypt.compare(password, user.password)
+
+        if (!isPasswordValid) {
+          throw new Error("Invalid password")
+        }
+
+        return {
+          id: user.id,
+          email: user.email,
+          name: user.name ?? undefined,
+          role: user.role as "USER" | "ADMIN",
+          disabled: user.disabled
+        }
       }
     })
   ],
   callbacks: {
-    async jwt({ token, user }: any) {
+    async jwt({ token, user }) {
       if (user) {
-        token.id = (user as any).id
-        token.role = (user as any).role
+        token.id = user.id
+        token.role = user.role as "USER" | "ADMIN"
+        token.disabled = user.disabled
+        token.emailVerified = user.emailVerified
       }
       return token
     },
-    async session({ session, token }: any) {
+    async session({ session, token }) {
       if (token && session.user) {
-        ;(session.user as any).id = token.id as string
-        ;(session.user as any).role = token.role as "USER" | "ADMIN"
+        session.user.id = token.id as string
+        session.user.role = token.role as "USER" | "ADMIN"
+        session.user.disabled = token.disabled as boolean | undefined
+        if (token.emailVerified) {
+          session.user.emailVerified = token.emailVerified as Date | null
+        }
       }
       return session
     }

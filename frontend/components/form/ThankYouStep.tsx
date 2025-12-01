@@ -4,6 +4,9 @@ import React from "react"
 import Link from "next/link"
 import PaymentStep from "./PaymentStep"
 import { useLanguage } from "@/context/LanguageContext"
+import { useSourceContext } from "@/context/SourceContext"
+import { useDestinationContext } from "@/context/DestinationContext"
+import { useRequestTransferContext } from "@/context/RequestTransferContext"
 import { bookingText } from "@/data/content/booking"
 import { pick } from "@/data/i18n/core"
 
@@ -11,6 +14,10 @@ type Props = { formData: any }
 
 export default function ThankYouStep({ formData = {} }: Props) {
   const { lang } = useLanguage()
+  const { setSource } = useSourceContext()
+  const { setDestination } = useDestinationContext()
+  const { setRequestTransfer } = useRequestTransferContext()
+  
   const rateNum = Number(formData?.rate || 0)
   const total = rateNum > 0 ? rateNum : undefined
   const formatter = React.useMemo(
@@ -21,6 +28,13 @@ export default function ThankYouStep({ formData = {} }: Props) {
   const whatsapp = (process.env.NEXT_PUBLIC_SUPPORT_WHATSAPP || "66991087999").replace(/[^\d]/g, "")
   const whatsappHref = `https://wa.me/${whatsapp}`
   const supportEmail = process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "booking@samui-transfers.com"
+
+  const handleNewBooking = () => {
+    // Reset all booking data
+    setSource(undefined)
+    setDestination(undefined)
+    setRequestTransfer(undefined)
+  }
 
   return (
     <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 sm:p-6">
@@ -75,6 +89,7 @@ export default function ThankYouStep({ formData = {} }: Props) {
         </Link>
         <Link
           href="/"
+          onClick={handleNewBooking}
           className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90"
         >
           {pick(lang, bookingText.thankyou.newBooking)}
