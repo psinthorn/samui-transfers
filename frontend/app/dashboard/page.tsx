@@ -1,4 +1,5 @@
 import { auth } from "@/auth"
+import { redirect } from "next/navigation"
 import Link from "next/link"
 import { BookOpen, MapPin, User, Settings, ArrowRight, Clock, MapPinCheck, AlertCircle } from "lucide-react"
 import LocalizedRecentEmpty from "./LocalizedRecentEmpty"
@@ -7,6 +8,11 @@ export const runtime = "nodejs"
 
 export default async function DashboardHome() {
   const session = await auth()
+
+  // Redirect unauthenticated users to sign-in
+  if (!session?.user) {
+    redirect("/sign-in?callbackUrl=/dashboard")
+  }
 
   const quickActions = [
     {
