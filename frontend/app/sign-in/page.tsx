@@ -34,23 +34,37 @@ function SignInForm() {
     e.preventDefault()
     setError(null)
     startTransition(async () => {
-      const res = await signIn("credentials", { redirect: false, email, password, callbackUrl })
-      if (!res?.error) {
-        router.push(callbackUrl)
-      } else {
-        // Show specific error messages
-        const errorLower = res.error.toLowerCase()
-        if (errorLower.includes("not found")) {
-          setError(pick(lang, signInText.emailNotFound))
-        } else if (errorLower.includes("not verified")) {
-          setError(pick(lang, signInText.emailNotVerified))
-        } else if (errorLower.includes("disabled")) {
-          setError(pick(lang, signInText.accountDisabled))
-        } else if (errorLower.includes("password")) {
-          setError(pick(lang, signInText.incorrectPassword))
+      try {
+        const res = await signIn("credentials", { 
+          redirect: false, 
+          email, 
+          password, 
+          callbackUrl 
+        })
+        
+        if (!res?.error) {
+          // Use native redirect with a slight delay to ensure session is set
+          setTimeout(() => {
+            window.location.href = callbackUrl
+          }, 100)
         } else {
-          setError(invalidMsg)
+          // Show specific error messages
+          const errorLower = res.error.toLowerCase()
+          if (errorLower.includes("not found")) {
+            setError(pick(lang, signInText.emailNotFound))
+          } else if (errorLower.includes("not verified")) {
+            setError(pick(lang, signInText.emailNotVerified))
+          } else if (errorLower.includes("disabled")) {
+            setError(pick(lang, signInText.accountDisabled))
+          } else if (errorLower.includes("password")) {
+            setError(pick(lang, signInText.incorrectPassword))
+          } else {
+            setError(invalidMsg)
+          }
         }
+      } catch (err) {
+        console.error("Sign in error:", err)
+        setError(invalidMsg)
       }
     })
   }

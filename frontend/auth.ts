@@ -58,20 +58,20 @@ const config: NextAuthConfig = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id
+        token.email = user.email
+        token.name = user.name
         token.role = user.role as "USER" | "ADMIN"
         token.disabled = user.disabled
-        token.emailVerified = user.emailVerified
       }
       return token
     },
     async session({ session, token }) {
       if (token && session.user) {
         session.user.id = token.id as string
+        session.user.email = (token.email as string) || session.user.email
+        session.user.name = (token.name as string) || session.user.name
         session.user.role = token.role as "USER" | "ADMIN"
         session.user.disabled = token.disabled as boolean | undefined
-        if (token.emailVerified) {
-          session.user.emailVerified = token.emailVerified as Date | null
-        }
       }
       return session
     }
@@ -80,7 +80,13 @@ const config: NextAuthConfig = {
     signIn: "/sign-in",
     error: "/sign-in"
   },
-  secret: process.env.NEXTAUTH_SECRET
+  events: {
+    async signIn() {
+      // Log successful sign-ins for debugging
+    },
+  },
+  secret: process.env.NEXTAUTH_SECRET,
+  trustHost: true
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth(config)
