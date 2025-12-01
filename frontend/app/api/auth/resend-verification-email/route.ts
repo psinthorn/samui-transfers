@@ -8,11 +8,14 @@ export async function POST(req: NextRequest) {
     const { email } = await req.json()
 
     if (!email) {
+      console.warn("Resend verification email: Email is required")
       return NextResponse.json(
         { success: false, error: "Email is required" },
         { status: 400 }
       )
     }
+
+    console.log(`Resend verification email requested for: ${email}`)
 
     // Find user by email
     const user = await db.user.findUnique({
@@ -20,6 +23,7 @@ export async function POST(req: NextRequest) {
     })
 
     if (!user) {
+      console.warn(`Resend verification email: User not found for email: ${email}`)
       return NextResponse.json(
         { success: false, error: "User not found" },
         { status: 404 }
@@ -27,6 +31,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (user.emailVerified) {
+      console.warn(`Resend verification email: Email already verified for: ${email}`)
       return NextResponse.json(
         { success: false, error: "Email already verified" },
         { status: 400 }
@@ -37,26 +42,46 @@ export async function POST(req: NextRequest) {
     const verificationToken = crypto.randomBytes(32).toString("hex")
     const tokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
 
+    console.log(`Generated new verification token for: ${email}`)
+
     // Delete any existing verification tokens for this email
-    await db.verificationToken.deleteMany({
-      where: { identifier: email },
-    })
+    try {
+      await db.verificationToken.deleteMany({
+        where: { identifier: email },
+      })
+      console.log(`Deleted old verification tokens for: ${email}`)
+    } catch (deleteError) {
+      console.error(`Error deleting old tokens for ${email}:`, deleteError)
+      // Don't fail if we can't delete old tokens
+    }
 
     // Create new verification token
-    await db.verificationToken.create({
-      data: {
-        identifier: email,
-        token: verificationToken,
-        expires: tokenExpiry,
-      },
-    })
+    try {
+      await db.verificationToken.create({
+        data: {
+          identifier: email,
+          token: verificationToken,
+          expires: tokenExpiry,
+        },
+      })
+      console.log(`Created new verification token in DB for: ${email}`)
+    } catch (createError) {
+      console.error(`Error creating verification token for ${email}:`, createError)
+      throw new Error(`Failed to create verification token: ${createError}`)
+    }
 
     // Send verification email
-    await sendVerificationEmail({
-      email,
-      name: user.name || email,
-      token: verificationToken,
-    })
+    try {
+      await sendVerificationEmail({
+        email,
+        name: user.name || email,
+        token: verificationToken,
+      })
+      console.log(`Successfully sent verification email to: ${email}`)
+    } catch (emailError) {
+      console.error(`Error sending verification email to ${email}:`, emailError)
+      throw new Error(`Failed to send verification email: ${emailError}`)
+    }
 
     return NextResponse.json({
       success: true,
@@ -64,8 +89,9 @@ export async function POST(req: NextRequest) {
     })
   } catch (error) {
     console.error("Resend verification email error:", error)
+    const errorMessage = error instanceof Error ? error.message : "Failed to resend verification email"
     return NextResponse.json(
-      { success: false, error: "Failed to resend verification email" },
+      { success: false, error: errorMessage },
       { status: 500 }
     )
   }
