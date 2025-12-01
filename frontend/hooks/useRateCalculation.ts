@@ -97,7 +97,7 @@ export function useRateCalculation(): UseRateCalculationReturn {
   const priceBreakdown = useMemo(() => {
     if (!calculation) return null;
 
-    const breakdown = [
+    const breakdown: { label: string; value: string; isMultiplier?: boolean }[] = [
       { label: 'Base Price', value: `฿${calculation.basePrice}` },
       { label: 'Distance Charge', value: `฿${calculation.distanceCharge}` },
     ];

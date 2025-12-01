@@ -1,11 +1,9 @@
 import NextAuth, { type NextAuthConfig } from "next-auth"
 import Credentials from "next-auth/providers/credentials"
-import { PrismaAdapter } from "@auth/prisma-adapter"
 import { db } from "@/lib/db"
 import bcrypt from "bcryptjs"
 
 const config: NextAuthConfig = {
-  adapter: PrismaAdapter(db),
   session: { strategy: "jwt" },
   providers: [
     Credentials({
@@ -49,7 +47,8 @@ const config: NextAuthConfig = {
           email: user.email,
           name: user.name ?? undefined,
           role: user.role as "USER" | "ADMIN",
-          disabled: user.disabled
+          disabled: user.disabled,
+          emailVerified: user.emailVerified
         }
       }
     })
@@ -58,6 +57,8 @@ const config: NextAuthConfig = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id
+        token.email = user.email
+        token.name = user.name
         token.role = user.role as "USER" | "ADMIN"
         token.disabled = user.disabled
         token.emailVerified = user.emailVerified
@@ -65,13 +66,13 @@ const config: NextAuthConfig = {
       return token
     },
     async session({ session, token }) {
-      if (token && session.user) {
+      if (session.user && token) {
         session.user.id = token.id as string
+        session.user.email = (token.email as string) || session.user.email
+        session.user.name = (token.name as string) || session.user.name
         session.user.role = token.role as "USER" | "ADMIN"
         session.user.disabled = token.disabled as boolean | undefined
-        if (token.emailVerified) {
-          session.user.emailVerified = token.emailVerified as Date | null
-        }
+        session.user.emailVerified = token.emailVerified as Date | null
       }
       return session
     }
@@ -80,7 +81,8 @@ const config: NextAuthConfig = {
     signIn: "/sign-in",
     error: "/sign-in"
   },
-  secret: process.env.NEXTAUTH_SECRET
+  secret: process.env.NEXTAUTH_SECRET,
+  trustHost: true
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth(config)

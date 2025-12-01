@@ -34,23 +34,45 @@ function SignInForm() {
     e.preventDefault()
     setError(null)
     startTransition(async () => {
-      const res = await signIn("credentials", { redirect: false, email, password, callbackUrl })
-      if (!res?.error) {
-        router.push(callbackUrl)
-      } else {
-        // Show specific error messages
-        const errorLower = res.error.toLowerCase()
-        if (errorLower.includes("not found")) {
-          setError(pick(lang, signInText.emailNotFound))
-        } else if (errorLower.includes("not verified")) {
-          setError(pick(lang, signInText.emailNotVerified))
-        } else if (errorLower.includes("disabled")) {
-          setError(pick(lang, signInText.accountDisabled))
-        } else if (errorLower.includes("password")) {
-          setError(pick(lang, signInText.incorrectPassword))
+      try {
+        console.log('Attempting sign in with:', { email, callbackUrl })
+        
+        const res = await signIn("credentials", { 
+          redirect: false, 
+          email, 
+          password, 
+          callbackUrl 
+        })
+        
+        console.log('Sign in response:', { error: res?.error, ok: res?.ok })
+        
+        if (!res?.error) {
+          // Sign in successful - wait for session to be established
+          console.log('Sign in successful, redirecting to:', callbackUrl)
+          
+          // Use a more reliable redirect method with longer delay
+          setTimeout(() => {
+            // Force a hard redirect to ensure fresh session check
+            window.location.href = callbackUrl
+          }, 500)
         } else {
-          setError(invalidMsg)
+          // Show specific error messages
+          const errorLower = res.error.toLowerCase()
+          if (errorLower.includes("not found")) {
+            setError(pick(lang, signInText.emailNotFound))
+          } else if (errorLower.includes("not verified")) {
+            setError(pick(lang, signInText.emailNotVerified))
+          } else if (errorLower.includes("disabled")) {
+            setError(pick(lang, signInText.accountDisabled))
+          } else if (errorLower.includes("password")) {
+            setError(pick(lang, signInText.incorrectPassword))
+          } else {
+            setError(invalidMsg)
+          }
         }
+      } catch (err) {
+        console.error("Sign in error:", err)
+        setError(invalidMsg)
       }
     })
   }

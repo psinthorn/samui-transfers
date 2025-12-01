@@ -1,4 +1,5 @@
 import { auth } from "@/auth";
+import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { Globe, Bell, Lock, ArrowRight } from "lucide-react";
 import Link from "next/link";
@@ -9,9 +10,15 @@ import LanguageBootstrap from "@/components/account/LanguageBootstrap";
 
 export default async function SettingsPage() {
   const session = await auth();
+  
+  // Redirect unauthenticated users
+  if (!session?.user) {
+    redirect("/sign-in?callbackUrl=/dashboard/settings")
+  }
+  
   // Load current user's preferences from DB (cast to any to accommodate client typegen timing)
   const userAny = (await db.user.findUnique({
-    where: { id: session!.user!.id },
+    where: { id: session.user.id },
   })) as any;
   const initialLang = userAny?.preferredLanguage === "th" ? ("th" as const) : ("en" as const);
   const initialMarketingEmails = Boolean(userAny?.marketingEmails);

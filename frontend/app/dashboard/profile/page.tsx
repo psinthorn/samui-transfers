@@ -1,4 +1,5 @@
 import { auth } from "@/auth";
+import { redirect } from "next/navigation";
 import Link from "next/link";
 import { User, Mail, Shield, Calendar, Badge } from "lucide-react";
 import SectionHeading from "@/components/account/SectionHeading";
@@ -9,7 +10,13 @@ import ProfileDetails from "@/components/account/ProfileDetails";
 
 export default async function ProfilePage() {
   const session = await auth();
-  const user = session!.user!;
+  
+  // Redirect unauthenticated users
+  if (!session?.user) {
+    redirect("/sign-in?callbackUrl=/dashboard/profile")
+  }
+  
+  const user = session.user;
   
   const getRoleBadge = (role: string) => {
     const roleMap: Record<string, { bg: string; text: string; icon: React.ReactNode }> = {
