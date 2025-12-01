@@ -37,69 +37,19 @@ function SignInForm() {
       try {
         console.log('🔐 [SignIn] Attempting sign in with:', { email, callbackUrl })
         
-        const res = await signIn("credentials", { 
-          redirect: false, 
+        // Use redirect: true to let NextAuth handle the redirect automatically
+        // This is the most reliable approach for production
+        await signIn("credentials", { 
           email, 
           password, 
-          callbackUrl 
+          redirect: true,
+          callbackUrl
         })
         
-        console.log('🔐 [SignIn] Sign in response:', { 
-          error: res?.error, 
-          ok: res?.ok, 
-          status: res?.status,
-          url: res?.url
-        })
+        // If we reach here, something went wrong
+        // NextAuth with redirect: true will navigate away on success
+        console.log('⚠️ [SignIn] Sign in did not redirect as expected')
         
-        if (!res?.error) {
-          // Sign in successful
-          console.log('✅ [SignIn] Sign in successful, attempting smooth redirect to:', callbackUrl)
-          
-          // PHASE 1: Try smooth client-side navigation (best UX)
-          try {
-            console.log('📱 [SignIn] Phase 1: Attempting smooth navigation with router.push()...')
-            router.push(callbackUrl)
-            
-            // Optional: Log successful smooth navigation after a delay
-            setTimeout(() => {
-              console.log('✨ [SignIn] Smooth navigation successful!')
-            }, 100)
-          } catch (pushError) {
-            console.error('⚠️  [SignIn] Smooth navigation failed:', pushError)
-          }
-          
-          // PHASE 2: Fallback to hard redirect if smooth fails (reliability)
-          // Wait 1500ms to give smooth navigation time to work
-          const timeoutId = setTimeout(() => {
-            console.log('⏱️  [SignIn] Phase 2: Smooth redirect timeout, using hard redirect fallback...')
-            console.log('🔄 [SignIn] Performing hard redirect to:', callbackUrl)
-            window.location.href = callbackUrl
-          }, 1500)
-          
-          // Clean up timeout if page unloads naturally
-          const cleanup = () => {
-            clearTimeout(timeoutId)
-            console.log('🧹 [SignIn] Redirect cleanup - navigation completed')
-          }
-          
-          window.addEventListener("beforeunload", cleanup, { once: true })
-          
-        } else {
-          // Show specific error messages
-          console.error('❌ [SignIn] Sign in failed:', res.error)
-          const errorLower = res.error.toLowerCase()
-          if (errorLower.includes("not found")) {
-            setError(pick(lang, signInText.emailNotFound))
-          } else if (errorLower.includes("not verified")) {
-            setError(pick(lang, signInText.emailNotVerified))
-          } else if (errorLower.includes("disabled")) {
-            setError(pick(lang, signInText.accountDisabled))
-          } else if (errorLower.includes("password")) {
-            setError(pick(lang, signInText.incorrectPassword))
-          } else {
-            setError(invalidMsg)
-          }
-        }
       } catch (err) {
         console.error("❌ [SignIn] Sign in error:", err)
         setError(invalidMsg)
