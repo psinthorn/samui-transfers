@@ -35,6 +35,8 @@ function SignInForm() {
     setError(null)
     startTransition(async () => {
       try {
+        console.log('Attempting sign in with:', { email, callbackUrl })
+        
         const res = await signIn("credentials", { 
           redirect: false, 
           email, 
@@ -42,11 +44,17 @@ function SignInForm() {
           callbackUrl 
         })
         
+        console.log('Sign in response:', { error: res?.error, ok: res?.ok })
+        
         if (!res?.error) {
-          // Use native redirect with a slight delay to ensure session is set
+          // Sign in successful - wait for session to be established
+          console.log('Sign in successful, redirecting to:', callbackUrl)
+          
+          // Use a more reliable redirect method with longer delay
           setTimeout(() => {
+            // Force a hard redirect to ensure fresh session check
             window.location.href = callbackUrl
-          }, 100)
+          }, 500)
         } else {
           // Show specific error messages
           const errorLower = res.error.toLowerCase()

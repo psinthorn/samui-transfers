@@ -1,11 +1,9 @@
 import NextAuth, { type NextAuthConfig } from "next-auth"
 import Credentials from "next-auth/providers/credentials"
-import { PrismaAdapter } from "@auth/prisma-adapter"
 import { db } from "@/lib/db"
 import bcrypt from "bcryptjs"
 
 const config: NextAuthConfig = {
-  adapter: PrismaAdapter(db),
   session: { strategy: "jwt" },
   providers: [
     Credentials({
@@ -49,7 +47,8 @@ const config: NextAuthConfig = {
           email: user.email,
           name: user.name ?? undefined,
           role: user.role as "USER" | "ADMIN",
-          disabled: user.disabled
+          disabled: user.disabled,
+          emailVerified: user.emailVerified
         }
       }
     })
@@ -62,16 +61,18 @@ const config: NextAuthConfig = {
         token.name = user.name
         token.role = user.role as "USER" | "ADMIN"
         token.disabled = user.disabled
+        token.emailVerified = user.emailVerified
       }
       return token
     },
     async session({ session, token }) {
-      if (token && session.user) {
+      if (session.user && token) {
         session.user.id = token.id as string
         session.user.email = (token.email as string) || session.user.email
         session.user.name = (token.name as string) || session.user.name
         session.user.role = token.role as "USER" | "ADMIN"
         session.user.disabled = token.disabled as boolean | undefined
+        session.user.emailVerified = token.emailVerified as Date | null
       }
       return session
     }
@@ -79,11 +80,6 @@ const config: NextAuthConfig = {
   pages: {
     signIn: "/sign-in",
     error: "/sign-in"
-  },
-  events: {
-    async signIn() {
-      // Log successful sign-ins for debugging
-    },
   },
   secret: process.env.NEXTAUTH_SECRET,
   trustHost: true
