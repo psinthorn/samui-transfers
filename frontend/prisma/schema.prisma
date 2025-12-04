@@ -93,6 +93,9 @@ model Booking {
   paymentAmount  Decimal?                    // Amount paid in currency units
   paymentMethod  String?                     // Payment method type
   paymentDate    DateTime?                   // When payment was processed
+  
+  // Payment relationship
+  payments       Payment[]
 
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
@@ -198,4 +201,102 @@ model ChatbotContext {
   @@index([key])
   @@index([locale])
   @@index([enabled])
+}
+
+// Payment System Models (Phase 3)
+model Payment {
+  id                    String          @id @default(cuid())
+  bookingId             String
+  booking               Booking?        @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  
+  // Payment Details
+  method                PaymentMethod   // "stripe" or "paypal"
+  amount                Decimal
+  currency              String          @default("THB")
+  status                PaymentStatus   @default(PENDING)
+  
+  // Provider References
+  stripeSessionId       String?         @unique  // Stripe Checkout Session ID
+  stripePaymentIntentId String?         @unique  // Stripe Payment Intent ID
+  paypalOrderId         String?         @unique  // PayPal Order ID
+  
+  // Payer Information
+  payer                 String?         // Email or name of payer
+  payerEmail            String?
+  payerName             String?
+  
+  // Transaction Details
+  transactionId         String?         @unique  // Reference transaction ID
+  failureReason         String?         // Reason if payment failed
+  failureCode           String?         // Error code from provider
+  
+  // Metadata
+  metadata              Json?           // Additional data (booking details, etc.)
+  webhookData           Json?           // Full webhook response
+  
+  // Webhooks
+  webhooks              PaymentWebhook[]
+  
+  // Timestamps
+  processedAt           DateTime?       // When payment was processed
+  completedAt           DateTime?       // When payment was completed
+  refundedAt            DateTime?       // When payment was refunded
+  
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+  
+  // Indexes for queries
+  @@index([bookingId])
+  @@index([method])
+  @@index([status])
+  @@index([createdAt])
+  @@index([processedAt])
+  @@index([paypalOrderId])
+  @@index([stripeSessionId])
+  @@index([payerEmail])
+}
+
+enum PaymentMethod {
+  stripe
+  paypal
+  bank_transfer
+  cash
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+model PaymentWebhook {
+  id            String    @id @default(cuid())
+  paymentId     String
+  payment       Payment   @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  
+  // Webhook Details
+  provider      String    // "stripe" or "paypal"
+  eventType     String    // Event type (e.g., "payment_intent.succeeded")
+  externalId    String    @unique  // Provider's webhook ID
+  
+  // Raw Data
+  rawData       Json      // Full webhook payload
+  
+  // Processing Status
+  processed     Boolean   @default(false)
+  processedAt   DateTime?
+  errorMessage  String?
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  @@index([paymentId])
+  @@index([provider])
+  @@index([eventType])
+  @@index([processed])
+  @@index([createdAt])
 }
