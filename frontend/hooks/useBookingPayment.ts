@@ -1,6 +1,11 @@
 import { useCallback } from "react"
 import { db } from "@/lib/db"
 import { Decimal } from "@prisma/client/runtime/library"
+import { sendPaymentReceiptEmail } from "@/lib/email/service"
+import {
+  generatePaymentReceiptHTML,
+  generatePaymentReceiptPlainText,
+} from "@/lib/email/payment-receipt-template"
 
 /**
  * Hook to integrate payments with bookings
@@ -58,8 +63,21 @@ export function useBookingPayment() {
       paypalOrderId?: string
     }) => {
       try {
+        // Fetch payment and booking details
+        const payment = await db.payment.findUnique({
+          where: { id: paymentData.paymentId },
+        })
+
+        const booking = await db.booking.findUnique({
+          where: { id: paymentData.bookingId },
+        })
+
+        if (!payment || !booking) {
+          throw new Error("Payment or booking not found")
+        }
+
         // Update payment record
-        const payment = await db.payment.update({
+        const updatedPayment = await db.payment.update({
           where: { id: paymentData.paymentId },
           data: {
             status: "COMPLETED",
@@ -71,7 +89,7 @@ export function useBookingPayment() {
         })
 
         // Update booking status
-        const booking = await db.booking.update({
+        const updatedBooking = await db.booking.update({
           where: { id: paymentData.bookingId },
           data: {
             status: "CONFIRMED",
@@ -80,7 +98,45 @@ export function useBookingPayment() {
           },
         })
 
-        return { payment, booking }
+        // Send payment receipt email asynchronously (don't wait for it)
+        try {
+          const bookingDetails = booking.details as Record<string, any>
+          const emailData = {
+            paymentId: updatedPayment.id,
+            bookingId: booking.id,
+            amount: Number(updatedPayment.amount),
+            currency: updatedPayment.currency,
+            method: updatedPayment.method,
+            status: updatedPayment.status,
+            transactionId: updatedPayment.transactionId,
+            payerName: updatedPayment.payerName || "Guest",
+            payerEmail: updatedPayment.payerEmail || "customer@samuitransfers.com",
+            completedAt: updatedPayment.completedAt || new Date(),
+            booking: {
+              pickupLocation: bookingDetails?.pickupLocation || "",
+              dropoffLocation: bookingDetails?.dropoffLocation || "",
+              pickupDate: bookingDetails?.pickupDate || "",
+              pickupTime: bookingDetails?.pickupTime || "",
+              passengers: bookingDetails?.passengers || 1,
+              vehicleType: bookingDetails?.vehicleType || "Standard",
+            },
+          }
+
+          const htmlContent = generatePaymentReceiptHTML(emailData)
+          const plainTextContent = generatePaymentReceiptPlainText(emailData)
+
+          await sendPaymentReceiptEmail(
+            emailData.payerEmail,
+            emailData.payerName,
+            htmlContent,
+            plainTextContent
+          )
+        } catch (emailError) {
+          console.warn("Failed to send payment receipt email:", emailError)
+          // Don't throw - payment was completed successfully even if email fails
+        }
+
+        return { payment: updatedPayment, booking: updatedBooking }
       } catch (error) {
         console.error("Error completing payment:", error)
         throw error
