@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import BookingStep from './BookingStep';
 import ConfirmationStep from './ConfirmationStep';
+import CheckoutStep from './CheckoutStep';
 import ThankYouStep from './ThankYouStep';
 import StepNavigation from './StepNavigation';
 import { useRequestTransferContext, requestTransferType } from '@/context/RequestTransferContext';
@@ -166,6 +167,14 @@ const BookingForm: React.FC<BookingFormProps> = ({ bookingData }) => {
       setShowMessage(true);
       setTimeout(() => setShowMessage(false), 5000);
       return; // do not advance
+    }
+    // Save booking ID for payment
+    if (result.data?.id) {
+      setFormData(prev => ({
+        ...prev,
+        bookingId: result.data.id,
+        requestNumber: result.data.requestNumber || prev.requestNumber,
+      }));
     }
     setResponseMessage(result.message || 'Submitted');
     setShowMessage(true);
@@ -342,9 +351,20 @@ const BookingForm: React.FC<BookingFormProps> = ({ bookingData }) => {
                   <BookingStep bookingData={formData} handleChange={handleChange} nextStep={nextStep} serverErrors={serverErrors} />
                 )}
                 {currentStep === 2 && (
-                  <ConfirmationStep formData={formData} prevStep={prevStep} handleSendmail={handleSendmail} />
+                  <ConfirmationStep formData={formData} prevStep={prevStep} handleSendmail={handleSendmail} nextStep={nextStep} />
                 )}
                 {currentStep === 3 && (
+                  <CheckoutStep 
+                    formData={formData} 
+                    bookingId={formData.bookingId}
+                    prevStep={prevStep}
+                    onPaymentSuccess={() => {
+                      // Payment successful, show thank you
+                      nextStep();
+                    }}
+                  />
+                )}
+                {currentStep === 4 && (
                   <ThankYouStep formData={formData} />
                 )}
               </>

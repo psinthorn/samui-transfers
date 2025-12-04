@@ -12,7 +12,7 @@ type Props = {
   nextStep?: () => void
 }
 
-export default function ConfirmationStep({ formData = {}, handleSendmail, prevStep }: Props) {
+export default function ConfirmationStep({ formData = {}, handleSendmail, prevStep, nextStep }: Props) {
   const [agree, setAgree] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const { lang } = useLanguage()
@@ -34,6 +34,10 @@ export default function ConfirmationStep({ formData = {}, handleSendmail, prevSt
       // Support async handlers
       if (ret !== undefined && typeof (ret as any)?.then === "function") {
         await (ret as Promise<any>)
+      }
+      // After booking is created, go to checkout
+      if (nextStep) {
+        nextStep()
       }
     } finally {
       setSubmitting(false)
@@ -174,7 +178,7 @@ export default function ConfirmationStep({ formData = {}, handleSendmail, prevSt
               {pick(lang, bookingText.review.sending)}
             </>
           ) : (
-            pick(lang, bookingText.review.confirmCta)
+            "Proceed to Payment"
           )}
         </button>
       </div>
