@@ -4,7 +4,9 @@ import React, { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useLanguage } from '@/context/LanguageContext'
 import { BookingConfirmationCard } from '@/components/booking/BookingConfirmationCard'
-import { Loader2, AlertCircle, ArrowLeft } from 'lucide-react'
+import { CancellationDialog } from '@/components/booking/CancellationDialog'
+import { Loader2, AlertCircle, ArrowLeft, Trash2 } from 'lucide-react'
+import { getTimeUntilPickup, canCancelBooking } from '@/lib/booking'
 import Link from 'next/link'
 
 export default function BookingDetailsPage() {
@@ -16,6 +18,9 @@ export default function BookingDetailsPage() {
   const [booking, setBooking] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [showCancellationDialog, setShowCancellationDialog] = useState(false)
+  const [hoursUntilPickup, setHoursUntilPickup] = useState(0)
+  const [canCancel, setCanCancel] = useState(false)
 
   useEffect(() => {
     if (!bookingId) {
@@ -35,6 +40,14 @@ export default function BookingDetailsPage() {
         }
         const data = await response.json()
         setBooking(data.booking)
+
+        // Check if booking can be cancelled
+        const bookingDetails = data.booking.details as any
+        if (bookingDetails?.pickupTime) {
+          const hours = getTimeUntilPickup(bookingDetails.pickupTime)
+          setHoursUntilPickup(hours)
+          setCanCancel(canCancelBooking(bookingDetails.pickupTime))
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred')
       } finally {
@@ -171,6 +184,21 @@ export default function BookingDetailsPage() {
             </Link>
           )}
           <Link
+            href={`/user/bookings/${booking.id}/status`}
+            className="inline-flex items-center justify-center rounded-md bg-blue-600 px-6 py-3 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
+          >
+            {lang === 'th' ? 'ตรวจสอบสถานะ' : 'Track Status'}
+          </Link>
+          {booking.status === 'CONFIRMED' && canCancel && (
+            <button
+              onClick={() => setShowCancellationDialog(true)}
+              className="inline-flex items-center justify-center gap-2 rounded-md bg-red-600 px-6 py-3 text-sm font-semibold text-white hover:bg-red-700 transition-colors"
+            >
+              <Trash2 className="w-4 h-4" />
+              {lang === 'th' ? 'ยกเลิก' : 'Cancel Booking'}
+            </button>
+          )}
+          <Link
             href="/user/bookings"
             className="inline-flex items-center justify-center rounded-md bg-slate-200 px-6 py-3 text-sm font-semibold text-slate-900 hover:bg-slate-300 transition-colors"
           >
@@ -178,11 +206,24 @@ export default function BookingDetailsPage() {
           </Link>
           <Link
             href="/booking"
-            className="inline-flex items-center justify-center rounded-md bg-blue-600 px-6 py-3 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
+            className="inline-flex items-center justify-center rounded-md bg-slate-100 px-6 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-200 transition-colors"
           >
             {lang === 'th' ? 'จองใหม่' : 'New Booking'}
           </Link>
         </div>
+
+        {/* Cancellation Info Dialog */}
+        <CancellationDialog
+          bookingId={booking.id}
+          isOpen={showCancellationDialog}
+          onClose={() => setShowCancellationDialog(false)}
+          onSuccess={() => {
+            router.refresh()
+            router.push('/user/bookings')
+          }}
+          hoursUntilPickup={hoursUntilPickup}
+          lang={lang}
+        />
       </div>
     </main>
   )
