@@ -87,12 +87,23 @@ model Booking {
   details    Json
   status     BookingStatus @default(PENDING)
   
+  // Confirmation & Reference
+  referenceNumber String?                  // Unique booking reference (e.g., BK-2025-001234)
+  confirmationSentAt DateTime?             // When confirmation email was sent
+  
   // Payment fields
   paymentStatus  String @default("PENDING")  // PENDING, COMPLETED, FAILED, REFUNDED
   paymentId      String?                     // Stripe Payment Intent ID
   paymentAmount  Decimal?                    // Amount paid in currency units
   paymentMethod  String?                     // Payment method type
   paymentDate    DateTime?                   // When payment was processed
+  
+  // Cancellation fields
+  cancellationReason String?                // Reason for cancellation
+  cancellationDate   DateTime?              // When booking was cancelled
+  cancellationRequestedAt DateTime?         // When cancellation was requested
+  refundAmount       Decimal?               // Amount refunded
+  refundProcessedAt  DateTime?              // When refund was processed
   
   // Payment relationship
   payments       Payment[]
@@ -104,7 +115,9 @@ model Booking {
   @@index([status])
   @@index([paymentStatus])
   @@index([paymentId])
+  @@index([referenceNumber])
   @@index([userId, createdAt])
+  @@index([cancellationDate])
 }
 
 enum BookingStatus {

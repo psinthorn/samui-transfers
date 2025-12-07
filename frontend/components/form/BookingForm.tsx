@@ -62,6 +62,7 @@ const BookingForm: React.FC<BookingFormProps> = ({ bookingData }) => {
   const [responseMessage, setResponseMessage] = useState<string>('');
   const [showMessage, setShowMessage] = useState<boolean>(false);
   const [serverErrors, setServerErrors] = useState<Record<string, string[]>>({});
+  const [bookingId, setBookingId] = useState<string>('');
 
   // Check if pickup and dropoff data exists
   const hasLocationData = formData.pickupPoint && formData.dropoffPoint;
@@ -168,18 +169,14 @@ const BookingForm: React.FC<BookingFormProps> = ({ bookingData }) => {
       setTimeout(() => setShowMessage(false), 5000);
       return; // do not advance
     }
-    // Save booking ID for payment
-    if (result.data?.id) {
-      setFormData(prev => ({
-        ...prev,
-        bookingId: result.data.id,
-        requestNumber: result.data.requestNumber || prev.requestNumber,
-      }));
+    // Store booking ID and move to payment step
+    if (result?.id) {
+      setBookingId(result.id);
+      setResponseMessage(result.message || 'Booking created! Proceeding to payment...');
+      setShowMessage(true);
+      setTimeout(() => setShowMessage(false), 5000);
+      nextStep(); // Move to payment step
     }
-    setResponseMessage(result.message || 'Submitted');
-    setShowMessage(true);
-    setTimeout(() => setShowMessage(false), 5000);
-    nextStep(); // Move to the next step after submission on success
   };
 
   const { lang } = useLanguage();
@@ -347,26 +344,18 @@ const BookingForm: React.FC<BookingFormProps> = ({ bookingData }) => {
             {formData.carType && (
               <>
                 <StepNavigation currentStep={currentStep} steps={stepLabels} />
-                {currentStep === 1 && (
-                  <BookingStep bookingData={formData} handleChange={handleChange} nextStep={nextStep} serverErrors={serverErrors} />
-                )}
-                {currentStep === 2 && (
-                  <ConfirmationStep formData={formData} prevStep={prevStep} handleSendmail={handleSendmail} nextStep={nextStep} />
-                )}
-                {currentStep === 3 && (
-                  <CheckoutStep 
-                    formData={formData} 
-                    bookingId={formData.bookingId}
-                    prevStep={prevStep}
-                    onPaymentSuccess={() => {
-                      // Payment successful, show thank you
-                      nextStep();
-                    }}
-                  />
-                )}
-                {currentStep === 4 && (
-                  <ThankYouStep formData={formData} />
-                )}
+            {currentStep === 1 && (
+              <BookingStep bookingData={formData} handleChange={handleChange} nextStep={nextStep} serverErrors={serverErrors} />
+            )}
+            {currentStep === 2 && (
+              <ConfirmationStep formData={formData} prevStep={prevStep} handleSendmail={handleSendmail} />
+            )}
+            {currentStep === 3 && (
+              <CheckoutStep bookingData={formData} bookingId={bookingId} prevStep={prevStep} nextStep={nextStep} />
+            )}
+            {currentStep === 4 && (
+              <ThankYouStep formData={formData} />
+            )}
               </>
             )}
           </>
