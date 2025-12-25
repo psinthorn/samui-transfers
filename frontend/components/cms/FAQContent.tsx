@@ -45,25 +45,35 @@ export function FAQContent() {
     const parser = new DOMParser()
     const doc = parser.parseFromString(htmlContent, 'text/html')
     
-    // Look for h3 (questions) followed by content (answers)
-    const h3s = doc.querySelectorAll('h3')
-    h3s.forEach((h3, index) => {
+    // Look for h3 (questions) first, then h2
+    let headers = doc.querySelectorAll('h3')
+    let isH3 = true
+    
+    if (headers.length === 0) {
+      headers = doc.querySelectorAll('h2')
+      isH3 = false
+    }
+    
+    headers.forEach((header, index) => {
       let answer = ''
-      let sibling = h3.nextElementSibling
+      let sibling = header.nextElementSibling
+      const nextHeaderTag = isH3 ? 'H3' : 'H2'
       
-      // Collect content until next h3
-      while (sibling && sibling.tagName !== 'H3') {
-        if (sibling.tagName === 'P' || sibling.tagName === 'UL' || sibling.tagName === 'OL') {
+      // Collect content until next header
+      while (sibling && sibling.tagName !== nextHeaderTag) {
+        if (sibling.tagName === 'P' || sibling.tagName === 'UL' || sibling.tagName === 'OL' || sibling.tagName === 'LI') {
           answer += sibling.outerHTML
         }
         sibling = sibling.nextElementSibling
       }
       
-      faqs.push({
-        question: h3.textContent || '',
-        answer: answer || '',
-        id: index
-      })
+      if (answer.trim()) {
+        faqs.push({
+          question: header.textContent || '',
+          answer: answer || '',
+          id: index
+        })
+      }
     })
     
     return faqs

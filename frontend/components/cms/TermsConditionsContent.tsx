@@ -47,20 +47,34 @@ export function TermsConditionsContent() {
     const sections = []
     const parser = new DOMParser()
     const doc = parser.parseFromString(htmlContent, 'text/html')
-    const h3s = doc.querySelectorAll('h3')
     
-    h3s.forEach((h3, index) => {
+    // Look for h3 headers first (most common), then fall back to h2
+    let headers = doc.querySelectorAll('h3')
+    let isH3 = true
+    
+    if (headers.length === 0) {
+      headers = doc.querySelectorAll('h2')
+      isH3 = false
+    }
+    
+    headers.forEach((header, index) => {
       let content = ''
-      let sibling = h3.nextElementSibling
-      while (sibling && sibling.tagName !== 'H3') {
+      let sibling = header.nextElementSibling
+      const nextHeaderTag = isH3 ? 'H3' : 'H2'
+      
+      while (sibling && sibling.tagName !== nextHeaderTag) {
         content += sibling.outerHTML
         sibling = sibling.nextElementSibling
       }
-      sections.push({
-        title: h3.textContent || '',
-        content: content || ''
-      })
+      
+      if (content.trim()) {
+        sections.push({
+          title: header.textContent || '',
+          content: content || ''
+        })
+      }
     })
+    
     return sections
   }
 

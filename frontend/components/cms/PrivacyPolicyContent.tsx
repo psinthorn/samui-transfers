@@ -41,26 +41,43 @@ export function PrivacyPolicyContent() {
     )
   }
 
-  // Parse HTML content into sections
+  // Parse HTML content into sections (looking for h2 or h3 headers)
   const parseContentToSections = (htmlContent: string) => {
     if (!htmlContent) return []
     const sections = []
     const parser = new DOMParser()
     const doc = parser.parseFromString(htmlContent, 'text/html')
-    const h2s = doc.querySelectorAll('h2')
     
-    h2s.forEach((h2, index) => {
+    // Look for h3 headers first (most common), then fall back to h2
+    let headers = doc.querySelectorAll('h3')
+    let isH3 = true
+    
+    if (headers.length === 0) {
+      headers = doc.querySelectorAll('h2')
+      isH3 = false
+    }
+    
+    // Skip the first h2 if it's the main title
+    const startIndex = (!isH3 && doc.querySelector('h2') && doc.querySelector('h2')?.textContent === htmlContent.match(/<h2>([^<]+)<\/h2>/)?.[1]) ? 1 : 0
+    
+    headers.forEach((header, index) => {
       let content = ''
-      let sibling = h2.nextElementSibling
-      while (sibling && sibling.tagName !== 'H2') {
+      let sibling = header.nextElementSibling
+      const nextHeaderTag = isH3 ? 'H3' : 'H2'
+      
+      while (sibling && sibling.tagName !== nextHeaderTag) {
         content += sibling.outerHTML
         sibling = sibling.nextElementSibling
       }
-      sections.push({
-        title: h2.textContent || '',
-        content: content || ''
-      })
+      
+      if (content.trim()) {
+        sections.push({
+          title: header.textContent || '',
+          content: content || ''
+        })
+      }
     })
+    
     return sections
   }
 
