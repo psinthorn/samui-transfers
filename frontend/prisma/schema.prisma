@@ -1482,6 +1482,14 @@ model ThemeConfig {
   name          String   @unique  // e.g., "default", "dark", "light"
   isActive      Boolean  @default(false)  // Only one active theme at a time
   
+  // Branding & Identity
+  websiteName   String?  // e.g., "Samui Transfers"
+  logoUrl       String?  // URL to logo image
+  faviconUrl    String?  // URL to favicon
+  footerText    String?  // Custom footer text
+  companyEmail  String?  // Company contact email
+  companyPhone  String?  // Company contact phone
+  
   // Color System
   colors        Json     // { primary, secondary, accent, success, danger, warning, neutral, custom }
   

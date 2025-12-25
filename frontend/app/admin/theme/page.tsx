@@ -8,6 +8,13 @@ export default function ThemeManagementPage() {
   const [saving, setSaving] = useState(false)
   const [selectedColor, setSelectedColor] = useState('')
   const [colorValue, setColorValue] = useState('')
+  
+  // Branding state
+  const [websiteName, setWebsiteName] = useState(theme?.websiteName || '')
+  const [logoUrl, setLogoUrl] = useState(theme?.logoUrl || '')
+  const [companyEmail, setCompanyEmail] = useState(theme?.companyEmail || '')
+  const [companyPhone, setCompanyPhone] = useState(theme?.companyPhone || '')
+  const [footerText, setFooterText] = useState(theme?.footerText || '')
 
   if (loading) {
     return (
@@ -54,13 +61,129 @@ export default function ThemeManagementPage() {
     }
   }
 
+  const handleBrandingUpdate = async (e: React.FormEvent) => {
+    e.preventDefault()
+    try {
+      setSaving(true)
+      await updateTheme({
+        websiteName,
+        logoUrl,
+        companyEmail,
+        companyPhone,
+        footerText,
+      })
+      alert('Branding updated successfully!')
+    } catch (error) {
+      console.error('Failed to update branding:', error)
+      alert('Failed to update branding')
+    } finally {
+      setSaving(false)
+    }
+  }
+
   return (
     <div className="p-8">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-slate-900 mb-2">Theme Configuration</h1>
-          <p className="text-slate-600">Manage your website's design system and colors</p>
+          <p className="text-slate-600">Manage your website's design system, colors, and branding</p>
+        </div>
+
+        {/* Branding Section */}
+        <div className="bg-white rounded-lg border border-slate-200 p-6 mb-8">
+          <h2 className="text-xl font-semibold text-slate-900 mb-6">Branding & Identity</h2>
+          
+          <form onSubmit={handleBrandingUpdate} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Website Name */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Website Name
+                </label>
+                <input
+                  type="text"
+                  value={websiteName}
+                  onChange={(e) => setWebsiteName(e.target.value)}
+                  placeholder="e.g., Samui Transfers"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+
+              {/* Logo URL */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Logo URL
+                </label>
+                <input
+                  type="text"
+                  value={logoUrl}
+                  onChange={(e) => setLogoUrl(e.target.value)}
+                  placeholder="e.g., /images/logo.png"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                {logoUrl && (
+                  <div className="mt-2 flex items-center gap-2">
+                    <img src={logoUrl} alt="Logo preview" className="h-10 w-10 object-contain rounded" />
+                    <span className="text-sm text-slate-600">Logo preview</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Company Email */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Company Email
+                </label>
+                <input
+                  type="email"
+                  value={companyEmail}
+                  onChange={(e) => setCompanyEmail(e.target.value)}
+                  placeholder="info@example.com"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+
+              {/* Company Phone */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Company Phone
+                </label>
+                <input
+                  type="tel"
+                  value={companyPhone}
+                  onChange={(e) => setCompanyPhone(e.target.value)}
+                  placeholder="+66 (0) 91-087-9999"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+
+            {/* Footer Text */}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                Footer Text
+              </label>
+              <textarea
+                value={footerText}
+                onChange={(e) => setFooterText(e.target.value)}
+                placeholder="© 2025 Your Company. All rights reserved."
+                rows={3}
+                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+
+            {/* Save Button */}
+            <div className="flex gap-2">
+              <button
+                type="submit"
+                disabled={saving}
+                className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
+              >
+                {saving ? 'Saving...' : 'Save Branding'}
+              </button>
+            </div>
+          </form>
         </div>
 
         {/* Color Palette Section */}

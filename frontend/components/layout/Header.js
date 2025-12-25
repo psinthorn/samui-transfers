@@ -9,6 +9,7 @@ import { useSession, signOut } from "next-auth/react";
 import { useEffect } from "react";
 import { pick } from "@/data/i18n/core";
 import { navText } from "@/data/content/nav";
+import { useTheme } from "@/context/ThemeContext";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -40,17 +41,16 @@ const MENU = {
 const LABELS = {
   en: {
     aiChat: "AI Chat",
-    brand: "Samui Transfers",
     langShort: { en: "EN", th: "TH" },
   },
   th: {
     aiChat: "แชท AI",
-    brand: "สมุยทรานส์เฟอร์",
     langShort: { en: "EN", th: "TH" },
   },
 };
 
 export default function Header() {
+  const { theme } = useTheme();
   const pathname = usePathname();
   const isActive = (href) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
   const { lang, toggle } = useLanguage();
@@ -70,23 +70,28 @@ export default function Header() {
     .slice(0, 2)
     .toUpperCase();
 
+  // Use theme branding or fallback to defaults
+  const brandName = theme?.websiteName || "Samui Transfers";
+  const logoUrl = theme?.logoUrl || StRec;
+
   // Public info from env
   const publicInfo = {
     whatsapp: (process.env.NEXT_PUBLIC_SUPPORT_WHATSAPP || "66991087999").replace(/[^\d]/g, ""),
     aiChatUrl: process.env.NEXT_PUBLIC_AI_CHAT_URL || "/#chat",
   };
   const whatsappHref = `https://wa.me/${publicInfo.whatsapp}`;
-  // const isExternal = (url) => /^https?:\/\//.test(url);
-
-  // Cookie mirroring handled globally by SessionClientProvider
 
   return (
   <header className="sticky top-0 z-40 text-white bg-primary backdrop-blur supports-[backdrop-filter]:bg-primary/95">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Brand */}
-        <Link href="/" className="flex items-center gap-2" aria-label="Samui Transfers — Home">
-          <Image src={StRec} alt="Samui Transfers Logo" width={40} height={40} priority />
-          <span className="hidden sm:inline text-sm font-semibold tracking-wide">{labels.brand}</span>
+        <Link href="/" className="flex items-center gap-2" aria-label={`${brandName} — Home`}>
+          {typeof logoUrl === 'string' ? (
+            <img src={logoUrl} alt={`${brandName} Logo`} width={40} height={40} className="h-10 w-10 object-contain" />
+          ) : (
+            <Image src={logoUrl} alt={`${brandName} Logo`} width={40} height={40} priority />
+          )}
+          <span className="hidden sm:inline text-sm font-semibold tracking-wide">{brandName}</span>
         </Link>
 
         {/* Desktop nav (short, centered set) */}

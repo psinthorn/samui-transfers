@@ -6,6 +6,7 @@ import Image from 'next/image';
 import StLogoLong from '@/public/ci/ST_Branding_V1-03.png' // Assuming you have a logo image
 import { company, companyLinks } from "@/data/company";
 import { useLanguage } from "@/context/LanguageContext";
+import { useTheme } from "@/context/ThemeContext";
 
 const LABELS = {
   en: {
@@ -41,32 +42,38 @@ const LABELS = {
 };
 
 export default function Footer() {
+  const { theme } = useTheme();
   const year = new Date().getFullYear();
   const { lang, toggle } = useLanguage();
   const t = LABELS[lang];
+
+  // Use theme branding or fallback to defaults
+  const footerText = theme?.footerText || `© ${year} samui-transfers.com™. All Rights Reserved.`;
+  const companyPhone = theme?.companyPhone || (company.phone || process.env.NEXT_PUBLIC_SUPPORT_PHONE || "66991087999").replace(/[^\d+]/g, "");
+  const companyEmail = theme?.companyEmail || (company.email || process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "bookings@samui-transfers.com");
 
   // Public company info from NEXT_PUBLIC_* only to keep SSR/CSR consistent
   const managed = {
     name: company.managedBy.name,
     website: company.managedBy.website,
-    email: company.email,
-    phone: company.phone,
+    email: companyEmail,
+    phone: companyPhone,
     reg: company.managedBy.taxId,
   };
 
   const dev = {
     name: company.managedBy.name,
     website: company.managedBy.website,
-    email: company.email,
-    phone: company.phone,
+    email: companyEmail,
+    phone: companyPhone,
     reg: company.managedBy.taxId,
   };
 
   // Public contact links
   const whatsapp = (process.env.NEXT_PUBLIC_SUPPORT_WHATSAPP || "66991087999").replace(/[^\d]/g, "");
   const whatsappHref = `https://wa.me/${whatsapp}`;
-  const supportPhone = (company.phone || process.env.NEXT_PUBLIC_SUPPORT_PHONE || "66991087999").replace(/[^\d+]/g, "");
-  const supportEmail = company.email || process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "bookings@samui-transfers.com";
+  const supportPhone = companyPhone;
+  const supportEmail = companyEmail;
 
   return (
     <footer className="relative bg-primary backdrop-blur supports-[backdrop-filter]:bg-primary/95 pt-12 pb-10 w-full">
@@ -156,7 +163,7 @@ export default function Footer() {
 
         <div className="sm:flex sm:items-center sm:justify-between">
           <span className="text-sm text-white/80 sm:text-center">
-            {t.rights(year)}
+            {footerText}
           </span>
           <div className="flex items-center gap-3 mt-4 sm:mt-0">
             <Link href="https://www.facebook.com/profile.php?id=61578880422159" className="text-white/85 hover:text-white" target='_blank' aria-label="Facebook">
