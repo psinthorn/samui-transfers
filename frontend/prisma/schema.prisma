@@ -1490,6 +1490,11 @@ model ThemeConfig {
   companyEmail  String?  // Company contact email
   companyPhone  String?  // Company contact phone
   
+  // Developer/Company Credits
+  developerCompanyName     String?  // e.g., "Sinthorndev Technologies"
+  developerCompanyWebsite  String?  // Developer website URL
+  developerCompanyEmail    String?  // Developer contact email
+  
   // Color System
   colors        Json     // { primary, secondary, accent, success, danger, warning, neutral, custom }
   

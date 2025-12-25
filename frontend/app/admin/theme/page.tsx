@@ -17,6 +17,11 @@ export default function ThemeManagementPage() {
   const [companyEmail, setCompanyEmail] = useState(theme?.companyEmail || '')
   const [companyPhone, setCompanyPhone] = useState(theme?.companyPhone || '')
   const [footerText, setFooterText] = useState(theme?.footerText || '')
+  
+  // Developer Company state
+  const [developerCompanyName, setDeveloperCompanyName] = useState(theme?.developerCompanyName || '')
+  const [developerCompanyWebsite, setDeveloperCompanyWebsite] = useState(theme?.developerCompanyWebsite || '')
+  const [developerCompanyEmail, setDeveloperCompanyEmail] = useState(theme?.developerCompanyEmail || '')
 
   if (loading) {
     return (
@@ -73,6 +78,9 @@ export default function ThemeManagementPage() {
         companyEmail,
         companyPhone,
         footerText,
+        developerCompanyName,
+        developerCompanyWebsite,
+        developerCompanyEmail,
       })
       alert('Branding updated successfully!')
     } catch (error) {
@@ -276,6 +284,57 @@ export default function ThemeManagementPage() {
                 className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
+          </form>
+        </div>
+
+        {/* Developer Company Section */}
+        <div className="bg-white rounded-lg border border-slate-200 p-6 mb-8">
+          <h2 className="text-xl font-semibold text-slate-900 mb-6">Developer/Company Credits</h2>
+          
+          <form onSubmit={handleBrandingUpdate} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Developer Company Name */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Developer Company Name
+                </label>
+                <input
+                  type="text"
+                  value={developerCompanyName}
+                  onChange={(e) => setDeveloperCompanyName(e.target.value)}
+                  placeholder="e.g., Sinthorndev Technologies"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+
+              {/* Developer Company Website */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Developer Company Website
+                </label>
+                <input
+                  type="url"
+                  value={developerCompanyWebsite}
+                  onChange={(e) => setDeveloperCompanyWebsite(e.target.value)}
+                  placeholder="https://example.com"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+
+              {/* Developer Company Email */}
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Developer Company Email
+                </label>
+                <input
+                  type="email"
+                  value={developerCompanyEmail}
+                  onChange={(e) => setDeveloperCompanyEmail(e.target.value)}
+                  placeholder="contact@example.com"
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+            </div>
 
             {/* Save Button */}
             <div className="flex gap-2">
@@ -284,7 +343,7 @@ export default function ThemeManagementPage() {
                 disabled={saving}
                 className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
               >
-                {saving ? 'Saving...' : 'Save Branding'}
+                {saving ? 'Saving...' : 'Save Developer Credits'}
               </button>
             </div>
           </form>
