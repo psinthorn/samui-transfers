@@ -1476,7 +1476,38 @@ model PageContent {
   @@index([category])
   @@index([featured])
 }
-
+// Theme Configuration Model - Stores design system and UI theme settings
+model ThemeConfig {
+  id            String   @id @default(cuid())
+  name          String   @unique  // e.g., "default", "dark", "light"
+  isActive      Boolean  @default(false)  // Only one active theme at a time
+  
+  // Color System
+  colors        Json     // { primary, secondary, accent, success, danger, warning, neutral, custom }
+  
+  // Typography
+  typography    Json     // { fontFamily, fontSizes, fontWeights, lineHeights }
+  
+  // Spacing & Layout
+  spacing       Json     // { baseUnit, scales }
+  borderRadius  Json     // { sm, md, lg, xl, full }
+  shadows       Json     // { sm, md, lg, xl }
+  
+  // Component Defaults
+  components    Json     // { button, card, input, badge, etc. }
+  
+  // Description
+  description   String?
+  
+  // Metadata
+  createdBy     String?
+  updatedBy     String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@index([isActive])
+  @@index([name])
+}
 // Update User model to add SMS relationship
 // (Add to User model: smsMessages UserSMSMessages[] @relation("UserSMSMessages")
 //                    smsSettings SMSSettings? @relation("UserSMSSettings"))

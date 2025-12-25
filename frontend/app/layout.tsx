@@ -5,6 +5,7 @@ import Footer from "../components/layout/Footer";
 import { SessionProvider } from "next-auth/react";
 import SessionClientProvider from "@/components/auth/SessionClientProvider";
 import { PaymentProvider } from "@/context/PaymentContext";
+import { ThemeProvider } from "@/context/ThemeContext";
 
 import "./globals.css";
 import RequestTransferContextProvider from "@/context/RequestTransferContext";
@@ -42,25 +43,27 @@ export default function RootLayout({
         <body className={`${montserrat.className} h-auto`}>
           <SessionProvider>
             <SessionClientProvider />
-            <PaymentProvider>
-              <LanguageProvider initialLang={initialLang}>
-                <ToastProvider>
-                  <div className="h-full mx-auto flex flex-col">
-                    <Header />
-                      <SourceContextProvider>
-                        <DestinationContextProvider>
-                          <RequestTransferContextProvider>
-                            {children}
-                          </RequestTransferContextProvider>
-                        </DestinationContextProvider>
-                      </SourceContextProvider>
-                    <div className="h-20">
-                      <Footer />
+            <ThemeProvider>
+              <PaymentProvider>
+                <LanguageProvider initialLang={initialLang}>
+                  <ToastProvider>
+                    <div className="h-full mx-auto flex flex-col">
+                      <Header />
+                        <SourceContextProvider>
+                          <DestinationContextProvider>
+                            <RequestTransferContextProvider>
+                              {children}
+                            </RequestTransferContextProvider>
+                          </DestinationContextProvider>
+                        </SourceContextProvider>
+                      <div className="h-20">
+                        <Footer />
+                      </div>
                     </div>
-                  </div>
-                </ToastProvider>
-              </LanguageProvider>
-            </PaymentProvider>
+                  </ToastProvider>
+                </LanguageProvider>
+              </PaymentProvider>
+            </ThemeProvider>
           </SessionProvider>
         </body>
       </html>
