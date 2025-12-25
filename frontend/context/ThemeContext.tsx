@@ -5,6 +5,23 @@ import React, { createContext, useContext, useEffect, useState } from 'react'
 export interface ThemeConfig {
   id?: string
   name: string
+  isActive?: boolean
+  description?: string
+  
+  // Branding & Identity
+  websiteName?: string
+  logoUrl?: string
+  faviconUrl?: string
+  footerText?: string
+  companyEmail?: string
+  companyPhone?: string
+  
+  // Developer/Company Credits
+  developerCompanyName?: string
+  developerCompanyWebsite?: string
+  developerCompanyEmail?: string
+  
+  // Design System
   colors: Record<string, any>
   typography: Record<string, any>
   spacing: Record<string, any>

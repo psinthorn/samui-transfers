@@ -41,7 +41,28 @@ export async function PUT(req: NextRequest) {
     }
 
     const data = await req.json()
-    const { name, colors, typography, spacing, borderRadius, shadows, components, description } = data
+    const {
+      // Design System
+      name,
+      colors,
+      typography,
+      spacing,
+      borderRadius,
+      shadows,
+      components,
+      description,
+      // Branding & Identity
+      websiteName,
+      logoUrl,
+      faviconUrl,
+      footerText,
+      companyEmail,
+      companyPhone,
+      // Developer/Company Credits
+      developerCompanyName,
+      developerCompanyWebsite,
+      developerCompanyEmail,
+    } = data
 
     const theme = await prisma.themeConfig.findFirst({
       where: { isActive: true }
@@ -57,13 +78,26 @@ export async function PUT(req: NextRequest) {
     const updated = await prisma.themeConfig.update({
       where: { id: theme.id },
       data: {
+        // Design System
         colors: colors || theme.colors,
         typography: typography || theme.typography,
         spacing: spacing || theme.spacing,
         borderRadius: borderRadius || theme.borderRadius,
         shadows: shadows || theme.shadows,
         components: components || theme.components,
-        description: description || theme.description,
+        description: description !== undefined ? description : theme.description,
+        // Branding & Identity
+        websiteName: websiteName !== undefined ? websiteName : theme.websiteName,
+        logoUrl: logoUrl !== undefined ? logoUrl : theme.logoUrl,
+        faviconUrl: faviconUrl !== undefined ? faviconUrl : theme.faviconUrl,
+        footerText: footerText !== undefined ? footerText : theme.footerText,
+        companyEmail: companyEmail !== undefined ? companyEmail : theme.companyEmail,
+        companyPhone: companyPhone !== undefined ? companyPhone : theme.companyPhone,
+        // Developer/Company Credits
+        developerCompanyName: developerCompanyName !== undefined ? developerCompanyName : theme.developerCompanyName,
+        developerCompanyWebsite: developerCompanyWebsite !== undefined ? developerCompanyWebsite : theme.developerCompanyWebsite,
+        developerCompanyEmail: developerCompanyEmail !== undefined ? developerCompanyEmail : theme.developerCompanyEmail,
+        // Metadata
         updatedBy: session.user.email || 'unknown',
       }
     })
@@ -91,10 +125,32 @@ export async function POST(req: NextRequest) {
     }
 
     const data = await req.json()
-    const { name, colors, typography, spacing, borderRadius, shadows, components, description } = data
+    const {
+      // Design System
+      name,
+      colors,
+      typography,
+      spacing,
+      borderRadius,
+      shadows,
+      components,
+      description,
+      // Branding & Identity
+      websiteName,
+      logoUrl,
+      faviconUrl,
+      footerText,
+      companyEmail,
+      companyPhone,
+      // Developer/Company Credits
+      developerCompanyName,
+      developerCompanyWebsite,
+      developerCompanyEmail,
+    } = data
 
     const theme = await prisma.themeConfig.create({
       data: {
+        // Design System
         name,
         colors,
         typography,
@@ -104,6 +160,18 @@ export async function POST(req: NextRequest) {
         components,
         description,
         isActive: false,
+        // Branding & Identity
+        websiteName,
+        logoUrl,
+        faviconUrl,
+        footerText,
+        companyEmail,
+        companyPhone,
+        // Developer/Company Credits
+        developerCompanyName,
+        developerCompanyWebsite,
+        developerCompanyEmail,
+        // Metadata
         createdBy: session.user.email || 'unknown',
       }
     })
