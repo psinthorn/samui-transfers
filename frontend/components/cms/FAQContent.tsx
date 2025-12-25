@@ -25,7 +25,19 @@ export function FAQContent() {
     const fetchFAQ = async () => {
       try {
         setLoading(true)
-        // For now, we'll use static data. In future, fetch from CMS
+        const response = await fetch(`/api/admin/content?slug=faq`, {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache'
+          }
+        })
+        if (!response.ok) throw new Error('Failed to fetch')
+        const data = await response.json()
+        setFaqData(data)
+        setLoading(false)
+      } catch (err) {
+        console.error(err)
+        // Fallback to static data if database fetch fails
         const staticFAQ: FAQSection[] = [
           {
             category: { en: 'Booking & Payment', th: 'การจองและการชำระเงิน' },
