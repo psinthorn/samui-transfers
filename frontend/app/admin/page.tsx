@@ -318,6 +318,32 @@ export default async function AdminHome() {
             </div>
           </Link>
 
+          {/* Theme Configuration Card */}
+          <Link href="/admin/theme">
+            <div className="group relative h-full min-h-40 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all duration-200 hover:shadow-lg hover:border-slate-300">
+              {/* Gradient Accent */}
+              <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-rose-600 to-orange-600 rounded-t-2xl" />
+              
+              {/* Icon */}
+              <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-rose-50 text-lg">
+                🎨
+              </div>
+              
+              {/* Content */}
+              <h3 className="text-lg font-semibold text-slate-900 mb-2 group-hover:text-rose-600 transition-colors">
+                Theme Configuration
+              </h3>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                Customize colors, typography, and design system for your website
+              </p>
+              
+              {/* Arrow Icon */}
+              <div className="absolute bottom-4 right-4 text-slate-400 group-hover:text-rose-600 transition-colors">
+                →
+              </div>
+            </div>
+          </Link>
+
           {/* Tour Packages Card */}
           <Link href="/admin/tour-packages">
             <div className="group relative h-full min-h-40 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all duration-200 hover:shadow-lg hover:border-slate-300">
