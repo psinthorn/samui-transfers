@@ -24,6 +24,140 @@
 
 @layer base {
   :root {
+    /* Theme Color CSS Variables - Primary */
+    --color-primary-50: #eff6ff;
+    --color-primary-100: #dbeafe;
+    --color-primary-200: #bfdbfe;
+    --color-primary-300: #93c5fd;
+    --color-primary-400: #60a5fa;
+    --color-primary-500: #3b82f6;
+    --color-primary-600: #2563eb;
+    --color-primary-700: #1d4ed8;
+    --color-primary-800: #1e40af;
+    --color-primary-900: #1e3a8a;
+
+    /* Theme Color CSS Variables - Secondary */
+    --color-secondary-50: #faf5ff;
+    --color-secondary-100: #f3e8ff;
+    --color-secondary-200: #e9d5ff;
+    --color-secondary-300: #d8b4fe;
+    --color-secondary-400: #c084fc;
+    --color-secondary-500: #a855f7;
+    --color-secondary-600: #9333ea;
+    --color-secondary-700: #7e22ce;
+    --color-secondary-800: #6b21a8;
+    --color-secondary-900: #581c87;
+
+    /* Theme Color CSS Variables - Accent */
+    --color-accent-50: #fffbeb;
+    --color-accent-100: #fef3c7;
+    --color-accent-200: #fde68a;
+    --color-accent-300: #fcd34d;
+    --color-accent-400: #fbbf24;
+    --color-accent-500: #f59e0b;
+    --color-accent-600: #d97706;
+    --color-accent-700: #b45309;
+    --color-accent-800: #92400e;
+    --color-accent-900: #78350f;
+
+    /* Theme Color CSS Variables - Success */
+    --color-success-50: #f0fdf4;
+    --color-success-100: #dcfce7;
+    --color-success-200: #bbf7d0;
+    --color-success-300: #86efac;
+    --color-success-400: #4ade80;
+    --color-success-500: #22c55e;
+    --color-success-600: #16a34a;
+    --color-success-700: #15803d;
+    --color-success-800: #166534;
+    --color-success-900: #145231;
+
+    /* Theme Color CSS Variables - Danger */
+    --color-danger-50: #fef2f2;
+    --color-danger-100: #fee2e2;
+    --color-danger-200: #fecaca;
+    --color-danger-300: #fca5a5;
+    --color-danger-400: #f87171;
+    --color-danger-500: #ef4444;
+    --color-danger-600: #dc2626;
+    --color-danger-700: #b91c1c;
+    --color-danger-800: #991b1b;
+    --color-danger-900: #7f1d1d;
+
+    /* Theme Color CSS Variables - Warning */
+    --color-warning-50: #fefce8;
+    --color-warning-100: #fef3c7;
+    --color-warning-200: #fde68a;
+    --color-warning-300: #fcd34d;
+    --color-warning-400: #fbbf24;
+    --color-warning-500: #f59e0b;
+    --color-warning-600: #d97706;
+    --color-warning-700: #b45309;
+    --color-warning-800: #92400e;
+    --color-warning-900: #78350f;
+
+    /* Theme Color CSS Variables - Neutral */
+    --color-neutral-50: #f8fafc;
+    --color-neutral-100: #f1f5f9;
+    --color-neutral-200: #e2e8f0;
+    --color-neutral-300: #cbd5e1;
+    --color-neutral-400: #94a3b8;
+    --color-neutral-500: #64748b;
+    --color-neutral-600: #475569;
+    --color-neutral-700: #334155;
+    --color-neutral-800: #1e293b;
+    --color-neutral-900: #0f172a;
+
+    /* Typography CSS Variables */
+    --font-display: 'Montserrat', sans-serif;
+    --font-body: 'Inter', sans-serif;
+    --font-mono: 'Fira Code', monospace;
+
+    /* Font Sizes */
+    --text-xs: 12px;
+    --text-sm: 14px;
+    --text-base: 16px;
+    --text-lg: 18px;
+    --text-xl: 20px;
+    --text-2xl: 24px;
+    --text-3xl: 32px;
+    --text-4xl: 40px;
+    --text-5xl: 48px;
+    --text-6xl: 60px;
+
+    /* Spacing CSS Variables */
+    --space-0: 0;
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-8: 32px;
+    --space-10: 40px;
+    --space-12: 48px;
+    --space-16: 64px;
+    --space-20: 80px;
+    --space-24: 96px;
+
+    /* Border Radius CSS Variables */
+    --radius-none: 0;
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    --radius-2xl: 20px;
+    --radius-full: 9999px;
+
+    /* Shadow CSS Variables */
+    --shadow-none: none;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+
+    /* Legacy CSS Variables */
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
     --card: 0 0% 100%;
@@ -110,6 +244,62 @@
 }
 
 @layer components {
+  /* Theme-aware color classes */
+  
+  /* Primary color helpers */
+  .bg-primary {
+    @apply bg-[color:var(--color-primary-600)];
+  }
+  .text-primary {
+    @apply text-[color:var(--color-primary-600)];
+  }
+  .border-primary {
+    @apply border-[color:var(--color-primary-600)];
+  }
+  
+  /* Secondary color helpers */
+  .bg-secondary {
+    @apply bg-[color:var(--color-secondary-600)];
+  }
+  .text-secondary {
+    @apply text-[color:var(--color-secondary-600)];
+  }
+  
+  /* Accent color helpers */
+  .bg-accent {
+    @apply bg-[color:var(--color-accent-500)];
+  }
+  .text-accent {
+    @apply text-[color:var(--color-accent-500)];
+  }
+  
+  /* Success color helpers */
+  .bg-success {
+    @apply bg-[color:var(--color-success-500)];
+  }
+  .text-success {
+    @apply text-[color:var(--color-success-500)];
+  }
+  .border-success {
+    @apply border-[color:var(--color-success-500)];
+  }
+  
+  /* Danger color helpers */
+  .bg-danger {
+    @apply bg-[color:var(--color-danger-500)];
+  }
+  .text-danger {
+    @apply text-[color:var(--color-danger-500)];
+  }
+  
+  /* Warning color helpers */
+  .bg-warning {
+    @apply bg-[color:var(--color-warning-500)];
+  }
+  .text-warning {
+    @apply text-[color:var(--color-warning-500)];
+  }
+  
   /* Shared page layout + typography utilities */
   .page-gutter {
     @apply container mx-auto px-4 sm:px-6 lg:px-8;

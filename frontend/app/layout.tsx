@@ -6,6 +6,7 @@ import { SessionProvider } from "next-auth/react";
 import SessionClientProvider from "@/components/auth/SessionClientProvider";
 import { PaymentProvider } from "@/context/PaymentContext";
 import { ThemeProvider } from "@/context/ThemeContext";
+import { ThemeApplier } from "@/components/theme/ThemeApplier";
 
 import "./globals.css";
 import RequestTransferContextProvider from "@/context/RequestTransferContext";
@@ -44,6 +45,7 @@ export default function RootLayout({
           <SessionProvider>
             <SessionClientProvider />
             <ThemeProvider>
+              <ThemeApplier />
               <PaymentProvider>
                 <LanguageProvider initialLang={initialLang}>
                   <ToastProvider>
