@@ -4,6 +4,7 @@ export interface BookingStatusResponse {
   id: string
   status: string
   paymentStatus: string
+  paymentProofStatus?: string
   currentStep: number
   steps: Array<{
     step: number

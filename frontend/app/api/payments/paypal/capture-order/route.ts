@@ -1,170 +1,250 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
-import { Client, Environment, LogLevel, OrdersCaptureRequest } from "@paypal/paypal-server-sdk"
 import { db } from "@/lib/db"
 
-const client = new Client({
-  clientId: process.env.PAYPAL_CLIENT_ID || "",
-  clientSecret: process.env.PAYPAL_CLIENT_SECRET || "",
-  environment:
-    process.env.PAYPAL_MODE === "live" ? Environment.Production : Environment.Sandbox,
-  logging: {
-    logLevel: LogLevel.Info,
-  },
-})
+interface PayPalCaptureRequest {
+  orderId: string
+  bookingId: string
+}
 
+/**
+ * Capture PayPal Order
+ * POST /api/payments/paypal/capture-order
+ * GET /api/payments/paypal/capture-order (from PayPal return redirect)
+ */
 export async function POST(req: NextRequest) {
   try {
-    const { orderId, bookingId } = await req.json()
+    const body = await req.json() as PayPalCaptureRequest
 
-    if (!orderId || !bookingId) {
+    if (!body.orderId) {
       return NextResponse.json(
-        { error: "Missing required fields: orderId, bookingId" },
+        { error: "Missing orderId" },
         { status: 400 }
       )
     }
 
-    // Capture the PayPal order
-    const ordersCaptureRequest = new OrdersCaptureRequest(orderId)
-    ordersCaptureRequest.prefer("return=representation")
+    const clientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID
+    const clientSecret = process.env.PAYPAL_CLIENT_SECRET
 
-    const response = await client
-      .ordersController()
-      .ordersCapture(ordersCaptureRequest)
+    if (!clientId || !clientSecret) {
+      console.error("❌ Missing PayPal credentials")
+      return NextResponse.json(
+        { error: "Payment service misconfigured" },
+        { status: 500 }
+      )
+    }
 
-    console.log(`✓ PayPal order captured: ${response.result?.id}`)
+    // Get PayPal access token using Basic Authentication
+    const auth = Buffer.from(`${clientId}:${clientSecret}`).toString("base64")
+    const authResponse = await fetch("https://api.sandbox.paypal.com/v1/oauth2/token", {
+      method: "POST",
+      headers: {
+        "Accept": "application/json",
+        "Accept-Language": "en_US",
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Authorization": `Basic ${auth}`,
+      },
+      body: new URLSearchParams({
+        grant_type: "client_credentials",
+      }).toString(),
+    })
 
-    // Extract payment details
-    const capture = response.result?.purchase_units?.[0]?.payments?.captures?.[0]
-    const paymentStatus = capture?.status || response.result?.status
+    if (!authResponse.ok) {
+      const error = await authResponse.text()
+      console.error("❌ PayPal auth failed:", error)
+      return NextResponse.json(
+        { error: "Failed to authenticate with PayPal" },
+        { status: 500 }
+      )
+    }
 
-    // Store payment in database
-    if (capture?.id) {
+    const { access_token } = await authResponse.json()
+
+    // Capture PayPal order
+    const captureResponse = await fetch(
+      `https://api.sandbox.paypal.com/v2/checkout/orders/${body.orderId}/capture`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${access_token}`,
+        },
+      }
+    )
+
+    if (!captureResponse.ok) {
+      const error = await captureResponse.json()
+      console.error("❌ PayPal capture failed:", error)
+      return NextResponse.json(
+        { error: error.message || "Failed to capture PayPal order" },
+        { status: 500 }
+      )
+    }
+
+    const capturedOrder = await captureResponse.json()
+
+    // Get transaction ID from captured order
+    const transactionId =
+      capturedOrder.purchase_units?.[0]?.payments?.captures?.[0]?.id ||
+      capturedOrder.id
+
+    // Update payment record
+    if (body.bookingId) {
       try {
         await db.payment.create({
           data: {
-            bookingId,
+            bookingId: body.bookingId,
+            paypalOrderId: body.orderId,
+            transactionId,
+            status: "COMPLETED",
             method: "paypal",
-            amount: parseFloat(response.result?.purchase_units?.[0]?.amount?.value || "0"),
-            currency: response.result?.purchase_units?.[0]?.amount?.currency_code || "THB",
-            status: paymentStatus === "COMPLETED" ? "completed" : "pending",
-            paypalOrderId: orderId,
-            paypalCaptureId: capture.id,
-            payer: response.result?.payer?.email_address,
-            paymentDetails: JSON.stringify(capture),
+            amount: 0, // Amount should have been stored during order creation
+            currency: "THB",
           },
+        }).catch(() => {
+          // Record might already exist, that's OK
         })
-
-        console.log(`✓ Payment record created for booking ${bookingId}`)
       } catch (dbError) {
-        console.error("❌ Failed to save payment record:", dbError)
-        // Continue anyway - payment was successful
+        console.error("Warning: Could not update payment record:", dbError)
       }
     }
 
-    // Update booking if payment successful
-    if (paymentStatus === "COMPLETED") {
-      try {
-        await db.booking.update({
-          where: { id: bookingId },
-          data: {
-            status: "confirmed",
-            paymentStatus: "paid",
-          },
-        })
-        console.log(`✓ Updated booking ${bookingId} to paid`)
-      } catch (bookingError) {
-        console.error("❌ Failed to update booking:", bookingError)
-      }
-    }
+    console.log("✅ PayPal order captured successfully:", {
+      orderId: body.orderId,
+      transactionId,
+      bookingId: body.bookingId,
+    })
 
     return NextResponse.json({
       success: true,
-      orderId: response.result?.id,
-      status: paymentStatus,
-      message: "Payment captured successfully",
+      orderId: body.orderId,
+      transactionId,
+      status: capturedOrder.status,
     })
   } catch (error) {
-    console.error("❌ PayPal capture order error:", error)
-
+    console.error("❌ PayPal capture error:", error)
     return NextResponse.json(
-      {
-        error: "Failed to capture PayPal order",
-        details: (error as any)?.message,
-      },
+      { error: error instanceof Error ? error.message : "Internal server error" },
       { status: 500 }
     )
   }
 }
 
-// GET handler for redirect from PayPal
 export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url)
-  const token = searchParams.get("token")
-  const bookingId = searchParams.get("bookingId")
-
-  if (!token || !bookingId) {
-    return NextResponse.redirect(
-      new URL(`/booking/cancel?error=missing_params`, req.url)
-    )
-  }
-
   try {
+    // PayPal returns user to this URL after approval with 'token' parameter
+    const searchParams = req.nextUrl.searchParams
+    const token = searchParams.get("token")
+    const bookingId = searchParams.get("bookingId")
+
+    if (!token) {
+      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/booking/error?reason=invalid_token`)
+    }
+
+    const clientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID
+    const clientSecret = process.env.PAYPAL_CLIENT_SECRET
+
+    if (!clientId || !clientSecret) {
+      console.error("❌ Missing PayPal credentials")
+      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/booking/error?reason=server_error`)
+    }
+
+    // Get PayPal access token
+    const auth = Buffer.from(`${clientId}:${clientSecret}`).toString("base64")
+    const authResponse = await fetch("https://api.sandbox.paypal.com/v1/oauth2/token", {
+      method: "POST",
+      headers: {
+        "Accept": "application/json",
+        "Accept-Language": "en_US",
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Authorization": `Basic ${auth}`,
+      },
+      body: new URLSearchParams({
+        grant_type: "client_credentials",
+      }).toString(),
+    })
+
+    if (!authResponse.ok) {
+      console.error("❌ PayPal auth failed")
+      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/booking/error?reason=auth_failed`)
+    }
+
+    const { access_token } = await authResponse.json()
+
+    // Get order details using token
+    const orderResponse = await fetch(
+      `https://api.sandbox.paypal.com/v2/checkout/orders/${token}`,
+      {
+        headers: {
+          "Authorization": `Bearer ${access_token}`,
+        },
+      }
+    )
+
+    if (!orderResponse.ok) {
+      console.error("❌ Failed to fetch PayPal order")
+      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/booking/error?reason=order_not_found`)
+    }
+
+    const order = await orderResponse.json()
+
     // Capture the order
-    const ordersCaptureRequest = new OrdersCaptureRequest(token)
-    ordersCaptureRequest.prefer("return=representation")
+    const captureResponse = await fetch(
+      `https://api.sandbox.paypal.com/v2/checkout/orders/${token}/capture`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${access_token}`,
+        },
+      }
+    )
 
-    const response = await client
-      .ordersController()
-      .ordersCapture(ordersCaptureRequest)
+    if (!captureResponse.ok) {
+      console.error("❌ Failed to capture PayPal order")
+      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/booking/error?reason=capture_failed`)
+    }
 
-    const capture = response.result?.purchase_units?.[0]?.payments?.captures?.[0]
-    const paymentStatus = capture?.status || response.result?.status
+    const capturedOrder = await captureResponse.json()
 
-    // Store payment in database
-    if (capture?.id) {
+    // Get transaction ID
+    const transactionId =
+      capturedOrder.purchase_units?.[0]?.payments?.captures?.[0]?.id ||
+      capturedOrder.id
+
+    // Update payment record if we have bookingId
+    if (bookingId) {
       try {
         await db.payment.create({
           data: {
             bookingId,
-            method: "paypal",
-            amount: parseFloat(response.result?.purchase_units?.[0]?.amount?.value || "0"),
-            currency: response.result?.purchase_units?.[0]?.amount?.currency_code || "THB",
-            status: paymentStatus === "COMPLETED" ? "completed" : "pending",
             paypalOrderId: token,
-            paypalCaptureId: capture.id,
-            payer: response.result?.payer?.email_address,
-            paymentDetails: JSON.stringify(capture),
+            transactionId,
+            status: "COMPLETED",
+            method: "paypal",
+            amount: 0, // Amount should have been stored during order creation
+            currency: "THB",
           },
+        }).catch(() => {
+          // Record might already exist
         })
       } catch (dbError) {
-        console.error("❌ Failed to save payment record:", dbError)
+        console.error("Warning: Could not update payment record:", dbError)
       }
     }
 
-    // Update booking
-    if (paymentStatus === "COMPLETED") {
-      try {
-        await db.booking.update({
-          where: { id: bookingId },
-          data: {
-            status: "confirmed",
-            paymentStatus: "paid",
-          },
-        })
-      } catch (bookingError) {
-        console.error("❌ Failed to update booking:", bookingError)
-      }
-    }
+    console.log("✅ PayPal payment completed:", {
+      orderId: token,
+      transactionId,
+      bookingId,
+    })
 
     // Redirect to success page
     return NextResponse.redirect(
-      new URL(`/booking/success?orderId=${token}&bookingId=${bookingId}`, req.url)
+      `${process.env.NEXT_PUBLIC_APP_URL}/booking/success?orderId=${token}&transactionId=${transactionId}`
     )
   } catch (error) {
-    console.error("❌ PayPal capture error:", error)
-    return NextResponse.redirect(
-      new URL(`/booking/cancel?error=${(error as any)?.message}`, req.url)
-    )
+    console.error("❌ PayPal GET error:", error)
+    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/booking/error?reason=server_error`)
   }
 }

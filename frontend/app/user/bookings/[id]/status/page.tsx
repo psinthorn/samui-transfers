@@ -1,18 +1,20 @@
 'use client'
 
-import React, { Suspense } from 'react'
+import React, { Suspense, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { useLanguage } from '@/context/LanguageContext'
 import { useBookingStatus } from '@/hooks/useBookingStatus'
 import { BookingTimeline } from '@/components/booking/BookingTimeline'
 import { StatusBadge } from '@/components/booking/StatusBadge'
-import { Loader2, AlertCircle, RefreshCw } from 'lucide-react'
+import { PaymentProofUploadDialog } from '@/components/customer/PaymentProofUploadDialog'
+import { Loader2, AlertCircle, RefreshCw, Upload } from 'lucide-react'
 import Link from 'next/link'
 
 const BookingStatusContent = () => {
   const { lang } = useLanguage()
   const params = useParams()
   const bookingId = params?.id as string
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false)
 
   const { status, loading, error, isPolling, refresh } = useBookingStatus(bookingId)
 
@@ -91,6 +93,47 @@ const BookingStatusContent = () => {
         </div>
       </div>
 
+      {/* Payment Proof Section - Show for PENDING payments */}
+      {status.paymentStatus === "PENDING" && (
+        <div className="mb-8 bg-blue-50 border border-blue-200 rounded-lg p-6 sm:p-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h2 className="text-lg font-semibold text-blue-900 mb-1">
+                {lang === 'th' ? 'อัปโหลดหลักฐานการชำระเงิน' : 'Upload Payment Proof'}
+              </h2>
+              <p className="text-sm text-blue-800">
+                {lang === 'th' 
+                  ? 'ชำระเงินผ่านการโอนธนาคารแล้ว? อัปโหลดใบเสร็จของคุณด้านล่าง' 
+                  : 'Paid via bank transfer? Upload your receipt below.'}
+              </p>
+            </div>
+            <button
+              onClick={() => setUploadDialogOpen(true)}
+              className="px-4 py-2 bg-[#005B9A] text-white rounded-lg hover:bg-[#004480] transition-colors flex items-center gap-2 font-medium"
+            >
+              <Upload className="w-4 h-4" />
+              {lang === 'th' ? 'อัปโหลด' : 'Upload'}
+            </button>
+          </div>
+          
+          {/* Show proof status if uploaded */}
+          {status.paymentProofStatus && (
+            <div className="mt-4 text-sm font-medium text-blue-700 bg-white rounded p-3">
+              ✓ {lang === 'th' ? `หลักฐานที่อัปโหลด - ${status.paymentProofStatus}` : `Proof uploaded - ${status.paymentProofStatus}`}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Confirmation Section - Show if payment completed */}
+      {status.paymentStatus === "COMPLETED" && (
+        <div className="mb-8 bg-green-50 border border-green-200 rounded-lg p-6 sm:p-8">
+          <p className="text-sm font-medium text-green-700">
+            ✓ {lang === 'th' ? 'ยืนยันการชำระเงินแล้ว! การจองของคุณได้รับการยืนยัน' : "Payment verified! Your booking is confirmed."}
+          </p>
+        </div>
+      )}
+
       {/* Timeline */}
       <BookingTimeline
         steps={status.steps}
@@ -136,6 +179,18 @@ const BookingStatusContent = () => {
           </p>
         </div>
       </div>
+
+      {/* Payment Proof Upload Dialog */}
+      <PaymentProofUploadDialog
+        open={uploadDialogOpen}
+        onOpenChange={setUploadDialogOpen}
+        bookingId={bookingId}
+        bookingReference={status.id}
+        paymentAmount={0} // Will be fetched from booking details
+        onUploadSuccess={() => {
+          refresh()
+        }}
+      />
     </>
   )
 }

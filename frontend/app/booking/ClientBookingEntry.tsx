@@ -8,7 +8,7 @@ import { useRequestTransferContext } from "@/context/RequestTransferContext";
 import { useLanguage } from "@/context/LanguageContext";
 
 const ClientBookingEntry: React.FC = () => {
-  const { requestTransfer } = useRequestTransferContext();
+  const { requestTransfer, setRequestTransfer } = useRequestTransferContext();
   const { data: session, status } = useSession();
   const { lang } = useLanguage();
   const [userInitialData, setUserInitialData] = useState({
@@ -36,18 +36,38 @@ const ClientBookingEntry: React.FC = () => {
   // Update user data when session is loaded
   useEffect(() => {
     if (status === "authenticated" && session?.user) {
+      // First, try to restore booking data from sessionStorage
+      let restoredBookingData = null;
+      try {
+        const storedData = sessionStorage.getItem('pendingBookingData');
+        if (storedData) {
+          restoredBookingData = JSON.parse(storedData);
+          // Update context with restored data
+          setRequestTransfer(restoredBookingData);
+          // Clear the sessionStorage after restoring
+          sessionStorage.removeItem('pendingBookingData');
+          console.log('✅ Booking data restored from sessionStorage:', restoredBookingData);
+        }
+      } catch (error) {
+        console.error('❌ Error restoring booking data:', error);
+      }
+
+      // Then update user info
       const nameParts = session.user.name?.split(" ") || [];
-      setUserInitialData({
-        firstName: requestTransfer?.firstName || nameParts[0] || "",
-        lastName: requestTransfer?.lastName || nameParts.slice(1).join(" ") || "",
-        email: requestTransfer?.email || session.user.email || "",
-      });
+      const userData = {
+        firstName: (restoredBookingData?.firstName) || requestTransfer?.firstName || nameParts[0] || "",
+        lastName: (restoredBookingData?.lastName) || requestTransfer?.lastName || nameParts.slice(1).join(" ") || "",
+        email: (restoredBookingData?.email) || requestTransfer?.email || session.user.email || "",
+      };
+      
+      setUserInitialData(userData);
       console.log("✅ User session loaded:", {
         name: session.user.name,
         email: session.user.email,
+        hasRestoredData: !!restoredBookingData,
       });
     }
-  }, [status, session, requestTransfer]);
+  }, [status, session, requestTransfer, setRequestTransfer]);
 
   if (!isLoaded) {
     return <div className="flex justify-center items-center min-h-screen">Loading...</div>;

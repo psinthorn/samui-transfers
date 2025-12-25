@@ -4,7 +4,7 @@ import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
 import { SessionProvider } from "next-auth/react";
 import SessionClientProvider from "@/components/auth/SessionClientProvider";
-
+import { PaymentProvider } from "@/context/PaymentContext";
 
 import "./globals.css";
 import RequestTransferContextProvider from "@/context/RequestTransferContext";
@@ -42,7 +42,7 @@ export default function RootLayout({
         <body className={`${montserrat.className} h-auto`}>
           <SessionProvider>
             <SessionClientProvider />
-           
+            <PaymentProvider>
               <LanguageProvider initialLang={initialLang}>
                 <ToastProvider>
                   <div className="h-full mx-auto flex flex-col">
@@ -60,7 +60,7 @@ export default function RootLayout({
                   </div>
                 </ToastProvider>
               </LanguageProvider>
-           
+            </PaymentProvider>
           </SessionProvider>
         </body>
       </html>

@@ -21,8 +21,9 @@ const BookingHistoryContent = () => {
     applyFilters,
     nextPage,
     prevPage,
-    totalPages = Math.ceil(total / pageSize),
   } = useBookingHistory()
+
+  const totalPages = Math.ceil(total / pageSize)
 
   const handleFiltersChange = (filters: BookingHistoryFilters) => {
     applyFilters(filters)

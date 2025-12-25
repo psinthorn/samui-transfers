@@ -5,8 +5,9 @@ import { db } from "@/lib/db"
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  props: { params: Promise<{ id: string }> }
 ) {
+  const params = await props.params
   try {
     // Check authentication and authorization
     const session = await auth()
@@ -30,15 +31,15 @@ export async function GET(
         booking: {
           select: {
             id: true,
-            pickupLocation: true,
-            dropoffLocation: true,
-            pickupDate: true,
-            pickupTime: true,
-            passengers: true,
-            vehicleType: true,
             status: true,
-            notes: true,
-            userEmail: true,
+            referenceNumber: true,
+            paymentStatus: true,
+            paymentAmount: true,
+            paymentMethod: true,
+            paymentDate: true,
+            details: true,
+            createdAt: true,
+            updatedAt: true,
           },
         },
         webhooks: {
@@ -66,8 +67,8 @@ export async function GET(
       booking: payment.booking
         ? {
             ...payment.booking,
-            estimatedAmount: payment.booking.estimatedAmount
-              ? Number(payment.booking.estimatedAmount)
+            estimatedAmount: payment.booking.paymentAmount
+              ? Number(payment.booking.paymentAmount)
               : null,
           }
         : null,

@@ -36,7 +36,6 @@ export type requestTransferType = {
   carModel: string;
 
   notes: string;
-  bookingId?: string;
 
 };
 

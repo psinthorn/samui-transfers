@@ -30,6 +30,10 @@ model User {
   bookings      Booking[]
   auditActorLogs  AuditLog[]    @relation("AuditActor")
   auditTargetLogs AuditLog[]    @relation("AuditTarget")
+  activityLogs  ActivityLog[] @relation("ActivityLogActor")
+  driver        Driver?       @relation("DriverUser")
+  smsMessages   SMSMessage[]  @relation("UserSMSMessages")
+  smsSettings   SMSSettings?  @relation("UserSMSSettings")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -97,6 +101,7 @@ model Booking {
   paymentAmount  Decimal?                    // Amount paid in currency units
   paymentMethod  String?                     // Payment method type
   paymentDate    DateTime?                   // When payment was processed
+  paymentProofStatus String?                 // UPLOADED, VERIFIED, REJECTED
   
   // Cancellation fields
   cancellationReason String?                // Reason for cancellation
@@ -105,8 +110,26 @@ model Booking {
   refundAmount       Decimal?               // Amount refunded
   refundProcessedAt  DateTime?              // When refund was processed
   
-  // Payment relationship
+  // Payment relationships
   payments       Payment[]
+  paymentProofs  PaymentProof[]
+  paymentReminders PaymentReminder[] @relation("BookingReminders")
+  smsMessages    SMSMessage[]   @relation("BookingSMSMessages")
+
+  // MULTI-SERVICE SUPPORT (New)
+  serviceType       ServiceType @default(TRANSFER)  // TRANSFER, BOAT, TOUR, EVENT, PACKAGE
+  serviceId         String?     // ID of service-specific booking (speedboatBookingId, tourBookingId, etc.)
+  
+  // Service-Specific Relations
+  speedboatBooking  SpeedboatBooking?
+  tourBooking       TourBooking?
+  eventBooking      EventBooking?
+  
+  // Bundle Support
+  isBundle          Boolean @default(false)  // true if combining services
+  parentBookingId   String?     // For bundled bookings, reference parent
+  parentBooking     Booking?  @relation("BundledBookings", fields: [parentBookingId], references: [id])
+  childBookings     Booking[] @relation("BundledBookings")
 
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
@@ -118,6 +141,8 @@ model Booking {
   @@index([referenceNumber])
   @@index([userId, createdAt])
   @@index([cancellationDate])
+  @@index([serviceType])
+  @@index([parentBookingId])
 }
 
 enum BookingStatus {
@@ -127,6 +152,37 @@ enum BookingStatus {
   CANCELLED
 }
 
+model ActivityLog {
+  id            String         @id @default(cuid())
+  
+  // Actor Information
+  actorId       String
+  actor         User           @relation("ActivityLogActor", fields: [actorId], references: [id], onDelete: Cascade)
+  
+  // Action Details
+  action        String         // "CREATE", "UPDATE", "DELETE", "VIEW", "LOGIN", "LOGOUT", "ROLE_CHANGE", "BOOKING_CONFIRMED", etc.
+  resourceType  String         // "USER", "BOOKING", "PAYMENT", "DRIVER", "SETTINGS", etc.
+  resourceId    String?        // ID of affected resource
+  
+  // Change Details
+  oldValues     Json?          // Previous values (for UPDATE)
+  newValues     Json?          // New values (for UPDATE)
+  details       String?        // Additional context
+  
+  // Request Information
+  ipAddress     String?
+  userAgent     String?
+  
+  // Timestamps
+  createdAt     DateTime       @default(now())
+
+  @@index([actorId, createdAt])
+  @@index([action, createdAt])
+  @@index([resourceType, resourceId])
+  @@index([createdAt])
+}
+
+// Legacy AuditLog - kept for backwards compatibility
 model AuditLog {
   id            String       @id @default(cuid())
   actorId       String
@@ -147,9 +203,136 @@ enum AuditAction {
   USER_DISABLED_TOGGLED
 }
 
+// Driver System (Feature #7)
+model Driver {
+  id                    String      @id @default(cuid())
+  
+  // User Reference
+  userId                String      @unique
+  user                  User        @relation("DriverUser", fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Driver Information
+  licenseNumber         String      @unique  // Driver license number
+  licenseExpiry         DateTime?             // License expiration date
+  licenseVerified       Boolean     @default(false)
+  licenseVerifiedAt     DateTime?
+  
+  // Vehicle Assignment
+  vehicleId             String?
+  vehicleType           String?     // "minibus", "suv", "sedan" - for tracking
+  registrationNumber    String?     // Vehicle registration
+  
+  // Status
+  status                String      @default("offline")  // "available", "busy", "offline", "on_break"
+  acceptingRides        Boolean     @default(true)
+  
+  // Location
+  currentLatitude       Decimal?    @db.Decimal(10, 8)
+  currentLongitude      Decimal?    @db.Decimal(11, 8)
+  locationUpdatedAt     DateTime?
+  
+  // Performance
+  totalTrips            Int         @default(0)
+  cancelledTrips        Int         @default(0)
+  completedTrips        Int         @default(0)
+  averageRating         Decimal?    @db.Decimal(3, 2)  // 0-5 rating
+  totalReviews          Int         @default(0)
+  
+  // Assignments
+  assignments           DriverAssignment[]
+  ratings               DriverRating[]
+  
+  // BOAT & TOUR CAPABILITIES (New)
+  isBoatOperator        Boolean @default(false)
+  isTourGuide           Boolean @default(false)
+  certifications        Json?   // {"boatLicense": "...", "safetyTraining": "..."}
+  
+  // Relations for boat & tour services
+  speedboatAssignments  SpeedboatCaptainAssignment[] @relation("SpeedboatCaptainAssignments")
+  tourScheduleGuides    TourSchedule[]
+  tourBookingGuides     TourBooking[] @relation("TourBookingGuides")
+  speedboatBookingCaptains SpeedboatBooking[] @relation("SpeedboatBookingCaptain")
+  
+  // Compliance
+  backgroundCheckStatus String?              // "PENDING", "APPROVED", "REJECTED"
+  backgroundCheckDate   DateTime?
+  insuranceExpiry       DateTime?
+  
+  // Timestamps
+  createdAt             DateTime    @default(now())
+  updatedAt             DateTime    @updatedAt
+  
+  @@index([userId])
+  @@index([status])
+  @@index([acceptingRides])
+  @@index([locationUpdatedAt])
+}
+
+model DriverAssignment {
+  id                String      @id @default(cuid())
+  
+  // Driver and Booking
+  driverId          String
+  driver            Driver      @relation(fields: [driverId], references: [id], onDelete: Cascade)
+  bookingId         String
+  
+  // Assignment Details
+  assignmentStatus  String      @default("assigned")  // "assigned", "accepted", "ongoing", "completed", "cancelled"
+  assignedAt        DateTime    @default(now())
+  acceptedAt        DateTime?
+  startedAt         DateTime?
+  completedAt       DateTime?
+  
+  // Location at assignment
+  pickupLatitude    Decimal?    @db.Decimal(10, 8)
+  pickupLongitude   Decimal?    @db.Decimal(11, 8)
+  
+  // Performance
+  estimatedArrival  DateTime?
+  actualArrival     DateTime?
+  rating            Int?        // 1-5
+  ratingComment     String?
+  
+  // Cancellation
+  cancellationReason String?
+  cancelledAt       DateTime?
+  
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  
+  @@index([driverId])
+  @@index([bookingId])
+  @@index([assignmentStatus])
+  @@unique([bookingId])  // One driver per booking
+}
+
+model DriverRating {
+  id                String      @id @default(cuid())
+  
+  // Driver and Rater
+  driverId          String
+  driver            Driver      @relation(fields: [driverId], references: [id], onDelete: Cascade)
+  ratedBy           String      // User ID who gave the rating
+  
+  // Rating Details
+  rating            Int         // 1-5 stars
+  comment           String?
+  categories        Json?       // {cleanliness, professionalism, safety, communication, punctuality}
+  
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  
+  @@index([driverId])
+  @@index([rating])
+}
+
 model ServiceRate {
   id               String   @id @default(cuid())
-  vehicleType      String   // "minibus", "suv", "sedan"
+  
+  // ENHANCED FOR MULTI-SERVICE (New field)
+  serviceType      ServiceType @default(TRANSFER)  // TRANSFER, BOAT, TOUR, EVENT
+  
+  vehicleType      String   // "minibus", "suv", "sedan" for TRANSFER, "speedboat_6person" for BOAT, etc.
   basePrice        Decimal  // Base price in THB
   distanceRate     Decimal  // Price per km
   minDistance      Int      // Minimum distance to apply rate
@@ -162,6 +345,7 @@ model ServiceRate {
   
   @@index([vehicleType])
   @@index([isActive])
+  @@index([serviceType])
 }
 
 model PricingRule {
@@ -276,6 +460,30 @@ enum PaymentMethod {
   cash
 }
 
+enum ServiceType {
+  TRANSFER
+  BOAT
+  TOUR
+  EVENT
+  PACKAGE
+}
+
+model ServiceSetting {
+  id                 String      @id @default(cuid())
+  serviceType        ServiceType @unique
+  isActive           Boolean     @default(true)
+  maxCapacity        Int         @default(50)
+  minBookingDays     Int         @default(1)
+  maxBookingDays     Int         @default(365)
+  commissionRate     Float       @default(15)
+  description        String      @default("")
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+
+  @@index([serviceType])
+  @@map("service_settings")
+}
+
 enum PaymentStatus {
   PENDING
   PROCESSING
@@ -313,3 +521,962 @@ model PaymentWebhook {
   @@index([processed])
   @@index([createdAt])
 }
+
+// Payment Proof Model (for bank transfer and manual payment verification)
+model PaymentProof {
+  id                  String   @id @default(cuid())
+  bookingId           String
+  booking             Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  
+  // File Information
+  fileName            String   // Stored filename (hash-based)
+  originalFileName    String   // User's original filename
+  filePath            String   // Path to file in storage
+  fileSize            Int      // File size in bytes
+  mimeType            String   // File MIME type
+  
+  // Upload Information
+  uploadedAt          DateTime @default(now())
+  uploadedBy          String   // Email of uploader
+  
+  // Payment Amount
+  expectedAmount      Decimal  // Expected payment amount
+  
+  // Verification
+  status              String @default("PENDING")  // PENDING, VERIFIED, REJECTED
+  verifiedAt          DateTime?
+  rejectedAt          DateTime?
+  rejectionReason     String?
+  
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  
+  @@index([bookingId])
+  @@index([status])
+  @@index([uploadedAt])
+  @@index([uploadedBy])
+}
+
+// Payment Reminders System (Feature #3)
+model PaymentReminder {
+  id                String      @id @default(cuid())
+  bookingId         String
+  booking           Booking     @relation("BookingReminders", fields: [bookingId], references: [id], onDelete: Cascade)
+  
+  // Reminder Details
+  reminderType      String      // FIRST_REMINDER, SECOND_REMINDER, FINAL_WARNING, BOOKING_CANCELLED
+  status            String      @default("PENDING")  // PENDING, SENT, FAILED, CANCELLED
+  
+  // Sending Info
+  sentAt            DateTime?
+  failureReason     String?
+  
+  // Retry Logic
+  nextRetryAt       DateTime?
+  retryCount        Int         @default(0)
+  maxRetries        Int         @default(3)
+  
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  
+  @@index([bookingId])
+  @@index([status])
+  @@index([reminderType])
+  @@index([createdAt])
+  @@index([nextRetryAt])
+}
+
+model PaymentReminderSettings {
+  id                String      @id @default(cuid())
+  reminderType      String      @unique  // FIRST_REMINDER, SECOND_REMINDER, FINAL_WARNING
+  hoursAfterBooking Int                   // Hours after booking to send reminder
+  enabled           Boolean     @default(true)
+  emailTemplate     String                // Template name for email
+  
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  
+  @@index([reminderType])
+  @@index([enabled])
+}
+
+// SMS Notifications System (Feature #4)
+model SMSMessage {
+  id                String      @id @default(cuid())
+  bookingId         String?
+  booking           Booking?    @relation("BookingSMSMessages", fields: [bookingId], references: [id], onDelete: Cascade)
+  userId            String
+  user              User        @relation("UserSMSMessages", fields: [userId], references: [id], onDelete: Cascade)
+  
+  // SMS Details
+  phoneNumber       String      // Customer phone number
+  messageType       String      // BOOKING_CONFIRMATION, PAYMENT_REMINDER, PAYMENT_CONFIRMATION, REFUND_NOTIFICATION, DRIVER_ASSIGNED, DRIVER_ARRIVING
+  content           String      // SMS message content
+  
+  // Status
+  status            String      @default("PENDING")  // PENDING, SENT, FAILED, BOUNCED, OPTED_OUT
+  sentAt            DateTime?
+  deliveredAt       DateTime?
+  failureReason     String?
+  
+  // Twilio Details
+  twiliSid          String?     @unique  // Twilio message SID
+  twiliStatus       String?     // Twilio delivery status
+  twiliErrorCode    Int?        // Twilio error code if failed
+  
+  // Retry Logic
+  nextRetryAt       DateTime?
+  retryCount        Int         @default(0)
+  maxRetries        Int         @default(3)
+  
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  
+  @@index([bookingId])
+  @@index([userId])
+  @@index([status])
+  @@index([messageType])
+  @@index([sentAt])
+  @@index([createdAt])
+}
+
+model SMSTemplate {
+  id                String      @id @default(cuid())
+  messageType       String      @unique  // BOOKING_CONFIRMATION, PAYMENT_REMINDER, etc.
+  template          String      // SMS template with {placeholders}
+  enabled           Boolean     @default(true)
+  maxLength         Int         @default(160)  // SMS character limit
+  description       String?
+  
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  
+  @@index([messageType])
+  @@index([enabled])
+}
+
+model SMSSettings {
+  id                String      @id @default(cuid())
+  userId            String      @unique
+  user              User        @relation("UserSMSSettings", fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Preferences
+  phoneNumber       String?     // Verified phone number
+  phoneVerified     Boolean     @default(false)
+  phoneVerifiedAt   DateTime?
+  
+  // Opt-out Settings
+  optedOut          Boolean     @default(false)
+  optedOutAt        DateTime?
+  optedOutReason    String?
+  
+  // Notification Preferences
+  bookingConfirmation     Boolean @default(true)
+  paymentReminders        Boolean @default(true)
+  paymentConfirmation     Boolean @default(true)
+  refundNotification      Boolean @default(true)
+  driverNotifications     Boolean @default(true)
+  
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  
+  @@index([userId])
+}
+
+// Payment Gateway Management (Admin controlled)
+model PaymentGateway {
+  id                String    @id @default(cuid())
+  type              String    @unique  // "stripe", "paypal", "bank_transfer"
+  displayName       String              // Display name (e.g., "Credit Card", "PayPal", "Bank Transfer")
+  description       String?             // Short description for admin
+  
+  // Visibility & Status
+  isPublic          Boolean   @default(true)  // Whether to show to users
+  enabled           Boolean   @default(true)  // Admin toggle
+  displayOrder      Int       @default(0)     // Order in which to display
+  
+  // Configuration
+  icon              String?             // Icon emoji or URL
+  processingTime    String?             // "Instant", "1-3 days", etc.
+  fees              String?             // Fee information
+  metadata          Json?               // Additional config data
+  
+  // Credentials (encrypted in database)
+  credentials       PaymentGatewayCredential?  // One-to-one relationship with credentials
+  
+  // Tracking
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  @@index([type])
+  @@index([isPublic])
+  @@index([enabled])
+  @@index([displayOrder])
+}
+
+// Payment Gateway Credentials (stored separately and encrypted)
+model PaymentGatewayCredential {
+  id                String    @id @default(cuid())
+  
+  // Gateway Reference
+  gatewayId         String    @unique
+  gateway           PaymentGateway  @relation(fields: [gatewayId], references: [id], onDelete: Cascade)
+  
+  // Stripe Credentials (encrypted)
+  stripePublicKey   String?           // Stripe publishable key (safe to expose to frontend)
+  stripeSecretKey   String?           // Stripe secret key (encrypted, admin only)
+  stripeAccountId   String?           // Stripe account ID (encrypted)
+  
+  // PayPal Credentials (encrypted)
+  paypalClientId    String?           // PayPal client ID (encrypted)
+  paypalSecret      String?           // PayPal client secret (encrypted)
+  paypalAccountId   String?           // PayPal account ID (encrypted)
+  paypalMode        String?           // "SANDBOX" or "LIVE"
+  
+  // Bank Transfer Credentials (encrypted)
+  bankAccountName   String?           // Account holder name (encrypted)
+  bankAccountNumber String?           // Account number (encrypted)
+  bankBankName      String?           // Bank name
+  
+  // Thailand-specific (encrypted)
+  bankSwiftCode     String?           // SWIFT code (e.g., BKKATH22 for Krungsri)
+  bankBankBranch    String?           // Bank branch name (encrypted)
+  
+  // International transfers (encrypted)
+  bankIban          String?           // IBAN for EU/international (encrypted)
+  bankRoutingNumber String?           // US Routing number or alternative (encrypted)
+  
+  // Status
+  isConfigured      Boolean   @default(false)  // Whether credentials are complete
+  lastVerified      DateTime?                   // Last time credentials were tested
+  verificationStatus String?                    // "PENDING", "VALID", "INVALID"
+  
+  // Tracking
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  @@index([gatewayId])
+  @@index([isConfigured])
+}
+
+// Audit log for sensitive credential changes
+model PaymentGatewayAuditLog {
+  id                String    @id @default(cuid())
+  gatewayId         String
+  
+  // Action info
+  action            String             // "CREATE", "UPDATE", "VIEW", "DELETE"
+  changedFields     String[]           // Fields that were changed (without values)
+  adminId           String?            // Admin who made the change
+  
+  // Request info
+  ipAddress         String?
+  userAgent         String?
+  
+  createdAt         DateTime  @default(now())
+  
+  @@index([gatewayId, createdAt])
+  @@index([adminId, createdAt])
+  @@index([action])
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SPEEDBOAT SERVICE MODELS (New)
+// ═══════════════════════════════════════════════════════════════
+
+model Speedboat {
+  id                String    @id @default(cuid())
+  name              String    // "Speed Boat A", "Express II", etc.
+  boatType          String    // "6-person", "12-person", "luxury", etc.
+  
+  // Specifications
+  capacity          Int       // Maximum passengers
+  crewSize          Int       // Captain + crew required
+  length            Decimal?  // Length in meters
+  color             String?   // Boat color/identifier
+  registrationNumber String? @unique  // Boat registration ID
+  
+  // Location & Operations
+  homePort          String    // Base location (e.g., "Koh Samui Marina")
+  currentLocation   String?   // Current location
+  
+  // Status & Availability
+  status            String @default("AVAILABLE")  // AVAILABLE, MAINTENANCE, RETIRED, OUT_OF_SERVICE
+  maintenanceUntil  DateTime?
+  
+  // Operational Details
+  manufacturerYear  Int?
+  lastMaintenanceDate DateTime?
+  nextMaintenanceDate DateTime?
+  maintenanceNotes  String?
+  
+  // Safety & Compliance
+  safetyInspectionDate DateTime?
+  safetyInspectionValid Boolean @default(true)
+  safetyEquipmentList Json?
+  insuranceExpiry   DateTime?
+  
+  // Fuel & Consumption
+  fuelType          String    // "Petrol", "Diesel", "Electric"
+  fuelCapacity      Decimal   // Liters
+  fuelConsumption   Decimal?  // Liters per km (estimated)
+  
+  // Pricing Reference
+  speedboatRates    SpeedboatRate[]
+  
+  // Bookings
+  speedboatBookings SpeedboatBooking[]
+  
+  // Captain/Crew Assignments
+  captainAssignments SpeedboatCaptainAssignment[]
+  
+  // Timestamps
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  @@index([status])
+  @@index([homePort])
+  @@index([boatType])
+  @@index([maintenanceUntil])
+}
+
+model SpeedboatRate {
+  id                String    @id @default(cuid())
+  speedboatId       String
+  speedboat         Speedboat @relation(fields: [speedboatId], references: [id], onDelete: Cascade)
+  
+  // Service Details
+  serviceType       String    // "DAY_TRIP", "ISLAND_HOPPING", "SPECIAL_EVENT"
+  duration          Int       // Minutes (e.g., 480 for 8-hour trip)
+  
+  // Pricing
+  basePrice         Decimal   // Base price for standard conditions
+  pricePerPerson    Decimal?  // If applicable
+  
+  // Capacity Pricing
+  minCapacity       Int       // Minimum number of people to book
+  maxCapacity       Int       // Maximum (usually boat capacity)
+  capacityDiscount  Decimal?  // Percentage discount for full capacity
+  
+  // Surcharges
+  fuelSurcharge     Decimal?  // Additional fuel cost per km or per trip
+  crewCost          Decimal?  // Captain + crew cost (may be included in base)
+  
+  // Peak Season
+  isSeasonalRate    Boolean @default(false)
+  seasonStart       Int?      // Month (1-12)
+  seasonEnd         Int?
+  seasonMultiplier  Decimal @default(1.0)
+  
+  // Active Period
+  validFrom         DateTime  @default(now())
+  validUntil        DateTime?
+  
+  // Timestamps
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  @@index([speedboatId])
+  @@index([serviceType])
+  @@index([validFrom])
+}
+
+model Vehicle {
+  id                    String      @id @default(cuid())
+  
+  // Identity & Type
+  name                  String      // "Minibus A", "SUV-01", "Sedan Blue", etc.
+  vehicleType           String      // "minibus", "suv", "sedan", "pickup", etc.
+  registrationNumber    String?     @unique  // License plate
+  
+  // Specifications
+  capacity              Int         // Maximum passenger capacity
+  color                 String?     // Vehicle color
+  yearOfManufacture     Int?        // Manufacturing year
+  
+  // Location & Operations
+  homePort              String      // Base location (e.g., "Koh Samui Town", "Airport")
+  currentLocation       String?     // Current location
+  
+  // Status & Availability
+  status                String      @default("AVAILABLE")  // AVAILABLE, MAINTENANCE, RETIRED, OUT_OF_SERVICE
+  isActive              Boolean     @default(true)
+  maintenanceUntil      DateTime?   // Unavailable until this date
+  
+  // Maintenance & Safety
+  lastMaintenanceDate   DateTime?
+  nextMaintenanceDate   DateTime?
+  maintenanceNotes      String?
+  safetyInspectionDate  DateTime?
+  safetyInspectionValid Boolean     @default(true)
+  insuranceExpiry       DateTime?
+  
+  // Operational Details
+  mileage               Int?        // Current odometer reading
+  fuelType              String?     // "Petrol", "Diesel", "Electric", "Hybrid"
+  fuelCapacity          Decimal?    // Tank size in liters
+  fuelConsumption       Decimal?    // Avg consumption per km
+  
+  // Relations
+  // vehicleBookings    VehicleTransferBooking[]  // Future: if we track vehicle-level bookings
+  
+  // Timestamps
+  createdAt             DateTime    @default(now())
+  updatedAt             DateTime    @updatedAt
+  
+  @@index([vehicleType])
+  @@index([status])
+  @@index([homePort])
+  @@index([isActive])
+  @@index([registrationNumber])
+}
+
+model SpeedboatBooking {
+  id                String    @id @default(cuid())
+  bookingId         String    @unique
+  booking           Booking   @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  
+  speedboatId       String
+  speedboat         Speedboat @relation(fields: [speedboatId], references: [id])
+  
+  // Trip Details
+  tripType          String    // "DAY_TRIP", "ISLAND_HOPPING", "SUNSET_CRUISE", etc.
+  departureTime     DateTime
+  returnTime        DateTime
+  departurePort     String
+  returnPort        String
+  estimatedDistance Decimal?  // KM
+  
+  // Passenger Details
+  passengerCount    Int
+  specialRequests   String?   // Dietary, accessibility, etc.
+  
+  // Crew Assignment
+  captainId         String?
+  captain           Driver?   @relation("SpeedboatBookingCaptain", fields: [captainId], references: [id])
+  
+  // Additional Services
+  mealIncluded      Boolean @default(false)
+  mealType          String?   // "LIGHT_SNACKS", "LUNCH", "DINNER", "FULL_BAR"
+  equipmentRental   String?   // "SNORKEL_GEAR", "LIFE_JACKET", etc. (JSON array)
+  
+  // Status & Tracking
+  status            String @default("PENDING")  // PENDING, CONFIRMED, IN_PROGRESS, COMPLETED, CANCELLED
+  cancellationReason String?
+  cancellationTime  DateTime?
+  
+  // Weather/Safety Notes
+  weatherCancelled  Boolean @default(false)
+  weatherNote       String?
+  safetyChecklist   Json?
+  
+  // Photos/Media
+  photoUrl          String?
+  
+  // Timestamps
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  @@index([bookingId])
+  @@index([speedboatId])
+  @@index([departureTime])
+  @@index([status])
+  @@index([captainId])
+}
+
+model SpeedboatCaptainAssignment {
+  id                String    @id @default(cuid())
+  speedboatId       String
+  speedboat         Speedboat @relation(fields: [speedboatId], references: [id], onDelete: Cascade)
+  
+  captainId         String
+  captain           Driver    @relation("SpeedboatCaptainAssignments", fields: [captainId], references: [id], onDelete: Cascade)
+  
+  // Assignment Details
+  assignedDate      DateTime  @default(now())
+  status            String @default("ACTIVE")  // ACTIVE, ON_LEAVE, RETIRED
+  
+  // Certification
+  boatOperatorLicense Boolean @default(false)
+  licenseExpiry     DateTime?
+  safetyTraining    Boolean @default(false)
+  safetyTrainingExpiry DateTime?
+  
+  // Timestamps
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  @@unique([speedboatId, captainId, assignedDate])
+  @@index([captainId])
+  @@index([status])
+}
+
+// ═══════════════════════════════════════════════════════════════
+// TOUR SERVICE MODELS (New)
+// ═══════════════════════════════════════════════════════════════
+
+model TourPackage {
+  id                String    @id @default(cuid())
+  name              String    // "Island Hopping Tour", "Full Day Temple Tour", etc.
+  slug              String    @unique  // URL slug
+  
+  // Description
+  description       String?   // Rich text description
+  summary           String?   // Short summary for listing
+  
+  // Type & Duration
+  tourType          String    // "ISLAND_HOPPING", "CULTURAL", "ADVENTURE", "LUXURY", "THEMED"
+  duration          Int       // Total duration in minutes
+  durationDays      Int @default(1)  // 1 for day tour, > 1 for multi-day
+  
+  // Capacity
+  minGroupSize      Int @default(1)
+  maxGroupSize      Int       // Maximum tour group size
+  defaultGroupSize  Int       // Recommended group size
+  
+  // Coverage & Location
+  islandsCovered    String[]  // ["Koh Samui", "Koh Phangan", "Koh Tao"]
+  departureLocation String
+  returnLocation    String?   // If different from departure
+  
+  // Schedule
+  availableDays     String[]  // ["MONDAY", "TUESDAY", ...] or "DAILY"
+  departureTime     String    // "08:00", "09:30", etc.
+  returnTime        String    // Estimated return time
+  
+  // Season Availability
+  seasonalAvailability Boolean @default(true)
+  seasonStart       Int?      // Month (1-12)
+  seasonEnd         Int?
+  offSeasonAvailable Boolean @default(false)
+  
+  // Services Included
+  includedServices  String[]  // ["MEALS", "GUIDE", "TRANSPORTATION", "SNORKEL_GEAR", "INSURANCE"]
+  excludedServices  String    @default("[]")  // What's NOT included
+  
+  // Image & Media
+  imageUrl          String?   // Main tour image
+  gallery           String    @default("[]")  // Additional images
+  
+  // Status
+  isPublished       Boolean @default(true)
+  isActive          Boolean @default(true)
+  
+  // Pricing
+  tourRates         TourRate[]
+  
+  // Locations (tour stops)
+  locations         TourLocation[]
+  
+  // Bookings
+  tourBookings      TourBooking[]
+  
+  // Schedule/Availability
+  schedules         TourSchedule[]
+  
+  // Timestamps
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  @@index([tourType])
+  @@index([isPublished])
+  @@index([departureTime])
+  @@index([maxGroupSize])
+}
+
+model TourLocation {
+  id                String    @id @default(cuid())
+  tourPackageId     String
+  tourPackage       TourPackage @relation(fields: [tourPackageId], references: [id], onDelete: Cascade)
+  
+  // Location Identity & Order
+  name              String    // "Big Buddha Temple", "Nathon Pier", etc.
+  slug              String?   // URL-friendly slug for location
+  type              String    // "TEMPLE", "BEACH", "PIER", "RESTAURANT", "SHOP", "VIEWPOINT"
+  sequenceNumber    Int       // 1, 2, 3, etc. - order in itinerary
+  
+  // GEOGRAPHY & GPS COORDINATES
+  latitude          Decimal   @db.Decimal(10, 8)  // GPS latitude (-90 to 90)
+  longitude         Decimal   @db.Decimal(11, 8)  // GPS longitude (-180 to 180)
+  island            String?   // "Koh Samui", "Koh Phangan", etc.
+  address           String?   // Full address
+  
+  // TIMING & DURATION
+  durationMinutes   Int?      // How long visitors typically spend
+  arrivalTime       String?   // Estimated time (in "HH:MM" format relative to start)
+  departureTime     String?   // Estimated departure time
+  
+  // ACTIVITY & EXPERIENCE
+  activity          String?   // "TEMPLE_VISIT", "BEACH_SWIM", "SNORKELING", "SHOPPING", "MEAL"
+  activityDuration  Int?      // Minutes for activity
+  
+  // CONTENT & MEDIA
+  title             String?   // SEO title (can differ from name)
+  description       String?   // Detailed description for marketing
+  shortDescription  String?   // 155-160 chars for SEO meta description
+  
+  // PRIMARY IMAGE
+  imageUrl          String?   // Main location image
+  imageAlt          String?   // Alt text for accessibility & SEO
+  
+  // GALLERY & MEDIA
+  gallery           String    @default("[]")  // JSON array of image URLs: [{"url": "...", "alt": "...", "caption": "..."}]
+  
+  // SEO & KEYWORDS
+  keywords          String    @default("[]")  // JSON array: ["keyword1", "keyword2", "keyword3"]
+  seoTags           String    @default("[]")  // JSON array: ["tag1", "tag2"]
+  metaDescription   String?   // Full meta description (155-160 chars)
+  
+  // MARKETING & HIGHLIGHTS
+  highlights        String    @default("[]")  // JSON array: ["Historic temple", "Free entry", "Great photos"]
+  bestTimeToVisit   String?   // "Morning 7-10am", "Sunset", "Year-round"
+  skillLevel        String?   // "EASY", "MODERATE", "CHALLENGING" for activities
+  
+  // ONLINE CONTENT
+  notes             String?   // Internal notes
+  funFacts          String    @default("[]")  // JSON array of fun facts: ["Built in 1910", "Sacred to locals"]
+  tipsFacts         String    @default("[]")  // JSON array of tips: ["Wear shoes", "Bring water"]
+  
+  // ACCESSIBILITY & AMENITIES
+  wheelchairAccessible Boolean @default(false)
+  parkingAvailable  Boolean @default(false)
+  toiletsAvailable  Boolean @default(false)
+  amenities         String    @default("[]")  // JSON array: ["parking", "toilet", "restaurant", "shop"]
+  
+  // STATUS & VISIBILITY
+  isActive          Boolean   @default(true)
+  isFeatured        Boolean   @default(false)  // Show prominently in marketing
+  visibility        String    @default("PUBLIC")  // PUBLIC, PRIVATE, DRAFT
+  
+  // CONTENT MANAGEMENT
+  contentApproved   Boolean   @default(false)
+  approvedBy        String?   // Admin email who approved
+  approvedAt        DateTime?
+  
+  // Timestamps
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  @@unique([tourPackageId, sequenceNumber])
+  @@index([tourPackageId])
+  @@index([type])
+  @@index([latitude, longitude])  // For geo-queries
+  @@index([isFeatured])
+  @@index([visibility])
+  @@index([contentApproved])
+}
+
+model TourRate {
+  id                String    @id @default(cuid())
+  tourPackageId     String
+  tourPackage       TourPackage @relation(fields: [tourPackageId], references: [id], onDelete: Cascade)
+  
+  // Group Size & Pricing
+  minGroupSize      Int       // Pricing valid for this group size minimum
+  maxGroupSize      Int       // Up to this group size
+  pricePerPerson    Decimal   // Price per person
+  minimumGroupPrice Decimal?  // Minimum total price
+  
+  // Peak Season
+  isSeasonalRate    Boolean @default(false)
+  seasonStart       Int?      // Month (1-12)
+  seasonEnd         Int?
+  seasonMultiplier  Decimal @default(1.0)
+  
+  // Add-ons (individual pricing)
+  mealAddon         Decimal?  // If meals not included
+  photographyAddon  Decimal?  // Professional photos
+  transportAddon    Decimal?  // Extra transport
+  
+  // Active Period
+  validFrom         DateTime  @default(now())
+  validUntil        DateTime?
+  
+  // Timestamps
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  @@index([tourPackageId])
+  @@index([minGroupSize, maxGroupSize])
+  @@index([validFrom])
+}
+
+model TourSchedule {
+  id                String    @id @default(cuid())
+  tourPackageId     String
+  tourPackage       TourPackage @relation(fields: [tourPackageId], references: [id], onDelete: Cascade)
+  
+  // Schedule Date
+  tourDate          DateTime  // The date of the tour
+  departureTime     DateTime  // Full datetime with time
+  
+  // Capacity
+  maxCapacity       Int       // How many spots available for this date
+  bookedCapacity    Int @default(0)  // How many already booked
+  
+  // Pricing Override (if different from standard rate)
+  overridePrice     Decimal?  // If null, use TourRate
+  
+  // Status & Control
+  isOpen            Boolean @default(true)  // Can be booked
+  isCancelled       Boolean @default(false)
+  cancellationReason String?
+  notes             String?
+  
+  // Guide Assignment
+  guideId           String?
+  guide             Driver?   @relation(fields: [guideId], references: [id])
+  
+  // Bookings for this schedule
+  bookings          TourBooking[]
+  
+  // Transportation
+  transportationType String? // "TRANSFER", "BOAT", "BOTH"
+  
+  // Timestamps
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  @@unique([tourPackageId, tourDate])
+  @@index([tourPackageId])
+  @@index([tourDate])
+  @@index([isOpen])
+}
+
+model TourBooking {
+  id                String    @id @default(cuid())
+  bookingId         String    @unique
+  booking           Booking   @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  
+  tourPackageId     String
+  tourPackage       TourPackage @relation(fields: [tourPackageId], references: [id])
+  
+  tourScheduleId    String
+  tourSchedule      TourSchedule @relation(fields: [tourScheduleId], references: [id])
+  
+  // Passenger Details
+  totalParticipants Int
+  childrenCount     Int @default(0)
+  adultsCount       Int @default(0)
+  
+  // Special Requirements
+  specialRequests   String?   // Dietary, accessibility, preferences
+  pickupLocation    String?   // If transfer included
+  
+  // Guide Assignment
+  guideId           String?   // Assigned tour guide
+  guide             Driver?   @relation("TourBookingGuides", fields: [guideId], references: [id])
+  
+  // Add-ons Purchased
+  addOnServices     String    @default("[]")  // ["PROFESSIONAL_PHOTOS", "BREAKFAST", "SNORKEL_GEAR"]
+  
+  // Status
+  status            String @default("PENDING")  // PENDING, CONFIRMED, IN_PROGRESS, COMPLETED, CANCELLED
+  cancellationReason String?
+  cancellationTime  DateTime?
+  
+  // Feedback
+  rating            Int?      // 1-5 stars
+  review            String?
+  
+  // Timestamps
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  @@index([bookingId])
+  @@index([tourPackageId])
+  @@index([tourScheduleId])
+  @@index([status])
+  @@index([guideId])
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SPECIAL EVENT SERVICE MODELS (New)
+// ═══════════════════════════════════════════════════════════════
+
+model SpecialEvent {
+  id                String    @id @default(cuid())
+  name              String    // "Full Moon Party", "Sunset DJ Cruise", etc.
+  slug              String    @unique
+  
+  // Description
+  description       String?
+  summary           String?
+  theme             String?   // "BEACH_PARTY", "DJ_NIGHT", "CELEBRATION", "CULTURAL", etc.
+  
+  // Venue & Location
+  venueType         String    // "SPEEDBOAT", "BEACH", "RESORT", "ISLAND", "MULTIPLE"
+  venueLocation     String    // Location/venue name
+  
+  // Schedule
+  startDate         DateTime
+  endDate           DateTime
+  
+  // Frequency (optional)
+  isRecurring       Boolean @default(false)
+  recurringPattern  String?   // "MONTHLY", "WEEKLY", "FULL_MOON", "CUSTOM"
+  
+  // Capacity
+  maxCapacity       Int
+  registrationFee   Decimal   // Per person
+  
+  // What's Included
+  includedItems     String[]  // ["WELCOME_DRINK", "FOOD", "DJ", "LIVE_MUSIC", "GAMES", "TRANSPORT"]
+  
+  // Entertainment
+  entertainmentType String    @default("[]")  // ["DJ", "LIVE_BAND", "PERFORMER", "GAMES"]
+  performerDetails  String?   // Details about performers
+  
+  // Food & Beverage
+  mealOption        String?   // "INCLUDED", "AVAILABLE", "PAID"
+  barOption         String?   // "OPEN_BAR", "SPONSORED", "CASH_BAR"
+  
+  // Image & Marketing
+  imageUrl          String?
+  gallery           String    @default("[]")
+  
+  // Status
+  isPublished       Boolean @default(true)
+  isActive          Boolean @default(true)
+  
+  // Pricing
+  eventRates        EventRate[]
+  
+  // Bookings
+  eventBookings     EventBooking[]
+  
+  // Timestamps
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  @@index([venueType])
+  @@index([startDate])
+  @@index([isPublished])
+  @@index([recurringPattern])
+}
+
+model EventRate {
+  id                String    @id @default(cuid())
+  eventId           String
+  event             SpecialEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  
+  // Pricing Tier
+  tierName          String    // "EARLY_BIRD", "REGULAR", "LAST_MINUTE", "VIP"
+  description       String?
+  
+  // Dates
+  validFrom         DateTime
+  validUntil        DateTime
+  
+  // Pricing
+  pricePerPerson    Decimal
+  minimumPartySize  Int @default(1)
+  
+  // Status
+  isActive          Boolean @default(true)
+  
+  // Timestamps
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  @@index([eventId])
+  @@index([validFrom, validUntil])
+}
+
+model EventBooking {
+  id                String    @id @default(cuid())
+  bookingId         String    @unique
+  booking           Booking   @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  
+  eventId           String
+  event             SpecialEvent @relation(fields: [eventId], references: [id])
+  
+  // Guest Details
+  totalGuests       Int
+  guestNames        String    @default("[]")  // Array of guest names
+  
+  // Booking Details
+  tierBooked        String    // "EARLY_BIRD", "REGULAR", etc.
+  tableNumber       String?   // For seated events
+  specialRequests   String?   // "VEG_MEALS", "NO_ALCOHOL", etc.
+  
+  // Status
+  status            String @default("PENDING")  // PENDING, CONFIRMED, ATTENDED, CANCELLED
+  checkInTime       DateTime?
+  cancellationReason String?
+  
+  // Feedback
+  rating            Int?      // 1-5 stars
+  review            String?
+  
+  // Timestamps
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  @@index([bookingId])
+  @@index([eventId])
+  @@index([status])
+}
+
+// System Settings Model - Stores admin-configurable settings
+model SystemSettings {
+  id            String   @id @default(cuid())
+  key           String   @unique  // e.g., "siteName", "timezone", "emailNotifications"
+  value         String            // JSON string for complex values
+  type          String   @default("string")  // string, boolean, number, json
+  label_en      String
+  label_th      String
+  description_en String?
+  description_th String?
+  category      String   @default("general")  // general, business, notifications, security, api, system
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@index([category])
+  @@index([key])
+}
+
+// Content Management Model - Stores website pages and content
+model PageContent {
+  id              String   @id @default(cuid())
+  slug            String   @unique  // URL-friendly slug (e.g., "about-us", "faq")
+  title_en        String   // English title
+  title_th        String   // Thai title
+  description_en  String?  // English meta description
+  description_th  String?  // Thai meta description
+  content_en      String   // English content (can be HTML or Markdown)
+  content_th      String   // Thai content
+  
+  // Content metadata
+  contentType     String   @default("page")  // page, faq, about, blog, policy, etc.
+  status          String   @default("draft") // draft, published, archived
+  featured        Boolean  @default(false)
+  featuredImage   String?  // Featured image URL
+  
+  // SEO
+  metaKeywords_en String?
+  metaKeywords_th String?
+  ogImage         String?  // Open Graph image URL
+  
+  // Organization
+  category        String   @default("general")  // general, policy, guides, info, etc.
+  displayOrder    Int      @default(0)
+  
+  // Timestamps
+  publishedAt     DateTime?
+  createdBy       String?  // User ID who created
+  updatedBy       String?  // User ID who last updated
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([slug])
+  @@index([status])
+  @@index([contentType])
+  @@index([category])
+  @@index([featured])
+}
+
+// Update User model to add SMS relationship
+// (Add to User model: smsMessages UserSMSMessages[] @relation("UserSMSMessages")
+//                    smsSettings SMSSettings? @relation("UserSMSSettings"))

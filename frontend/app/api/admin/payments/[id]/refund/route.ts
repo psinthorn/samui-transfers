@@ -5,8 +5,9 @@ import { db } from "@/lib/db"
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  props: { params: Promise<{ id: string }> }
 ) {
+  const params = await props.params
   try {
     // Check authentication and authorization
     const session = await auth()
@@ -66,7 +67,7 @@ export async function POST(
         refundedAt: new Date(),
         failureReason: reason || "Admin refund",
         metadata: {
-          ...payment.metadata,
+          ...(typeof payment.metadata === 'object' && payment.metadata ? payment.metadata : {}),
           refundedAmount: refundAmount,
           refundReason: reason,
           refundedBy: session.user.email,
@@ -78,6 +79,7 @@ export async function POST(
     // Record webhook event for refund
     await db.paymentWebhook.create({
       data: {
+        externalId: `refund-${params.id}-${Date.now()}`,
         paymentId: params.id,
         provider: payment.method,
         eventType: "refund",

@@ -75,7 +75,28 @@ const BookingForm: React.FC<BookingFormProps> = ({ bookingData }) => {
         ...bookingData,
       }));
     }
-    // setRequestTransfer(formData)
+    
+    // Load pending booking data from sessionStorage (from home page vehicle selection)
+    try {
+      const pendingData = sessionStorage.getItem('pendingBookingData');
+      if (pendingData && !bookingData) {
+        const data = JSON.parse(pendingData);
+        setFormData((prevData) => ({
+          ...prevData,
+          pickupPoint: data.pickupPoint || prevData.pickupPoint,
+          dropoffPoint: data.dropoffPoint || prevData.dropoffPoint,
+          distance: data.distance || prevData.distance,
+          carType: data.carType || prevData.carType,
+          carModel: data.carModel || prevData.carModel,
+          rate: data.rate || prevData.rate,
+          total: data.total || prevData.total,
+        }));
+        // Clear the session data after loading
+        sessionStorage.removeItem('pendingBookingData');
+      }
+    } catch (error) {
+      console.error('Error loading pending booking data:', error);
+    }
   }, [bookingData]);
 
   // Sync context locations to form data when they change
@@ -348,7 +369,7 @@ const BookingForm: React.FC<BookingFormProps> = ({ bookingData }) => {
               <BookingStep bookingData={formData} handleChange={handleChange} nextStep={nextStep} serverErrors={serverErrors} />
             )}
             {currentStep === 2 && (
-              <ConfirmationStep formData={formData} prevStep={prevStep} handleSendmail={handleSendmail} />
+              <ConfirmationStep formData={formData} prevStep={prevStep} handleSendmail={handleSendmail} nextStep={nextStep} />
             )}
             {currentStep === 3 && (
               <CheckoutStep bookingData={formData} bookingId={bookingId} prevStep={prevStep} nextStep={nextStep} />

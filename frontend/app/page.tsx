@@ -7,6 +7,7 @@ import { useSourceContext } from '@/context/SourceContext'
 import { useDestinationContext } from '@/context/DestinationContext'
 import WhyChooseUs from '@/components/Home/WhyChooseUs'
 import AIChat from '@/components/ai/AIChat'
+import { ServicesSection } from "@/components/Home/ServicesSection"
 import Image from 'next/image'
 import { useLanguage } from "@/context/LanguageContext"
 import { pick } from "@/data/i18n/core"
@@ -105,6 +106,11 @@ export default function Home() {
           <div>
             <SearchSection mapsReady={isLoaded} />
           </div>
+        </div>
+
+        {/* Services Section - Display all available services */}
+        <div className="mt-8">
+          <ServicesSection lang={lang as any} />
         </div>
 
         {/* Route map: Option A - directly after the search block */}

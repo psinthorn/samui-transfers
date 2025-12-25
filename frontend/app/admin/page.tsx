@@ -85,7 +85,7 @@ export default async function AdminHome() {
           </Link>
 
           {/* Vehicles & Rates Card */}
-          <Link href="/admin/bookings">
+          <Link href="/admin/vehicles">
             <div className="group relative h-full min-h-40 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all duration-200 hover:shadow-lg hover:border-slate-300">
               {/* Gradient Accent */}
               <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#005B9A] to-[#003d6b] rounded-t-2xl" />
@@ -162,6 +162,110 @@ export default async function AdminHome() {
             </div>
           </Link>
 
+          {/* Payment Reconciliation Card */}
+          <Link href="/admin/payment-reconciliation">
+            <div className="group relative h-full min-h-40 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all duration-200 hover:shadow-lg hover:border-slate-300">
+              {/* Gradient Accent */}
+              <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-green-600 to-emerald-600 rounded-t-2xl" />
+              
+              {/* Icon */}
+              <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-green-50 text-lg">
+                💰
+              </div>
+              
+              {/* Content */}
+              <h3 className="text-lg font-semibold text-slate-900 mb-2 group-hover:text-green-600 transition-colors">
+                Payment Reconciliation
+              </h3>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                Track payment status, view analytics, and export payment records
+              </p>
+              
+              {/* Arrow Icon */}
+              <div className="absolute bottom-4 right-4 text-slate-400 group-hover:text-green-600 transition-colors">
+                →
+              </div>
+            </div>
+          </Link>
+
+          {/* Payment Reminders Card */}
+          <Link href="/admin/payment-reminders">
+            <div className="group relative h-full min-h-40 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all duration-200 hover:shadow-lg hover:border-slate-300">
+              {/* Gradient Accent */}
+              <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-orange-600 to-amber-600 rounded-t-2xl" />
+              
+              {/* Icon */}
+              <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-orange-50 text-lg">
+                🔔
+              </div>
+              
+              {/* Content */}
+              <h3 className="text-lg font-semibold text-slate-900 mb-2 group-hover:text-orange-600 transition-colors">
+                Payment Reminders
+              </h3>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                Configure automated payment reminders and manage reminder settings
+              </p>
+              
+              {/* Arrow Icon */}
+              <div className="absolute bottom-4 right-4 text-slate-400 group-hover:text-orange-600 transition-colors">
+                →
+              </div>
+            </div>
+          </Link>
+
+          {/* SMS Settings Card */}
+          <Link href="/admin/sms">
+            <div className="group relative h-full min-h-40 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all duration-200 hover:shadow-lg hover:border-slate-300">
+              {/* Gradient Accent */}
+              <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-purple-600 to-pink-600 rounded-t-2xl" />
+              
+              {/* Icon */}
+              <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-purple-50 text-lg">
+                💬
+              </div>
+              
+              {/* Content */}
+              <h3 className="text-lg font-semibold text-slate-900 mb-2 group-hover:text-purple-600 transition-colors">
+                SMS Settings
+              </h3>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                Manage SMS templates and notification preferences
+              </p>
+              
+              {/* Arrow Icon */}
+              <div className="absolute bottom-4 right-4 text-slate-400 group-hover:text-purple-600 transition-colors">
+                →
+              </div>
+            </div>
+          </Link>
+
+          {/* Payment Gateways Card */}
+          <Link href="/admin/payment-gateways">
+            <div className="group relative h-full min-h-40 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all duration-200 hover:shadow-lg hover:border-slate-300">
+              {/* Gradient Accent */}
+              <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-t-2xl" />
+              
+              {/* Icon */}
+              <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-lg">
+                💳
+              </div>
+              
+              {/* Content */}
+              <h3 className="text-lg font-semibold text-slate-900 mb-2 group-hover:text-blue-600 transition-colors">
+                Payment Gateways
+              </h3>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                Enable/disable payment methods and control customer visibility
+              </p>
+              
+              {/* Arrow Icon */}
+              <div className="absolute bottom-4 right-4 text-slate-400 group-hover:text-blue-600 transition-colors">
+                →
+              </div>
+            </div>
+          </Link>
+
           {/* Documentation Card */}
           <Link href="/admin/documentation">
             <div className="group relative h-full min-h-40 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all duration-200 hover:shadow-lg hover:border-slate-300">
@@ -183,6 +287,58 @@ export default async function AdminHome() {
               
               {/* Arrow Icon */}
               <div className="absolute bottom-4 right-4 text-slate-400 group-hover:text-[#005B9A] transition-colors">
+                →
+              </div>
+            </div>
+          </Link>
+
+          {/* Services Management Card */}
+          <Link href="/admin/services">
+            <div className="group relative h-full min-h-40 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all duration-200 hover:shadow-lg hover:border-slate-300">
+              {/* Gradient Accent */}
+              <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-purple-600 to-pink-600 rounded-t-2xl" />
+              
+              {/* Icon */}
+              <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-purple-50 text-lg">
+                ⚙️
+              </div>
+              
+              {/* Content */}
+              <h3 className="text-lg font-semibold text-slate-900 mb-2 group-hover:text-purple-600 transition-colors">
+                Services Management
+              </h3>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                Manage service types, settings, capacity, and view service metrics
+              </p>
+              
+              {/* Arrow Icon */}
+              <div className="absolute bottom-4 right-4 text-slate-400 group-hover:text-purple-600 transition-colors">
+                →
+              </div>
+            </div>
+          </Link>
+
+          {/* Tour Packages Card */}
+          <Link href="/admin/tour-packages">
+            <div className="group relative h-full min-h-40 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all duration-200 hover:shadow-lg hover:border-slate-300">
+              {/* Gradient Accent */}
+              <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-teal-600 to-cyan-600 rounded-t-2xl" />
+              
+              {/* Icon */}
+              <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-teal-50 text-lg">
+                🗺️
+              </div>
+              
+              {/* Content */}
+              <h3 className="text-lg font-semibold text-slate-900 mb-2 group-hover:text-teal-600 transition-colors">
+                Tour Packages
+              </h3>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                Create and manage tour packages with itineraries, schedules, and pricing
+              </p>
+              
+              {/* Arrow Icon */}
+              <div className="absolute bottom-4 right-4 text-slate-400 group-hover:text-teal-600 transition-colors">
                 →
               </div>
             </div>

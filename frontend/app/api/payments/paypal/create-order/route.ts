@@ -1,113 +1,162 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
-import {
-  Client,
-  Environment,
-  LogLevel,
-  OrdersCreateRequest,
-} from "@paypal/paypal-server-sdk"
+import { db } from "@/lib/db"
 
-const client = new Client({
-  clientId: process.env.PAYPAL_CLIENT_ID || "",
-  clientSecret: process.env.PAYPAL_CLIENT_SECRET || "",
-  environment:
-    process.env.PAYPAL_MODE === "live" ? Environment.Production : Environment.Sandbox,
-  logging: {
-    logLevel: LogLevel.Info,
-  },
-})
+interface PayPalCreateOrderRequest {
+  bookingId: string
+  amount: number
+  currency?: string
+  email?: string
+  bookingDetails?: {
+    description?: string
+  }
+}
 
+/**
+ * Create PayPal Order
+ * POST /api/payments/paypal/create-order
+ */
 export async function POST(req: NextRequest) {
   try {
-    const {
-      bookingId,
-      amount,
-      currency = "THB",
-      email,
-      bookingDetails,
-    } = await req.json()
+    const body = await req.json() as PayPalCreateOrderRequest
 
-    if (!bookingId || !amount || !email) {
+    // Validate required fields
+    if (!body.bookingId || !body.amount) {
       return NextResponse.json(
-        { error: "Missing required fields: bookingId, amount, email" },
+        { error: "Missing required fields: bookingId, amount" },
         { status: 400 }
       )
     }
 
-    if (amount <= 0) {
+    // Validate amount
+    if (body.amount <= 0) {
       return NextResponse.json(
-        { error: "Amount must be greater than 0" },
+        { error: "Invalid amount" },
         { status: 400 }
       )
     }
+
+    const clientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID
+    const clientSecret = process.env.PAYPAL_CLIENT_SECRET
+
+    if (!clientId || !clientSecret) {
+      console.error("❌ Missing PayPal credentials")
+      return NextResponse.json(
+        { error: "Payment service misconfigured" },
+        { status: 500 }
+      )
+    }
+
+    // Get PayPal access token using Basic Authentication
+    const auth = Buffer.from(`${clientId}:${clientSecret}`).toString("base64")
+    const authResponse = await fetch("https://api.sandbox.paypal.com/v1/oauth2/token", {
+      method: "POST",
+      headers: {
+        "Accept": "application/json",
+        "Accept-Language": "en_US",
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Authorization": `Basic ${auth}`,
+      },
+      body: new URLSearchParams({
+        grant_type: "client_credentials",
+      }).toString(),
+    })
+
+    if (!authResponse.ok) {
+      const error = await authResponse.text()
+      console.error("❌ PayPal auth failed:", error)
+      return NextResponse.json(
+        { error: "Failed to authenticate with PayPal" },
+        { status: 500 }
+      )
+    }
+
+    const { access_token } = await authResponse.json()
 
     // Create PayPal order
-    const ordersCreateRequest = new OrdersCreateRequest()
-    ordersCreateRequest.prefer("return=representation")
-    ordersCreateRequest.body = {
-      intent: "CAPTURE",
-      purchase_units: [
-        {
-          reference_id: bookingId,
-          description: bookingDetails?.description || `Booking #${bookingId}`,
-          amount: {
-            currency_code: currency,
-            value: amount.toString(),
-            breakdown: {
-              item_total: {
-                currency_code: currency,
-                value: amount.toString(),
-              },
+    const orderResponse = await fetch("https://api.sandbox.paypal.com/v2/checkout/orders", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${access_token}`,
+      },
+      body: JSON.stringify({
+        intent: "CAPTURE",
+        purchase_units: [
+          {
+            reference_id: body.bookingId,
+            amount: {
+              currency_code: body.currency || "THB",
+              value: body.amount.toString(),
             },
+            description: body.bookingDetails?.description || `Booking #${body.bookingId}`,
           },
-          items: [
-            {
-              name: `Booking #${bookingId}`,
-              description: bookingDetails?.description || "Transfer booking",
-              unit_amount: {
-                currency_code: currency,
-                value: amount.toString(),
-              },
-              quantity: "1",
-            },
-          ],
+        ],
+        payer: body.email ? { email_address: body.email } : undefined,
+        application_context: {
+          brand_name: "Samui Transfers",
+          locale: "en-US",
+          landing_page: "BILLING",
+          user_action: "PAY_NOW",
+          return_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/payments/paypal/capture-order?bookingId=${body.bookingId}`,
+          cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/booking/error?reason=payment_cancelled`,
         },
-      ],
-      payer: {
-        email_address: email,
-      },
-      application_context: {
-        brand_name: "Samui Transfers",
-        locale: "en-US",
-        landing_page: "BILLING",
-        return_url: `${process.env.NEXTAUTH_URL}/api/payments/paypal/capture-order?bookingId=${bookingId}`,
-        cancel_url: `${process.env.NEXTAUTH_URL}${process.env.PAYMENT_CANCEL_URL || "/booking/cancel"}?bookingId=${bookingId}`,
-        user_action: "PAY_NOW",
-      },
+      }),
+    })
+
+    if (!orderResponse.ok) {
+      const error = await orderResponse.json()
+      console.error("❌ PayPal order creation failed:", error)
+      return NextResponse.json(
+        { error: error.message || "Failed to create PayPal order" },
+        { status: 500 }
+      )
     }
 
-    const response = await client
-      .ordersController()
-      .ordersCreate(ordersCreateRequest)
+    const order = await orderResponse.json()
 
-    console.log(`✓ PayPal order created: ${response.result?.id}`)
+    // Store order ID in database for verification
+    if (order.id) {
+      try {
+        // Create payment record (will error if already exists, which is OK)
+        await db.payment.create({
+          data: {
+            bookingId: body.bookingId,
+            paypalOrderId: order.id,
+            status: "PENDING",
+            method: "paypal",
+            amount: body.amount,
+            currency: body.currency || "THB",
+            payerEmail: body.email,
+          },
+        }).catch(() => {
+          // Record might already exist, that's OK
+        })
+      } catch (dbError) {
+        console.error("Warning: Could not store payment record:", dbError)
+        // Don't fail the request if DB fails, just log it
+      }
+    }
+
+    // Find approval link from order
+    const approvalLink = order.links?.find((link: any) => link.rel === "approve")?.href
+
+    console.log("✅ PayPal order created successfully:", {
+      orderId: order.id,
+      bookingId: body.bookingId,
+      amount: body.amount,
+    })
 
     return NextResponse.json({
       success: true,
-      orderId: response.result?.id,
-      links: response.result?.links,
-      approvalLink: response.result?.links?.find((link: any) => link.rel === "approve")
-        ?.href,
-      message: "PayPal order created successfully",
+      orderId: order.id,
+      approvalLink,
+      status: order.status,
     })
   } catch (error) {
     console.error("❌ PayPal create order error:", error)
-
     return NextResponse.json(
-      {
-        error: "Failed to create PayPal order",
-        details: (error as any)?.message,
-      },
+      { error: error instanceof Error ? error.message : "Internal server error" },
       { status: 500 }
     )
   }

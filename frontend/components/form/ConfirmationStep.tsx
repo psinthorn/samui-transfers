@@ -35,10 +35,8 @@ export default function ConfirmationStep({ formData = {}, handleSendmail, prevSt
       if (ret !== undefined && typeof (ret as any)?.then === "function") {
         await (ret as Promise<any>)
       }
-      // After booking is created, go to checkout
-      if (nextStep) {
-        nextStep()
-      }
+      // Move to next step (Payment) after successful submission
+      nextStep?.()
     } finally {
       setSubmitting(false)
     }
@@ -178,7 +176,7 @@ export default function ConfirmationStep({ formData = {}, handleSendmail, prevSt
               {pick(lang, bookingText.review.sending)}
             </>
           ) : (
-            "Proceed to Payment"
+            pick(lang, bookingText.review.confirmCta)
           )}
         </button>
       </div>

@@ -19,6 +19,18 @@ interface BookingConfirmationCardProps {
   lang?: string
 }
 
+function formatPaymentMethod(method: string, lang: string = 'en'): string {
+  const methods: Record<string, Record<string, string>> = {
+    stripe: { en: 'Credit Card (Stripe)', th: 'บัตรเครดิต (Stripe)' },
+    paypal: { en: 'PayPal', th: 'PayPal' },
+    bank_transfer: { en: 'Bank Transfer', th: 'โอนเงินในธนาคาร' },
+    pay_on_tour: { en: 'Pay on Tour', th: 'ชำระเงินระหว่างทัวร์' },
+    other: { en: 'Other', th: 'อื่น ๆ' },
+  }
+  const langMethods = methods[method] || { en: method, th: method }
+  return langMethods[lang] || langMethods.en
+}
+
 export const BookingConfirmationCard: React.FC<BookingConfirmationCardProps> = ({
   referenceNumber,
   bookingId,
@@ -180,8 +192,8 @@ export const BookingConfirmationCard: React.FC<BookingConfirmationCardProps> = (
                 <span className="text-slate-600">
                   {lang === 'th' ? 'วิธีการชำระเงิน' : 'Payment Method'}:
                 </span>
-                <span className="font-medium text-slate-900 capitalize">
-                  {paymentMethod}
+                <span className="font-medium text-slate-900">
+                  {formatPaymentMethod(paymentMethod, lang)}
                 </span>
               </div>
             )}

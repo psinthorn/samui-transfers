@@ -29,7 +29,10 @@ export default function CheckoutStep({ bookingData = {}, bookingId, prevStep, ne
     // Error is shown in PaymentGateway component
   }
 
-  const totalAmount = Math.round((bookingData.total || 0) * 100) // Convert to cents for Stripe
+  // Use raw amount for display (THB is already in proper units)
+  // Don't multiply by 100 - that's only needed when sending to payment providers if they require cents
+  const displayAmount = bookingData.total || 0
+  const paymentAmount = displayAmount // Pass the actual amount to PaymentGateway
 
   return (
     <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 sm:p-6">
@@ -76,7 +79,7 @@ export default function CheckoutStep({ bookingData = {}, bookingId, prevStep, ne
       <div className="mb-6">
         <h3 className="text-sm font-semibold text-slate-900 mb-4">Select Payment Method</h3>
         <PaymentGateway
-          amount={totalAmount}
+          amount={paymentAmount}
           bookingId={bookingId}
           onSuccess={handlePaymentSuccess}
           onError={handlePaymentError}

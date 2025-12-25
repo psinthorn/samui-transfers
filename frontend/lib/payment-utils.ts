@@ -21,6 +21,13 @@ export function formatPaymentAmount(amount: number, currency: string = "THB"): s
 }
 
 /**
+ * Alias for formatPaymentAmount for backward compatibility
+ */
+export function formatCurrency(amount: number, currency: string = "THB"): string {
+  return formatPaymentAmount(amount, currency)
+}
+
+/**
  * Parse amount from string
  */
 export function parsePaymentAmount(amount: string | number): number {
@@ -216,4 +223,18 @@ export function calculatePaymentSchedule(
     amount: Math.round((baseAmount + interestPerInstallment) * 100) / 100,
     cumulative: Math.round((baseAmount + interestPerInstallment) * (i + 1) * 100) / 100,
   }))
+}
+
+/**
+ * Format date for display
+ */
+export function formatDate(date: Date | string, locale: string = "en-US", options?: Intl.DateTimeFormatOptions): string {
+  const dateObj = typeof date === "string" ? new Date(date) : date
+  return new Intl.DateTimeFormat(locale, options || {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(dateObj)
 }

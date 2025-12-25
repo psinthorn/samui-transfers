@@ -5,11 +5,31 @@ import { requireAdmin } from "@/lib/auth"
 import nodemailer from "nodemailer"
 import { generateBookingEmailHtml } from "@/lib/email"
 
-export async function updateBookingStatus(bookingId: string, status: "PENDING" | "CONFIRMED" | "COMPLETED" | "CANCELLED") {
+export async function updateBookingStatus(
+  bookingId: string,
+  status: "PENDING" | "CONFIRMED" | "COMPLETED" | "CANCELLED",
+  paymentMethod?: string,
+  paymentAmount?: number
+) {
   await requireAdmin()
   if (!bookingId || !status) return { ok: false, message: "Invalid input" }
   try {
-    const updated = await (db as any).booking.update({ where: { id: bookingId }, data: { status }, include: { user: true } })
+    const updateData: any = { status }
+    
+    // If payment method is provided, update it along with payment info
+    if (paymentMethod) {
+      updateData.paymentMethod = paymentMethod
+      updateData.paymentStatus = status === "CONFIRMED" || status === "COMPLETED" ? "COMPLETED" : "PENDING"
+      if (paymentAmount) {
+        updateData.paymentAmount = paymentAmount
+      }
+      // If payment is being marked as completed, set payment date
+      if (status === "CONFIRMED" || status === "COMPLETED") {
+        updateData.paymentDate = new Date()
+      }
+    }
+    
+    const updated = await (db as any).booking.update({ where: { id: bookingId }, data: updateData, include: { user: true } })
 
     // Send notification emails
     const transporter = nodemailer.createTransport({
