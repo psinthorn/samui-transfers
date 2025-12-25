@@ -1,20 +1,17 @@
 "use client"
 
 import React, { Suspense } from "react"
-import { PageContent } from "@/components/cms/PageContent"
-
-function PrivacyContent() {
-  return <PageContent slug="privacy-policy" />
-}
+import { PrivacyPolicyContent } from "@/components/cms/PrivacyPolicyContent"
 
 function PageFallback() {
   return (
-    <main className="min-h-screen bg-slate-50">
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:py-12">
-        <div className="animate-pulse space-y-4">
-          <div className="h-3 w-24 bg-slate-200 rounded" />
-          <div className="h-6 w-64 bg-slate-200 rounded" />
-          <div className="h-4 w-80 bg-slate-200 rounded" />
+    <main className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-4xl animate-pulse space-y-4">
+        <div className="h-12 w-96 bg-slate-300 rounded-lg" />
+        <div className="h-4 w-80 bg-slate-200 rounded" />
+        <div className="space-y-3 mt-8">
+          <div className="h-16 bg-slate-200 rounded-lg" />
+          <div className="h-16 bg-slate-200 rounded-lg" />
         </div>
       </div>
     </main>
@@ -24,7 +21,7 @@ function PageFallback() {
 export default function PrivacyPage() {
   return (
     <Suspense fallback={<PageFallback />}>
-      <PrivacyContent />
+      <PrivacyPolicyContent />
     </Suspense>
   )
 }
