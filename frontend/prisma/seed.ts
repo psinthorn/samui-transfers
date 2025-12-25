@@ -661,7 +661,7 @@ async function main() {
     const defaultTheme = {
       name: "default",
       websiteName: "Samui Transfers",
-      logoUrl: "/ci/restlogopngv1/ST_Branding_V1-07.png",
+      logoUrl: "/uploads/logo-samui-transfers.png",
       faviconUrl: "/ci/restlogopngv1/ST_Branding_V1-07.png",
       footerText: "© 2025 Samui Transfers. All rights reserved.",
       companyEmail: "info@samuai-transfers.com",
