@@ -49,6 +49,7 @@ export default function Footer() {
 
   // Use theme branding or fallback to defaults
   const footerText = theme?.footerText || `© ${year} samui-transfers.com™. All Rights Reserved.`;
+  const footerLogoUrl = theme?.footerLogoUrl || theme?.headerLogoUrl || null;
   const companyPhone = theme?.companyPhone || (company.phone || process.env.NEXT_PUBLIC_SUPPORT_PHONE || "66991087999").replace(/[^\d+]/g, "");
   const companyEmail = theme?.companyEmail || (company.email || process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "bookings@samui-transfers.com");
 
@@ -110,7 +111,11 @@ export default function Footer() {
         <div className=" md:flex md:justify-between">
           <div className="hidden lg:block  md:mb-0 justify-center text-center  items-center mt-10">
             <Link href="/" className="flex justify-center text-center  items-center">
-              <Image src={StLogoLong} alt="Samui Transfers Logo" width={254} />
+              {footerLogoUrl && typeof footerLogoUrl === 'string' ? (
+                <img src={footerLogoUrl} alt="Samui Transfers Logo" width={254} className="h-20 w-auto object-contain" />
+              ) : (
+                <Image src={StLogoLong} alt="Samui Transfers Logo" width={254} />
+              )}
             </Link>
             <p className='text-white hover:text-gray-200 dark:hover:text-gray-200 text-sm'>{t.tagline1}</p>
             <p className='text-white hover:text-gray-200 dark:hover:text-gray-200 text-sm'>{t.tagline2}</p>

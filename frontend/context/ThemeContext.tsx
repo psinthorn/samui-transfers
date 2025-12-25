@@ -10,7 +10,9 @@ export interface ThemeConfig {
   
   // Branding & Identity
   websiteName?: string
-  logoUrl?: string
+  logoUrl?: string  // deprecated: use headerLogoUrl or footerLogoUrl
+  headerLogoUrl?: string
+  footerLogoUrl?: string
   faviconUrl?: string
   footerText?: string
   companyEmail?: string

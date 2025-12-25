@@ -54,6 +54,8 @@ export async function PUT(req: NextRequest) {
       // Branding & Identity
       websiteName,
       logoUrl,
+      headerLogoUrl,
+      footerLogoUrl,
       faviconUrl,
       footerText,
       companyEmail,
@@ -89,6 +91,8 @@ export async function PUT(req: NextRequest) {
         // Branding & Identity
         websiteName: websiteName !== undefined ? websiteName : theme.websiteName,
         logoUrl: logoUrl !== undefined ? logoUrl : theme.logoUrl,
+        headerLogoUrl: headerLogoUrl !== undefined ? headerLogoUrl : theme.headerLogoUrl,
+        footerLogoUrl: footerLogoUrl !== undefined ? footerLogoUrl : theme.footerLogoUrl,
         faviconUrl: faviconUrl !== undefined ? faviconUrl : theme.faviconUrl,
         footerText: footerText !== undefined ? footerText : theme.footerText,
         companyEmail: companyEmail !== undefined ? companyEmail : theme.companyEmail,
@@ -138,6 +142,8 @@ export async function POST(req: NextRequest) {
       // Branding & Identity
       websiteName,
       logoUrl,
+      headerLogoUrl,
+      footerLogoUrl,
       faviconUrl,
       footerText,
       companyEmail,
@@ -163,6 +169,8 @@ export async function POST(req: NextRequest) {
         // Branding & Identity
         websiteName,
         logoUrl,
+        headerLogoUrl,
+        footerLogoUrl,
         faviconUrl,
         footerText,
         companyEmail,

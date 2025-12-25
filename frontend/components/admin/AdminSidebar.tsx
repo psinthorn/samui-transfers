@@ -146,16 +146,30 @@ const menuItems: SidebarItem[] = [
     icon: '💬',
   },
   {
-    href: '/admin/settings',
+    isGroup: true,
     label_en: 'Settings',
     label_th: 'การตั้งค่า',
     icon: '⚙️',
+    submenu: [
+      {
+        href: '/admin/theme',
+        label_en: 'Theme Settings',
+        label_th: 'การตั้งค่าธีม',
+        icon: '🎨',
+      },
+      {
+        href: '/admin/settings',
+        label_en: 'General Settings',
+        label_th: 'การตั้งค่าทั่วไป',
+        icon: '⚙️',
+      },
+    ],
   },
 ];
 
 export default function AdminSidebar() {
   const [isExpanded, setIsExpanded] = useState(true);
-  const [expandedGroups, setExpandedGroups] = useState<string[]>(['Tour Management', 'Vehicle Management', 'Payment Management']);
+  const [expandedGroups, setExpandedGroups] = useState<string[]>(['Tour Management', 'Vehicle Management', 'Payment Management', 'Settings']);
   const pathname = usePathname();
   const { lang } = useLanguage();
 

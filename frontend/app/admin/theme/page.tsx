@@ -11,9 +11,11 @@ export default function ThemeManagementPage() {
   
   // Branding state
   const [websiteName, setWebsiteName] = useState(theme?.websiteName || '')
-  const [logoUrl, setLogoUrl] = useState(theme?.logoUrl || '')
-  const [logoMethod, setLogoMethod] = useState<'url' | 'upload'>('url') // New: track logo input method
-  const [uploading, setUploading] = useState(false) // New: track upload state
+  const [headerLogoUrl, setHeaderLogoUrl] = useState(theme?.headerLogoUrl || '')
+  const [footerLogoUrl, setFooterLogoUrl] = useState(theme?.footerLogoUrl || '')
+  const [headerLogoMethod, setHeaderLogoMethod] = useState<'url' | 'upload'>('url')
+  const [footerLogoMethod, setFooterLogoMethod] = useState<'url' | 'upload'>('url')
+  const [uploading, setUploading] = useState(false)
   const [companyEmail, setCompanyEmail] = useState(theme?.companyEmail || '')
   const [companyPhone, setCompanyPhone] = useState(theme?.companyPhone || '')
   const [footerText, setFooterText] = useState(theme?.footerText || '')
@@ -74,7 +76,8 @@ export default function ThemeManagementPage() {
       setSaving(true)
       await updateTheme({
         websiteName,
-        logoUrl,
+        headerLogoUrl,
+        footerLogoUrl,
         companyEmail,
         companyPhone,
         footerText,
@@ -91,8 +94,8 @@ export default function ThemeManagementPage() {
     }
   }
 
-  // New: Handle file upload
-  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Handle file upload for header logo
+  const handleHeaderLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
@@ -113,12 +116,43 @@ export default function ThemeManagementPage() {
         return
       }
 
-      // Set the logo URL from the upload response
-      setLogoUrl(data.url)
-      alert('Logo uploaded successfully!')
+      setHeaderLogoUrl(data.url)
+      alert('Header logo uploaded successfully!')
     } catch (error) {
       console.error('Upload error:', error)
-      alert('Failed to upload logo')
+      alert('Failed to upload header logo')
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  // Handle file upload for footer logo
+  const handleFooterLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    try {
+      setUploading(true)
+      const formData = new FormData()
+      formData.append('file', file)
+
+      const response = await fetch('/api/admin/upload', {
+        method: 'POST',
+        body: formData,
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        alert(`Upload failed: ${data.error}`)
+        return
+      }
+
+      setFooterLogoUrl(data.url)
+      alert('Footer logo uploaded successfully!')
+    } catch (error) {
+      console.error('Upload error:', error)
+      alert('Failed to upload footer logo')
     } finally {
       setUploading(false)
     }
@@ -153,19 +187,19 @@ export default function ThemeManagementPage() {
                 />
               </div>
 
-              {/* Logo URL */}
+              {/* Header Logo */}
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-slate-700 mb-3">
-                  Logo
+                  Header Logo
                 </label>
 
                 {/* Method Selection Tabs */}
                 <div className="flex gap-2 mb-4 border-b border-slate-200">
                   <button
                     type="button"
-                    onClick={() => setLogoMethod('url')}
+                    onClick={() => setHeaderLogoMethod('url')}
                     className={`px-4 py-2 font-medium border-b-2 transition ${
-                      logoMethod === 'url'
+                      headerLogoMethod === 'url'
                         ? 'border-blue-500 text-blue-600'
                         : 'border-transparent text-slate-600 hover:text-slate-900'
                     }`}
@@ -174,9 +208,9 @@ export default function ThemeManagementPage() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => setLogoMethod('upload')}
+                    onClick={() => setHeaderLogoMethod('upload')}
                     className={`px-4 py-2 font-medium border-b-2 transition ${
-                      logoMethod === 'upload'
+                      headerLogoMethod === 'upload'
                         ? 'border-blue-500 text-blue-600'
                         : 'border-transparent text-slate-600 hover:text-slate-900'
                     }`}
@@ -186,13 +220,13 @@ export default function ThemeManagementPage() {
                 </div>
 
                 {/* URL Input Method */}
-                {logoMethod === 'url' && (
+                {headerLogoMethod === 'url' && (
                   <div>
                     <input
                       type="text"
-                      value={logoUrl}
-                      onChange={(e) => setLogoUrl(e.target.value)}
-                      placeholder="e.g., /images/logo.png or https://example.com/logo.png"
+                      value={headerLogoUrl}
+                      onChange={(e) => setHeaderLogoUrl(e.target.value)}
+                      placeholder="e.g., /uploads/logo.png or https://example.com/logo.png"
                       className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                     <p className="text-xs text-slate-500 mt-2">
@@ -202,13 +236,13 @@ export default function ThemeManagementPage() {
                 )}
 
                 {/* File Upload Method */}
-                {logoMethod === 'upload' && (
+                {headerLogoMethod === 'upload' && (
                   <div>
                     <label className="block">
                       <input
                         type="file"
                         accept="image/jpeg,image/png,image/webp,image/gif"
-                        onChange={handleLogoUpload}
+                        onChange={handleHeaderLogoUpload}
                         disabled={uploading}
                         className="block w-full text-sm text-slate-500
                           file:mr-4 file:py-2 file:px-4
@@ -225,19 +259,104 @@ export default function ThemeManagementPage() {
                   </div>
                 )}
 
-                {/* Logo Preview */}
-                {logoUrl && (
+                {/* Header Logo Preview */}
+                {headerLogoUrl && (
                   <div className="mt-4 p-4 bg-slate-50 rounded-lg border border-slate-200">
-                    <p className="text-sm font-medium text-slate-700 mb-2">Logo Preview:</p>
+                    <p className="text-sm font-medium text-slate-700 mb-2">Preview:</p>
                     <img
-                      src={logoUrl}
-                      alt="Logo preview"
+                      src={headerLogoUrl}
+                      alt="Header logo preview"
                       className="h-20 w-auto object-contain rounded"
-                      onError={() => {
-                        console.error('Failed to load logo image')
-                      }}
+                      onError={() => console.error('Failed to load header logo image')}
                     />
-                    <p className="text-xs text-slate-500 mt-2">{logoUrl}</p>
+                    <p className="text-xs text-slate-500 mt-2">{headerLogoUrl}</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Footer Logo */}
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-slate-700 mb-3">
+                  Footer Logo
+                </label>
+
+                {/* Method Selection Tabs */}
+                <div className="flex gap-2 mb-4 border-b border-slate-200">
+                  <button
+                    type="button"
+                    onClick={() => setFooterLogoMethod('url')}
+                    className={`px-4 py-2 font-medium border-b-2 transition ${
+                      footerLogoMethod === 'url'
+                        ? 'border-blue-500 text-blue-600'
+                        : 'border-transparent text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    Link to URL
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFooterLogoMethod('upload')}
+                    className={`px-4 py-2 font-medium border-b-2 transition ${
+                      footerLogoMethod === 'upload'
+                        ? 'border-blue-500 text-blue-600'
+                        : 'border-transparent text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    Upload File
+                  </button>
+                </div>
+
+                {/* URL Input Method */}
+                {footerLogoMethod === 'url' && (
+                  <div>
+                    <input
+                      type="text"
+                      value={footerLogoUrl}
+                      onChange={(e) => setFooterLogoUrl(e.target.value)}
+                      placeholder="e.g., /uploads/footer-logo.png or https://example.com/logo.png"
+                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                    <p className="text-xs text-slate-500 mt-2">
+                      Enter a URL path or external image URL
+                    </p>
+                  </div>
+                )}
+
+                {/* File Upload Method */}
+                {footerLogoMethod === 'upload' && (
+                  <div>
+                    <label className="block">
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp,image/gif"
+                        onChange={handleFooterLogoUpload}
+                        disabled={uploading}
+                        className="block w-full text-sm text-slate-500
+                          file:mr-4 file:py-2 file:px-4
+                          file:rounded-lg file:border-0
+                          file:text-sm file:font-semibold
+                          file:bg-blue-50 file:text-blue-700
+                          hover:file:bg-blue-100
+                          disabled:opacity-50 disabled:cursor-not-allowed"
+                      />
+                    </label>
+                    <p className="text-xs text-slate-500 mt-2">
+                      {uploading ? 'Uploading...' : 'Max size: 5MB (JPEG, PNG, WebP, GIF)'}
+                    </p>
+                  </div>
+                )}
+
+                {/* Footer Logo Preview */}
+                {footerLogoUrl && (
+                  <div className="mt-4 p-4 bg-slate-50 rounded-lg border border-slate-200">
+                    <p className="text-sm font-medium text-slate-700 mb-2">Preview:</p>
+                    <img
+                      src={footerLogoUrl}
+                      alt="Footer logo preview"
+                      className="h-20 w-auto object-contain rounded"
+                      onError={() => console.error('Failed to load footer logo image')}
+                    />
+                    <p className="text-xs text-slate-500 mt-2">{footerLogoUrl}</p>
                   </div>
                 )}
               </div>

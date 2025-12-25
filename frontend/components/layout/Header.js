@@ -72,7 +72,7 @@ export default function Header() {
 
   // Use theme branding or fallback to defaults
   const brandName = theme?.websiteName || "Samui Transfers";
-  const logoUrl = theme?.logoUrl || StRec;
+  const logoUrl = theme?.headerLogoUrl || theme?.logoUrl || StRec;
 
   // Public info from env
   const publicInfo = {

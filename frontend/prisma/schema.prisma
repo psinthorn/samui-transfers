@@ -1484,7 +1484,9 @@ model ThemeConfig {
   
   // Branding & Identity
   websiteName   String?  // e.g., "Samui Transfers"
-  logoUrl       String?  // URL to logo image
+  logoUrl       String?  // URL to logo image (deprecated: use headerLogoUrl)
+  headerLogoUrl String?  // Header logo image URL
+  footerLogoUrl String?  // Footer logo image URL
   faviconUrl    String?  // URL to favicon
   footerText    String?  // Custom footer text
   companyEmail  String?  // Company contact email
