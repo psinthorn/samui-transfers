@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useLanguage } from '@/context/LanguageContext'
-import { ChevronDown, Shield } from 'lucide-react'
+import { ChevronDown, Shield, Lock, Eye, Users, Trash2, FileText } from 'lucide-react'
 
 export function PrivacyPolicyContent() {
   const { lang } = useLanguage()
@@ -41,6 +41,31 @@ export function PrivacyPolicyContent() {
     )
   }
 
+  // Parse HTML content into sections
+  const parseContentToSections = (htmlContent: string) => {
+    if (!htmlContent) return []
+    const sections = []
+    const parser = new DOMParser()
+    const doc = parser.parseFromString(htmlContent, 'text/html')
+    const h2s = doc.querySelectorAll('h2')
+    
+    h2s.forEach((h2, index) => {
+      let content = ''
+      let sibling = h2.nextElementSibling
+      while (sibling && sibling.tagName !== 'H2') {
+        content += sibling.outerHTML
+        sibling = sibling.nextElementSibling
+      }
+      sections.push({
+        title: h2.textContent || '',
+        content: content || ''
+      })
+    })
+    return sections
+  }
+
+  const sectionIcons = [Eye, Lock, FileText, Users, Shield, Trash2]
+
   if (loading) {
     return (
       <main className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 py-12 px-4 sm:px-6 lg:px-8">
@@ -71,6 +96,7 @@ export function PrivacyPolicyContent() {
   const title = lang === 'th' ? content.title_th : content.title_en
   const description = lang === 'th' ? content.description_th : content.description_en
   const contentHtml = lang === 'th' ? content.content_th : content.content_en
+  const sections = parseContentToSections(contentHtml)
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 py-12 px-4 sm:px-6 lg:px-8">
@@ -87,12 +113,47 @@ export function PrivacyPolicyContent() {
           <p className="text-lg text-slate-600 max-w-2xl mx-auto">{description}</p>
         </div>
 
-        {/* Content from Database */}
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-8 mb-12">
-          <div
-            className="prose prose-sm max-w-none text-slate-700"
-            dangerouslySetInnerHTML={{ __html: contentHtml }}
-          />
+        {/* Content Sections with Accordion */}
+        <div className="space-y-4 mb-12">
+          {sections.map((section, index) => {
+            const Icon = sectionIcons[index % sectionIcons.length]
+            const isExpanded = expandedSections.includes(index)
+
+            return (
+              <button
+                key={index}
+                onClick={() => toggleSection(index)}
+                className="w-full text-left"
+              >
+                <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all border border-slate-200 overflow-hidden">
+                  {/* Header */}
+                  <div className="flex items-center justify-between p-6 cursor-pointer hover:bg-slate-50">
+                    <div className="flex items-center gap-4 flex-1">
+                      <div className="p-3 bg-blue-100 rounded-lg">
+                        <Icon className="w-6 h-6 text-blue-600" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-slate-900">{section.title}</h3>
+                    </div>
+                    <ChevronDown
+                      className={`w-5 h-5 text-slate-400 transition-transform ${
+                        isExpanded ? 'rotate-180' : ''
+                      }`}
+                    />
+                  </div>
+
+                  {/* Content */}
+                  {isExpanded && (
+                    <div className="px-6 pb-6 border-t border-slate-100">
+                      <div
+                        className="prose prose-sm max-w-none text-slate-700"
+                        dangerouslySetInnerHTML={{ __html: section.content }}
+                      />
+                    </div>
+                  )}
+                </div>
+              </button>
+            )
+          })}
         </div>
 
         {/* Contact CTA */}
