@@ -12,6 +12,8 @@ export default function ThemeManagementPage() {
   // Branding state
   const [websiteName, setWebsiteName] = useState(theme?.websiteName || '')
   const [logoUrl, setLogoUrl] = useState(theme?.logoUrl || '')
+  const [logoMethod, setLogoMethod] = useState<'url' | 'upload'>('url') // New: track logo input method
+  const [uploading, setUploading] = useState(false) // New: track upload state
   const [companyEmail, setCompanyEmail] = useState(theme?.companyEmail || '')
   const [companyPhone, setCompanyPhone] = useState(theme?.companyPhone || '')
   const [footerText, setFooterText] = useState(theme?.footerText || '')
@@ -81,6 +83,39 @@ export default function ThemeManagementPage() {
     }
   }
 
+  // New: Handle file upload
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    try {
+      setUploading(true)
+      const formData = new FormData()
+      formData.append('file', file)
+
+      const response = await fetch('/api/admin/upload', {
+        method: 'POST',
+        body: formData,
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        alert(`Upload failed: ${data.error}`)
+        return
+      }
+
+      // Set the logo URL from the upload response
+      setLogoUrl(data.url)
+      alert('Logo uploaded successfully!')
+    } catch (error) {
+      console.error('Upload error:', error)
+      alert('Failed to upload logo')
+    } finally {
+      setUploading(false)
+    }
+  }
+
   return (
     <div className="p-8">
       <div className="max-w-6xl mx-auto">
@@ -111,21 +146,90 @@ export default function ThemeManagementPage() {
               </div>
 
               {/* Logo URL */}
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Logo URL
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-slate-700 mb-3">
+                  Logo
                 </label>
-                <input
-                  type="text"
-                  value={logoUrl}
-                  onChange={(e) => setLogoUrl(e.target.value)}
-                  placeholder="e.g., /images/logo.png"
-                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
+
+                {/* Method Selection Tabs */}
+                <div className="flex gap-2 mb-4 border-b border-slate-200">
+                  <button
+                    type="button"
+                    onClick={() => setLogoMethod('url')}
+                    className={`px-4 py-2 font-medium border-b-2 transition ${
+                      logoMethod === 'url'
+                        ? 'border-blue-500 text-blue-600'
+                        : 'border-transparent text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    Link to URL
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setLogoMethod('upload')}
+                    className={`px-4 py-2 font-medium border-b-2 transition ${
+                      logoMethod === 'upload'
+                        ? 'border-blue-500 text-blue-600'
+                        : 'border-transparent text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    Upload File
+                  </button>
+                </div>
+
+                {/* URL Input Method */}
+                {logoMethod === 'url' && (
+                  <div>
+                    <input
+                      type="text"
+                      value={logoUrl}
+                      onChange={(e) => setLogoUrl(e.target.value)}
+                      placeholder="e.g., /images/logo.png or https://example.com/logo.png"
+                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                    <p className="text-xs text-slate-500 mt-2">
+                      Enter a URL path or external image URL
+                    </p>
+                  </div>
+                )}
+
+                {/* File Upload Method */}
+                {logoMethod === 'upload' && (
+                  <div>
+                    <label className="block">
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp,image/gif"
+                        onChange={handleLogoUpload}
+                        disabled={uploading}
+                        className="block w-full text-sm text-slate-500
+                          file:mr-4 file:py-2 file:px-4
+                          file:rounded-lg file:border-0
+                          file:text-sm file:font-semibold
+                          file:bg-blue-50 file:text-blue-700
+                          hover:file:bg-blue-100
+                          disabled:opacity-50 disabled:cursor-not-allowed"
+                      />
+                    </label>
+                    <p className="text-xs text-slate-500 mt-2">
+                      {uploading ? 'Uploading...' : 'Max size: 5MB (JPEG, PNG, WebP, GIF)'}
+                    </p>
+                  </div>
+                )}
+
+                {/* Logo Preview */}
                 {logoUrl && (
-                  <div className="mt-2 flex items-center gap-2">
-                    <img src={logoUrl} alt="Logo preview" className="h-10 w-10 object-contain rounded" />
-                    <span className="text-sm text-slate-600">Logo preview</span>
+                  <div className="mt-4 p-4 bg-slate-50 rounded-lg border border-slate-200">
+                    <p className="text-sm font-medium text-slate-700 mb-2">Logo Preview:</p>
+                    <img
+                      src={logoUrl}
+                      alt="Logo preview"
+                      className="h-20 w-auto object-contain rounded"
+                      onError={() => {
+                        console.error('Failed to load logo image')
+                      }}
+                    />
+                    <p className="text-xs text-slate-500 mt-2">{logoUrl}</p>
                   </div>
                 )}
               </div>
