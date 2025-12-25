@@ -3,8 +3,8 @@
 import React, { Suspense } from "react"
 import { PageContent } from "@/components/cms/PageContent"
 
-function TermsContent() {
-  return <PageContent slug="terms-conditions" />
+function ContactContent() {
+  return <PageContent slug="contact-us" />
 }
 
 function PageFallback() {
@@ -21,10 +21,10 @@ function PageFallback() {
   )
 }
 
-export default function TermsPage() {
+export default function ContactPage() {
   return (
     <Suspense fallback={<PageFallback />}>
-      <TermsContent />
+      <ContactContent />
     </Suspense>
   )
 }
