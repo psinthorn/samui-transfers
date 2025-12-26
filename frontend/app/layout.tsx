@@ -7,6 +7,7 @@ import SessionClientProvider from "@/components/auth/SessionClientProvider";
 import { PaymentProvider } from "@/context/PaymentContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { ThemeApplier } from "@/components/theme/ThemeApplier";
+import { FaviconApplier } from "@/components/theme/FaviconApplier";
 
 import "./globals.css";
 import RequestTransferContextProvider from "@/context/RequestTransferContext";
@@ -46,6 +47,7 @@ export default function RootLayout({
             <SessionClientProvider />
             <ThemeProvider>
               <ThemeApplier />
+              <FaviconApplier />
               <PaymentProvider>
                 <LanguageProvider initialLang={initialLang}>
                   <ToastProvider>

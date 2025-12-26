@@ -13,8 +13,10 @@ export default function ThemeManagementPage() {
   const [websiteName, setWebsiteName] = useState(theme?.websiteName || '')
   const [headerLogoUrl, setHeaderLogoUrl] = useState(theme?.headerLogoUrl || '')
   const [footerLogoUrl, setFooterLogoUrl] = useState(theme?.footerLogoUrl || '')
+  const [faviconUrl, setFaviconUrl] = useState(theme?.faviconUrl || '')
   const [headerLogoMethod, setHeaderLogoMethod] = useState<'url' | 'upload'>('url')
   const [footerLogoMethod, setFooterLogoMethod] = useState<'url' | 'upload'>('url')
+  const [faviconMethod, setFaviconMethod] = useState<'url' | 'upload'>('url')
   const [uploading, setUploading] = useState(false)
   const [companyEmail, setCompanyEmail] = useState(theme?.companyEmail || '')
   const [companyPhone, setCompanyPhone] = useState(theme?.companyPhone || '')
@@ -78,6 +80,7 @@ export default function ThemeManagementPage() {
         websiteName,
         headerLogoUrl,
         footerLogoUrl,
+        faviconUrl,
         companyEmail,
         companyPhone,
         footerText,
@@ -91,6 +94,38 @@ export default function ThemeManagementPage() {
       alert('Failed to update branding')
     } finally {
       setSaving(false)
+    }
+  }
+
+  // Handle file upload for favicon
+  const handleFaviconUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    try {
+      setUploading(true)
+      const formData = new FormData()
+      formData.append('file', file)
+
+      const response = await fetch('/api/admin/upload', {
+        method: 'POST',
+        body: formData,
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        alert(`Upload failed: ${data.error}`)
+        return
+      }
+
+      setFaviconUrl(data.url)
+      alert('Favicon uploaded successfully!')
+    } catch (error) {
+      console.error('Upload error:', error)
+      alert('Failed to upload favicon')
+    } finally {
+      setUploading(false)
     }
   }
 
@@ -361,6 +396,96 @@ export default function ThemeManagementPage() {
                 )}
               </div>
 
+              {/* Favicon */}
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-slate-700 mb-3">
+                  Favicon (Browser Tab Icon)
+                </label>
+
+                {/* Method Selection Tabs */}
+                <div className="flex gap-2 mb-4 border-b border-slate-200">
+                  <button
+                    type="button"
+                    onClick={() => setFaviconMethod('url')}
+                    className={`px-4 py-2 font-medium border-b-2 transition ${
+                      faviconMethod === 'url'
+                        ? 'border-blue-500 text-blue-600'
+                        : 'border-transparent text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    Link to URL
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFaviconMethod('upload')}
+                    className={`px-4 py-2 font-medium border-b-2 transition ${
+                      faviconMethod === 'upload'
+                        ? 'border-blue-500 text-blue-600'
+                        : 'border-transparent text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    Upload File
+                  </button>
+                </div>
+
+                {/* URL Input Method */}
+                {faviconMethod === 'url' && (
+                  <div>
+                    <input
+                      type="text"
+                      value={faviconUrl}
+                      onChange={(e) => setFaviconUrl(e.target.value)}
+                      placeholder="e.g., /uploads/favicon.png or https://example.com/favicon.ico"
+                      className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                    <p className="text-xs text-slate-500 mt-2">
+                      Recommended: PNG (32x32px) or ICO format
+                    </p>
+                  </div>
+                )}
+
+                {/* File Upload Method */}
+                {faviconMethod === 'upload' && (
+                  <div>
+                    <label className="block">
+                      <input
+                        type="file"
+                        accept="image/png,image/x-icon,image/vnd.microsoft.icon"
+                        onChange={handleFaviconUpload}
+                        disabled={uploading}
+                        className="block w-full text-sm text-slate-500
+                          file:mr-4 file:py-2 file:px-4
+                          file:rounded-lg file:border-0
+                          file:text-sm file:font-semibold
+                          file:bg-blue-50 file:text-blue-700
+                          hover:file:bg-blue-100
+                          disabled:opacity-50 disabled:cursor-not-allowed"
+                      />
+                    </label>
+                    <p className="text-xs text-slate-500 mt-2">
+                      {uploading ? 'Uploading...' : 'Max size: 5MB (PNG, ICO)'}
+                    </p>
+                  </div>
+                )}
+
+                {/* Favicon Preview */}
+                {faviconUrl && (
+                  <div className="mt-4 p-4 bg-slate-50 rounded-lg border border-slate-200">
+                    <p className="text-sm font-medium text-slate-700 mb-2">Preview:</p>
+                    <div className="flex items-center gap-4">
+                      <img
+                        src={faviconUrl}
+                        alt="Favicon preview"
+                        className="h-8 w-8 object-contain rounded"
+                        onError={() => console.error('Failed to load favicon image')}
+                      />
+                      <p className="text-xs text-slate-500">Size shown: 32x32px</p>
+                    </div>
+                    <p className="text-xs text-slate-500 mt-2">{faviconUrl}</p>
+                  </div>
+                )}
+              </div>
+
               {/* Company Email */}
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">
@@ -577,14 +702,18 @@ export default function ThemeManagementPage() {
               <p className="text-sm text-slate-600">Status</p>
               <p className="font-semibold text-slate-900">{theme.isActive ? 'Active' : 'Inactive'}</p>
             </div>
-            <div>
-              <p className="text-sm text-slate-600">Created</p>
-              <p className="font-semibold text-slate-900">{new Date(theme.createdAt).toLocaleDateString()}</p>
-            </div>
-            <div>
-              <p className="text-sm text-slate-600">Last Updated</p>
-              <p className="font-semibold text-slate-900">{new Date(theme.updatedAt).toLocaleDateString()}</p>
-            </div>
+            {theme.createdAt && (
+              <div>
+                <p className="text-sm text-slate-600">Created</p>
+                <p className="font-semibold text-slate-900">{new Date(theme.createdAt).toLocaleDateString()}</p>
+              </div>
+            )}
+            {theme.updatedAt && (
+              <div>
+                <p className="text-sm text-slate-600">Last Updated</p>
+                <p className="font-semibold text-slate-900">{new Date(theme.updatedAt).toLocaleDateString()}</p>
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -30,6 +30,12 @@ export interface ThemeConfig {
   borderRadius: Record<string, any>
   shadows: Record<string, any>
   components: Record<string, any>
+  
+  // Metadata
+  createdBy?: string
+  updatedBy?: string
+  createdAt?: string | Date
+  updatedAt?: string | Date
 }
 
 interface ThemeContextType {
